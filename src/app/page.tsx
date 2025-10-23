@@ -59,8 +59,8 @@ export default function Home() {
               <CardTitle>Intelligent Mistake Tracking</CardTitle>
               <CardDescription>
                 Track confidence levels and eliminate mistakes systematically.
-                Questions you guess correctly still get reviewed until you're
-                confident.
+                Questions you guess correctly still get reviewed until
+                you&apos;re confident.
               </CardDescription>
             </CardHeader>
           </Card>

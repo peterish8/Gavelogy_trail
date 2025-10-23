@@ -16,7 +16,7 @@ interface GamificationState {
     description: string
   ) => Promise<void>;
   updateStreak: () => Promise<void>;
-  getLeaderboard: () => Promise<any[]>;
+  getLeaderboard: () => Promise<unknown[]>;
 }
 
 export const useGamificationStore = create<GamificationState>()(

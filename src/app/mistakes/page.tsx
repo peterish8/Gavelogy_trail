@@ -355,7 +355,7 @@ export default function MistakesPage() {
                       key={filterType}
                       variant={filter === filterType ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setFilter(filterType as any)}
+                      onClick={() => setFilter(filterType as FilterType)}
                       className="capitalize"
                     >
                       <Filter className="h-4 w-4 mr-2" />

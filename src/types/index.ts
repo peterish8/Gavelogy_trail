@@ -130,14 +130,14 @@ export interface AnalyticsData {
 }
 
 // API Response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
 }
 
-export interface PaginatedResponse<T = any> {
+export interface PaginatedResponse<T = unknown> {
   success: boolean;
   data: T[];
   pagination: {
@@ -190,7 +190,7 @@ export interface QuizResult {
 export interface AppError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   timestamp: string;
 }
 
@@ -280,12 +280,12 @@ export interface QuizEvent {
     | "quiz_completed"
     | "question_answered"
     | "mistake_made";
-  data: any;
+  data: unknown;
   timestamp: string;
 }
 
 export interface AnalyticsEvent {
   type: "page_view" | "quiz_attempt" | "mistake_cleared" | "course_purchased";
-  data: any;
+  data: unknown;
   timestamp: string;
 }

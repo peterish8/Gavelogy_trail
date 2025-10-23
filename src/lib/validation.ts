@@ -149,9 +149,9 @@ export function validateCourseId(courseId: string): ValidationResult {
 }
 
 // Generic form validation
-export function validateForm<T extends Record<string, any>>(
+export function validateForm<T extends Record<string, unknown>>(
   data: T,
-  validators: Partial<Record<keyof T, (value: any) => ValidationResult>>
+  validators: Partial<Record<keyof T, (value: unknown) => ValidationResult>>
 ): ValidationResult {
   const errors: string[] = [];
 

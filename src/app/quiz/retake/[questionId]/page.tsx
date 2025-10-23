@@ -142,8 +142,8 @@ export default function RetakeQuestionPage({
               <XCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
               <h3 className="text-lg font-semibold mb-2">Question Not Found</h3>
               <p className="text-muted-foreground mb-4">
-                The question you're looking for doesn't exist or has been
-                removed.
+                The question you&apos;re looking for doesn&apos;t exist or has
+                been removed.
               </p>
               <Button onClick={handleBackToMistakes}>Back to Mistakes</Button>
             </CardContent>
@@ -403,7 +403,7 @@ export default function RetakeQuestionPage({
                       <div className="text-2xl mb-1">😊</div>
                       <div className="font-medium">Confident</div>
                       <div className="text-xs text-muted-foreground">
-                        I'm certain this is correct
+                        I&apos;m certain this is correct
                       </div>
                     </div>
                   </button>
