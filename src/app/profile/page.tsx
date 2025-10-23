@@ -31,14 +31,14 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (profile) {
+    if (profile && user) {
       setFormData({
         username: profile.username || "",
         full_name: profile.full_name || "",
-        email: user?.email || "",
+        email: user.email || "",
       });
     }
-  }, [profile]);
+  }, [profile, user]);
 
   const handleSave = async () => {
     setIsLoading(true);
