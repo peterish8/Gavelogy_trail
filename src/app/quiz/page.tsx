@@ -263,18 +263,18 @@ export default function QuizPage() {
       addAttempt({
         subject: "Jurisprudence",
         topic: topicName,
-        questions: questions.map((q) => q.qid),
+        questions: questions.map((q) => q.id),
         answers: answers.reduce((acc, answer) => {
           acc[answer.questionId] = [
-            questions.find((q) => q.qid === answer.questionId)?.option_a || "",
-            questions.find((q) => q.qid === answer.questionId)?.option_b || "",
-            questions.find((q) => q.qid === answer.questionId)?.option_c || "",
-            questions.find((q) => q.qid === answer.questionId)?.option_d || "",
+            questions.find((q) => q.id === answer.questionId)?.option_a || "",
+            questions.find((q) => q.id === answer.questionId)?.option_b || "",
+            questions.find((q) => q.id === answer.questionId)?.option_c || "",
+            questions.find((q) => q.id === answer.questionId)?.option_d || "",
           ][answer.selectedAnswer];
           return acc;
         }, {} as Record<string, string>),
         correctAnswers: questions.reduce((acc, q) => {
-          acc[q.qid] = q.correct_answer;
+          acc[q.id] = q.correct_answer;
           return acc;
         }, {} as Record<string, string>),
         score,
