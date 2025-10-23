@@ -64,7 +64,7 @@ export default function ProfilePage() {
     setFormData({
       username: profile?.username || "",
       full_name: profile?.full_name || "",
-      email: profile?.email || "",
+      email: user?.email || "",
     });
     setIsEditing(false);
   };
