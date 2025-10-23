@@ -1,102 +1,220 @@
-import Image from "next/image";
+import { Header } from "@/components/header";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { BookOpen, Target, Trophy, Users, Zap, Brain } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-background">
+      <Header />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Master <span className="text-primary">CLAT PG</span> with
+            <br />
+            Intelligent Learning
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            The only platform that tracks your mistakes, builds your confidence,
+            and helps you achieve 75%+ accuracy through systematic practice.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/signup">
+              <Button size="lg" className="text-lg px-8 py-6">
+                Start Free Trial
+              </Button>
+            </Link>
+            <Link href="/subjects">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                Try Free Quizzes
+              </Button>
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Why Choose Gavalogy?</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Our unique approach combines intelligent mistake tracking with
+            gamified learning to ensure you never repeat the same errors.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <Brain className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Intelligent Mistake Tracking</CardTitle>
+              <CardDescription>
+                Track confidence levels and eliminate mistakes systematically.
+                Questions you guess correctly still get reviewed until you're
+                confident.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Zap className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Gamified Learning</CardTitle>
+              <CardDescription>
+                Earn coins, maintain streaks, and compete on leaderboards. Turn
+                your preparation into an engaging daily habit.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <BookOpen className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Contemporary Cases</CardTitle>
+              <CardDescription>
+                Stay updated with recent legal cases from 2023-2025, organized
+                by month for systematic study.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Target className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Subject-wise Analytics</CardTitle>
+              <CardDescription>
+                Identify your weak areas with detailed analytics. Focus on
+                subjects that need improvement.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Trophy className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Mock Tests</CardTitle>
+              <CardDescription>
+                Practice with full-length mock tests that simulate the actual
+                CLAT PG exam experience.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Users className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Community</CardTitle>
+              <CardDescription>
+                Compete with fellow aspirants on leaderboards and stay motivated
+                throughout your journey.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </section>
+
+      {/* Courses Section */}
+      <section className="bg-muted/50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Choose Your Course</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Two comprehensive courses designed to cover all aspects of CLAT PG
+              preparation.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="relative">
+              <CardHeader>
+                <CardTitle className="text-2xl">
+                  Static Subjects Course
+                </CardTitle>
+                <CardDescription className="text-base">
+                  13 Law Subjects • 650 Questions • 20 Mock Tests
+                </CardDescription>
+                <div className="text-3xl font-bold text-primary mt-4">
+                  ₹1,999
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li>• Constitutional Law, Criminal Law, Contract Law</li>
+                  <li>• Torts, Administrative Law, Jurisprudence</li>
+                  <li>• Environmental Law, Property Law, Family Law</li>
+                  <li>• Labour Law, Tax Law, Corporate Law, IPR</li>
+                  <li>• 20 Full-length Mock Tests</li>
+                  <li>• Intelligent Mistake Tracking</li>
+                </ul>
+                <Link href="/dashboard" className="block mt-6">
+                  <Button className="w-full">Buy Now</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="relative">
+              <CardHeader>
+                <CardTitle className="text-2xl">
+                  Contemporary Cases Course
+                </CardTitle>
+                <CardDescription className="text-base">
+                  150 Legal Cases • 2023-2025 • Month Quizzes
+                </CardDescription>
+                <div className="text-3xl font-bold text-primary mt-4">
+                  ₹1,499
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li>• 50 Landmark Cases from 2023</li>
+                  <li>• 50 Landmark Cases from 2024</li>
+                  <li>• 50 Recent Cases from 2025</li>
+                  <li>• Organized by Month</li>
+                  <li>• Month-wise Combined Quizzes</li>
+                  <li>• Regular Updates</li>
+                </ul>
+                <Link href="/dashboard" className="block mt-6">
+                  <Button className="w-full">Buy Now</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-8">
+            <Card className="inline-block">
+              <CardContent className="p-6">
+                <div className="text-lg font-semibold mb-2">
+                  Bundle Offer (Save ₹500)
+                </div>
+                <div className="text-2xl font-bold text-primary mb-2">
+                  ₹2,999{" "}
+                  <span className="text-muted-foreground line-through text-lg">
+                    ₹3,498
+                  </span>
+                </div>
+                <Link href="/dashboard">
+                  <Button size="lg">Buy Bundle</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-8">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <p>&copy; 2025 Gavalogy. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );

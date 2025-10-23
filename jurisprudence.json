@@ -1,0 +1,330 @@
+{
+    "jurisprudence_questions": [
+      {
+        "topic": "Introduction to Jurisprudence",
+        "questions": [
+          {
+            "qid": "a1",
+            "question": "The term 'jurisprudence' is derived from the Latin word 'jurisprudentia'. According to the text, what is its literal meaning?",
+            "option_a": "The command of the sovereign",
+            "option_b": "The observation of things human and divine",
+            "option_c": "Skill or knowledge of the law",
+            "option_d": "The first principles of civil law",
+            "correct_answer": "C. Skill or knowledge of the law",
+            "explanation": "The text begins by stating, \"The term jurisprudence has been derived from the Latin word 'jurisprudentia' which means 'skill or knowledge of the law'.\""
+          },
+          {
+            "qid": "a2",
+            "question": "Which jurist is credited as the 'Father of Jurisprudence' and was the first to analyze what law is by dividing its study into 'Expositorial' and 'Censorial' approaches?",
+            "option_a": "John Austin",
+            "option_b": "Salmond",
+            "option_c": "Jeremy Bentham",
+            "option_d": "Holland",
+            "correct_answer": "C. Jeremy Bentham",
+            "explanation": "The material clearly identifies, \"Bentham is known as Father of Jurisprudence was the first one to analyze what is the law.\" It also explains his division of study into the Expositorial (law as it is) and Censorial (law as it ought to be) approaches."
+          },
+          {
+            "qid": "a3",
+            "question": "John Austin, the 'Father of English Jurisprudence', opined that the appropriate subject of jurisprudence is:",
+            "option_a": "Natural Law",
+            "option_b": "Positive Law",
+            "option_c": "Moral Philosophy",
+            "option_d": "The principles of legislation",
+            "correct_answer": "B. Positive Law",
+            "explanation": "As per the text, \"Austin...opines that the appropriate subject to jurisprudence is a positive law i.e. law as it is (existing law).\" He distinguished this from natural, ideal, or moral law."
+          },
+          {
+            "qid": "a4",
+            "question": "According to Holland's definition, jurisprudence is the \"Formal Science of positive law.\" What did he mean by the term 'formal'?",
+            "option_a": "It implies that the focus of jurisprudence is on the material substance and specific content of legal rules as they are found in statutes.",
+            "option_b": "It refers to the study of the fundamental principles governing human relations, rather than the specific details of the material rules themselves.",
+            "option_c": "It signifies that the discipline is primarily concerned with the official legal documents and the procedural formalities required by the courts.",
+            "option_d": "It suggests that a comprehensive and official education in the study of law is a necessary prerequisite for its proper understanding.",
+            "correct_answer": "(b) It refers to the study of the fundamental principles governing human relations, rather than the specific details of the material rules themselves.",
+            "explanation": "This is the correct interpretation of Holland's definition. He used the term 'formal' to explain that jurisprudence is not a 'material' science. A material science would study the specific, concrete details and content of legal rules (e.g., the exact punishment for theft, the specific requirements for a valid contract). A formal science, in contrast, studies the underlying form, structure, and fundamental principles (like the concepts of rights, duties, possession, ownership) that are common across various legal systems."
+          },
+          {
+            "qid": "a5",
+            "question": "In what the text calls the 'Specific sense', how did Salmond define jurisprudence?",
+            "option_a": "The Science of Civil Law",
+            "option_b": "The scientific synthesis of the essential principles of law",
+            "option_c": "The philosophy of positive law",
+            "option_d": "The science of the first principle of civil law",
+            "correct_answer": "D. The science of the first principle of civil law",
+            "explanation": "The text notes Salmond's two senses: \"(1) in the 'Generic Sense' jurisprudence can be defined as Science of Civil Law' and (2) in the 'Specific sense' Jurisprudence can be defined as the science of the first principle of civil law.\""
+          },
+          {
+            "qid": "a6",
+            "question": "Which jurist provided the definition of jurisprudence as \"The observation of things human & divine, the knowledge of the just & the unjust\"?",
+            "option_a": "Gray",
+            "option_b": "Roscoe Pound",
+            "option_c": "Keeton",
+            "option_d": "Ulpian",
+            "correct_answer": "D. Ulpian",
+            "explanation": "The list of definitions in the text directly attributes this classical Roman definition to Ulpian."
+          },
+          {
+            "qid": "a7",
+            "question": "The text mentions that Salmond and Holland criticized Austin's definition of jurisprudence. What was the basis of their criticism?",
+            "option_a": "That Austin's focus on 'positive law' was too narrow.",
+            "option_b": "That Austin's concept of 'command of the sovereign' was outdated.",
+            "option_c": "That the classification of jurisprudence into 'General' and 'Particular' was not proper or appropriate.",
+            "option_d": "That Austin ignored the role of morality in law.",
+            "correct_answer": "C. That the classification of jurisprudence into 'General' and 'Particular' was not proper or appropriate.",
+            "explanation": "Under the 'Criticism' section for Austin's definition, the text states, \"Austin's definition criticised by Salmond and Holland...on the ground that it is not proper and appropriate to classify as the general Jurisprudence and Particular Jurisprudence.\""
+          },
+          {
+            "qid": "a8",
+            "question": "Which jurist described Jurisprudence as the 'lawyer's extroversion'?",
+            "option_a": "Salmond",
+            "option_b": "Stone",
+            "option_c": "Hart",
+            "option_d": "Paton",
+            "correct_answer": "(b) Stone",
+            "explanation": "This quote reflects Stone's view that jurisprudence is the lawyer's examination of the principles, ideals, and techniques of the law in the light of knowledge from other disciplines. It encourages lawyers to look beyond the narrow confines of legal rules."
+          },
+          {
+            "qid": "a9",
+            "question": "Jurisprudence has been defined as 'the science of the first principle of civil law' by which of the following jurists?",
+            "option_a": "Austin",
+            "option_b": "Bentham",
+            "option_c": "Salmond",
+            "option_d": "Paton",
+            "correct_answer": "(c) Salmond",
+            "explanation": "This is Salmond's well-known definition, which he gave in the 'specific sense' to narrow down the study of jurisprudence to its fundamental concepts, distinguishing it from the 'generic sense' (the science of civil law)."
+          },
+          {
+            "qid": "a10",
+            "question": "Who stated the following: 'Law may be described in terms of a legal order tacitly or formally accepted by a community'?",
+            "option_a": "Paton",
+            "option_b": "Salmond",
+            "option_c": "Bentham",
+            "option_d": "Stone",
+            "correct_answer": "(a) Paton",
+            "explanation": "This definition is attributed to Paton, who emphasized the social function of law and its validity based on the acceptance—whether formal or informal—by the community it governs."
+          },
+          {
+            "qid": "a11",
+            "question": "Which jurist defined law as 'the body of principles recognized and applied by the State in the administration of justice'?",
+            "option_a": "Hart",
+            "option_b": "Austin",
+            "option_c": "Paton",
+            "option_d": "Salmond",
+            "correct_answer": "(d) Salmond",
+            "explanation": "This definition is famously attributed to Salmond, who directly linked the concept of law to the practical function of the state and its courts in resolving disputes and administering justice."
+          },
+          {
+            "qid": "a12",
+            "question": "Who famously said: 'The law of every modern State shows at a thousand points the influence of both the accepted social morality and wider moral ideal'?",
+            "option_a": "Hart",
+            "option_b": "Bentham",
+            "option_c": "Salmond",
+            "option_d": "Austin",
+            "correct_answer": "(a) Hart",
+            "explanation": "This quote is central to H.L.A. Hart's modified positivist stance. While a positivist, he acknowledged the undeniable connection and influence of morality on the development and content of law, famously debating this point with Lon Fuller."
+          },
+          {
+            "qid": "a13",
+            "question": "The statement 'Legislation has the same center with morals, but it has not the same circumference' is attributed to which jurist?",
+            "option_a": "Paton",
+            "option_b": "Bentham",
+            "option_c": "Stone",
+            "option_d": "Salmond",
+            "correct_answer": "(b) Bentham",
+            "explanation": "This is a classic quote from Jeremy Bentham, illustrating his view that while law and morality overlap in some core areas (the \"center\"), the field of morality is much broader and encompasses many issues that law does not (the \"circumference\")."
+          },
+          {
+            "qid": "a14",
+            "question": "Who proposed the idea that 'Justice is the end of law; morals being part of justice, becomes end of justice'?",
+            "option_a": "Hart",
+            "option_b": "Bentham",
+            "option_c": "Salmond",
+            "option_d": "Paton",
+            "correct_answer": "(d) Paton",
+            "explanation": "This statement reflects Paton's teleological (purpose-driven) view of law. He saw law as striving towards the ultimate goal of achieving justice, and he considered morality to be an integral part of that concept of justice."
+          }
+        ]
+      },
+      {
+        "topic": "Sources of Law",
+        "questions": [
+          {
+            "qid": "b1",
+            "question": "According to the text, which of the following are the three primary sources of Law?",
+            "option_a": "Custom, Morality, and Religion",
+            "option_b": "Legislation, Precedent, and Justice",
+            "option_c": "Custom, Legislation, and Precedents",
+            "option_d": "The Sovereign, The Courts, and The People",
+            "correct_answer": "C. Custom, Legislation, and Precedents",
+            "explanation": "The section \"Sources of Law\" begins by explicitly listing the three sources: \"1. Custom, 2. Legislation, 3. Precedents.\""
+          },
+          {
+            "qid": "b2",
+            "question": "How does Salmond, in a strict sense, define legislation?",
+            "option_a": "All methods of law-making.",
+            "option_b": "Formal utterances of the legislative organs of the Society.",
+            "option_c": "The source from where the rules of laws declared by the competent authority are framed.",
+            "option_d": "Making of general orders by judges.",
+            "correct_answer": "C. The source from where the rules of laws declared by the competent authority are framed.",
+            "explanation": "The text provides Salmond's definition: \"In a strict sense, legislation is the source from where the rules of laws declared by the competent authority are framed.\""
+          },
+          {
+            "qid": "b3",
+            "question": "What is the central idea behind Holland's example of a footpath forming across a lawn?",
+            "option_a": "It explains how legislation is created by a sovereign authority.",
+            "option_b": "It illustrates how judicial precedents build upon one another over time.",
+            "option_c": "It demonstrates how a custom originates from a convenient course of conduct being followed repeatedly by people.",
+            "option_d": "It shows that laws must be written down to be effective.",
+            "correct_answer": "C. It demonstrates how a custom originates from a convenient course of conduct being followed repeatedly by people.",
+            "explanation": "The example describes one person crossing a lawn for convenience, followed by others, eventually creating a path. The text concludes, \"The main characteristic of a custom...thus originates in the conscious choice of the more convenient of two acts.\""
+          },
+          {
+            "qid": "b4",
+            "question": "As per the text, which of the following is cited as a reason why precedent is a valid source of law?",
+            "option_a": "It is based solely on pure logic.",
+            "option_b": "It prevents partiality on the part of judges.",
+            "option_c": "It allows judges to disregard legislation.",
+            "option_d": "It is the oldest form of lawmaking.",
+            "correct_answer": "B. It prevents partiality on the part of judges.",
+            "explanation": "The text lists five reasons why precedent is a source of law. Point 4 is that \"It prevents partiality on the part of judges.\""
+          },
+          {
+            "qid": "b5",
+            "question": "According to the definition provided by Talbot, J., what is an 'Obiter Dictum'?",
+            "option_a": "The binding rule of a case.",
+            "option_b": "A guide that must be followed by all inferior courts.",
+            "option_c": "An opinion on a point not necessary for the decision of the case.",
+            "option_d": "A formal utterance from a legislative organ.",
+            "correct_answer": "C. An opinion on a point not necessary for the decision of the case.",
+            "explanation": "The text quotes Talbot, J.: \"An obiter Dictum is an opinion on some point that is not necessary for the decision of the case.\""
+          },
+          {
+            "qid": "b6",
+            "question": "Which jurist is quoted as saying that a judicial precedent is \"a judicial decision to which authority has been attached in some measure\"?",
+            "option_a": "Gray",
+            "option_b": "Jenks",
+            "option_c": "Allen",
+            "option_d": "Keeton",
+            "correct_answer": "D. Keeton",
+            "explanation": "The section on 'Precedent' begins with the definition from Keeton: \"A judicial precedent is a judicial decision to which authority has been attached in some measure.\""
+          },
+          {
+            "qid": "b7",
+            "question": "Based on the definition from Jenks, a judicial precedent becomes an authority to be followed by inferior courts until it is overruled by:",
+            "option_a": "A competent court of justice or by a statute.",
+            "option_b": "Public opinion or a change in custom.",
+            "option_c": "A vote of the people.",
+            "option_d": "The sovereign's direct command.",
+            "correct_answer": "A. A competent court of justice or by a statute.",
+            "explanation": "Jenks' definition, as provided in the text, states that a precedent is an authority to be followed \"until it has been overruled by superior Court of justice or by a statute.\""
+          }
+        ]
+      },
+      {
+        "topic": "Schools of Jurisprudence",
+        "questions": [
+          {
+            "qid": "c1",
+            "question": "What is the primary focus of the Analytical School of Jurisprudence, also known as Positivism?",
+            "option_a": "To analyze the law of the land as it ought to be, based on moral standards.",
+            "option_b": "To analyze the law of the land as it exists today, irrespective of its historical or ethical significance.",
+            "option_c": "To study the universal and eternal character of law as derived from nature.",
+            "option_d": "To examine the working of law and its effect on society.",
+            "correct_answer": "B. To analyze the law of the land as it exists today, irrespective of its historical or ethical significance.",
+            "explanation": "The text explains that the Analytical school \"deals with the present which means that its aim is to analyze the law of the land, as it exists today...irrespective of its historical background (origin) or ethical significance.\""
+          },
+          {
+            "qid": "c2",
+            "question": "Jeremy Bentham's legal philosophy is known as 'Utilitarian Individualism', and its ultimate standard for judging law is based on:",
+            "option_a": "The command of the sovereign.",
+            "option_b": "The historical spirit of the people.",
+            "option_c": "The principle of pleasure and pain, aiming for \"the greatest happiness of the greatest number\".",
+            "option_d": "The norms derived from a 'Grundnorm'.",
+            "correct_answer": "C. The principle of pleasure and pain, aiming for \"the greatest happiness of the greatest number\".",
+            "explanation": "The text states that for Bentham, \"the end of litigation is the greatest happiness of the greatest number\" and that his \"whole approach or the ultimate standards on which a law is judged was based on pleasure and pain.\""
+          },
+          {
+            "qid": "c3",
+            "question": "According to Hans Kelsen, law norms are 'ought' (sollen) propositions. How does he believe a legal norm gets its validity?",
+            "option_a": "From the sanction that stands outside the rule of law.",
+            "option_b": "From its acceptance by the majority of the population.",
+            "option_c": "From a more general norm, in a hierarchy that ultimately traces back to the 'Grundnorm'.",
+            "option_d": "From the interpretation and application by a judge in a court case.",
+            "correct_answer": "C. From a more general norm, in a hierarchy that ultimately traces back to the 'Grundnorm'.",
+            "explanation": "The text describes Kelsen's theory: \"every legal act relates to a norm which gives legal validity to it...every norm forms its basis in another more general norm. This hierarchy goes down to the initial norm or hypothesis called 'Grundnorm'.\""
+          },
+          {
+            "qid": "c4",
+            "question": "The text notes that Professor H.L.A. Hart criticized Austin's conception of law. What was Hart's primary criticism?",
+            "option_a": "Austin's theory was too focused on judge-made law.",
+            "option_b": "Austin's system based on coercive orders or sanctions would only apply to criminal law and not to civil laws like contracts or marriage.",
+            "option_c": "Austin did not support the codification of law.",
+            "option_d": "Austin's theory overemphasized the role of customs.",
+            "correct_answer": "B. Austin's system based on coercive orders or sanctions would only apply to criminal law and not to civil laws like contracts or marriage.",
+            "explanation": "The material states, \"He has rejected any system of law based simply on coercive orders or sanctions as this will apply to criminal laws only and presently, there are even civil laws...like laws relating to marriage, contracts, wills etc.\""
+          },
+          {
+            "qid": "c5",
+            "question": "Which jurist from the Analytical School held the view that judges are the 'creators of law' and not just discoverers, because even legislation gains meaning only after judicial interpretation?",
+            "option_a": "John Austin",
+            "option_b": "Hans Kelsen",
+            "option_c": "John Gray",
+            "option_d": "Jeremy Bentham",
+            "correct_answer": "C. John Gray",
+            "explanation": "According to the text, John Gray stated \"that the Judges are creators of law and not the discoverers of law...even the legislation gains meaning after being interpreted by a court and applied in a concrete case.\""
+          },
+          {
+            "qid": "c6",
+            "question": "Which of the following is NOT one of the factors Bentham used in his 'Utilitarian Calculus' to measure pleasure and pain?",
+            "option_a": "Intensity",
+            "option_b": "Duration",
+            "option_c": "Morality",
+            "option_d": "Certainty",
+            "correct_answer": "C. Morality",
+            "explanation": "The text lists seven factors for the Utilitarian Calculus: Intensity, Duration, Certainty, Nearness, Fecundity, Purity, and Extent. Morality is explicitly excluded from the positivist analysis."
+          },
+          {
+            "qid": "c7",
+            "question": "Who is considered the father of the Sociological school of law, according to the text?",
+            "option_a": "Roscoe Pound",
+            "option_b": "Auguste Comte",
+            "option_c": "Herbert Spencer",
+            "option_d": "Duguit",
+            "correct_answer": "B. Auguste Comte",
+            "explanation": "The section on the Sociological School states, \"The French thinker Auguste Compte is regarded as the father of the sociological school of law.\""
+          },
+          {
+            "qid": "c8",
+            "question": "Roscoe Pound categorized legal interests into three types. They are:",
+            "option_a": "Individual, Public, and Social interests.",
+            "option_b": "Natural, Positive, and Realist interests.",
+            "option_c": "Historical, Ethical, and Analytical interests.",
+            "option_d": "Primary, Secondary, and Tertiary interests.",
+            "correct_answer": "A. Individual, Public, and Social interests.",
+            "explanation": "The text clearly lists the three categories of legal interest according to Roscoe Pound as \"1. Individual Interests... 2. Public interests... 3. Social interests.\""
+          },
+          {
+            "qid": "c9",
+            "question": "The text mentions that Aristotle is considered the father of the Natural Law School. How did he classify law?",
+            "option_a": "Into Jus Civile and Jus Gentium.",
+            "option_b": "Into Divine Law and Human Law.",
+            "option_c": "Into Universal Law and Special Law.",
+            "option_d": "Into Public Law and Private Law.",
+            "correct_answer": "C. Into Universal Law and Special Law.",
+            "explanation": "The text states, \"Law is either universal or special. Aristotle is considered as the father of Natural Law School. Special Law- It consists of written enactments... Universal law- It consists of those unwritten rules which are recognised among all men.\""
+          },
+          {
+            "qid": "c10",
+            "question": "What is a key feature of the Sociological School as described in the material?",
+            "option_a": "It treats law as a command of the sovereign.",
+            "option_b": "It is more concerned with the working of law rather than its abstract nature.",
+            "option_c": "It believes law is a universal and eternal concept.",
+            "option_d": "It focuses exclusively on the historical origins of legal principles.",
+            "correct_answer": "B. It is more concerned with the working of law rather than its abstract nature.",
+            "explanation": "The first listed feature of the Sociological School is, \"Sociological jurists bother more about the working of law rather than on the nature of law.\""
+          }
+        ]
+      }
+    ]
+  }
+  
