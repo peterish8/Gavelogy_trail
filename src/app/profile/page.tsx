@@ -300,7 +300,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-2 text-sm">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">Email:</span>
-                    <span className="font-medium">{profile?.email}</span>
+                    <span className="font-medium">{user?.email}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
