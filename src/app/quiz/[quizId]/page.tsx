@@ -529,7 +529,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                     <p className="text-sm text-blue-800 dark:text-blue-200">
                       <strong>Key Insight:</strong> Even if you got a question
                       right by guessing, our system will add it to your mistake
-                      review until you're confident about it!
+                      review until you&apos;re confident about it!
                     </p>
                   </div>
                 </CardContent>
@@ -687,7 +687,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                       <div className="text-2xl mb-1">😊</div>
                       <div className="font-medium">Confident</div>
                       <div className="text-xs text-muted-foreground">
-                        I'm certain this is correct
+                        I&apos;m certain this is correct
                       </div>
                     </div>
                   </button>
