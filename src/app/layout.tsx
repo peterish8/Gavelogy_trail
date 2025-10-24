@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: "Comprehensive online learning platform for Indian law competitive exam preparation, specifically targeting CLAT PG aspirants.",
   keywords: ["CLAT PG", "law preparation", "competitive exams", "Indian law", "online learning"],
   authors: [{ name: "Gavalogy Team" }],
+  icons: {
+    icon: "/icon.jpg",
+  },
   openGraph: {
     title: "Gavalogy - CLAT PG Preparation Platform",
     description: "Master CLAT PG with intelligent mistake tracking, gamified learning, and contemporary legal cases.",
