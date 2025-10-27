@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
+import { DottedBackground } from "@/components/DottedBackground";
 import {
   Card,
   CardContent,
@@ -268,7 +269,8 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   // Quiz preparation screen
   if (quizState === "preparing") {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
+        <DottedBackground />
         <Header />
 
         <div className="container mx-auto px-4 py-8">
@@ -406,7 +408,8 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   // Countdown screen
   if (quizState === "countdown") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <DottedBackground />
         <div className="text-center">
           <div className="text-8xl font-bold text-primary mb-4 animate-pulse">
             {countdown}
@@ -422,7 +425,8 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
 
   if (showResults) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
+        <DottedBackground />
         <Header />
 
         <div className="container mx-auto px-4 py-8">
@@ -569,7 +573,8 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
+      <DottedBackground />
       <Header />
 
       <div className="container mx-auto px-4 py-8">
@@ -646,15 +651,19 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                     key={option.key}
                     onClick={() => handleAnswerSelect(option.key)}
                     disabled={quizState === "paused"}
-                    className={`w-full p-4 text-left border rounded-lg transition-colors ${
+                    className={`w-full p-4 text-left border-2 rounded-lg transition-all shadow-lg ${
                       currentAnswer?.selected === option.key
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-primary/50"
+                        ? "border-blue-500"
+                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                     } ${
                       quizState === "paused"
                         ? "opacity-50 cursor-not-allowed"
                         : ""
                     }`}
+                    style={{
+                      backgroundColor: currentAnswer?.selected === option.key ? '#3b82f6' : undefined,
+                      color: currentAnswer?.selected === option.key ? 'white' : 'var(--foreground)'
+                    }}
                   >
                     <span className="font-medium mr-3">{option.key}.</span>
                     {option.text}

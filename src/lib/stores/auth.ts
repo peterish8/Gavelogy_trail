@@ -49,32 +49,48 @@ export const useAuthStore = create<AuthStoreState>()(
         try {
           set({ isLoading: true, error: null });
 
-          // Validate inputs
-          const emailValidation = validateEmail(email);
-          if (!emailValidation.isValid) {
-            set({ isLoading: false, error: emailValidation.errors[0] });
-            return { success: false, error: emailValidation.errors[0] };
-          }
+          // Clear manual logout flag when user logs in
+          localStorage.removeItem("gavalogy-manual-logout");
 
-          const passwordValidation = validatePassword(password);
-          if (!passwordValidation.isValid) {
-            set({ isLoading: false, error: passwordValidation.errors[0] });
-            return { success: false, error: passwordValidation.errors[0] };
-          }
+          console.log("Attempting login with email:", email);
 
           // Use Supabase authentication
           const { data, error: authError } =
             await supabase.auth.signInWithPassword({
-              email: sanitizeInput(email),
+              email: email,
               password: password,
             });
 
           if (authError) {
-            set({ isLoading: false, error: authError.message });
-            return { success: false, error: authError.message };
+            console.error("Supabase auth error:", authError);
+
+            // Handle specific error cases
+            let errorMessage = authError.message;
+
+            if (
+              authError.message.includes("Invalid login credentials") ||
+              authError.message.includes("Invalid credentials")
+            ) {
+              errorMessage =
+                "Invalid email or password. Please check your credentials and try again.";
+            } else if (authError.message.includes("Email not confirmed")) {
+              errorMessage =
+                "Please check your email and click the confirmation link before signing in.";
+            } else if (authError.message.includes("Too many requests")) {
+              errorMessage =
+                "Too many login attempts. Please wait a moment and try again.";
+            } else if (authError.message.includes("User not found")) {
+              errorMessage =
+                "No account found with this email address. Please sign up first.";
+            }
+
+            set({ isLoading: false, error: errorMessage });
+            return { success: false, error: errorMessage };
           }
 
           if (data.user) {
+            console.log("Login successful for user:", data.user.id);
+
             // Try to fetch user profile, but don't fail if table doesn't exist yet
             let profileData = null;
             try {
@@ -86,6 +102,9 @@ export const useAuthStore = create<AuthStoreState>()(
 
               if (!profileError) {
                 profileData = profile;
+                console.log("Profile found:", profileData);
+              } else {
+                console.log("No profile found, will create one");
               }
             } catch (error) {
               console.log("Users table not found - using default profile");
@@ -112,6 +131,8 @@ export const useAuthStore = create<AuthStoreState>()(
                     "Could not create profile (table may not exist):",
                     insertError.message
                   );
+                } else {
+                  console.log("Profile created successfully");
                 }
               } catch (error) {
                 console.log(
@@ -156,12 +177,14 @@ export const useAuthStore = create<AuthStoreState>()(
               error: null,
             });
 
+            console.log("Login completed successfully");
             return { success: true };
           }
 
           set({ isLoading: false, error: "No user data received" });
           return { success: false, error: "No user data received" };
         } catch (error) {
+          console.error("Login error:", error);
           const errorMessage =
             error instanceof Error ? error.message : "Login failed";
           set({ isLoading: false, error: errorMessage });
@@ -178,66 +201,132 @@ export const useAuthStore = create<AuthStoreState>()(
         try {
           set({ isLoading: true, error: null });
 
-          // Validate all inputs
-          const emailValidation = validateEmail(email);
-          if (!emailValidation.isValid) {
-            set({ isLoading: false, error: emailValidation.errors[0] });
-            return { success: false, error: emailValidation.errors[0] };
+          // Clear manual logout flag when user signs up
+          localStorage.removeItem("gavalogy-manual-logout");
+
+          console.log("Attempting signup with email:", email);
+
+          // Basic validation
+          if (!email || !password || !username || !fullName) {
+            set({ isLoading: false, error: "All fields are required" });
+            return { success: false, error: "All fields are required" };
           }
 
-          const passwordValidation = validatePassword(password);
-          if (!passwordValidation.isValid) {
-            set({ isLoading: false, error: passwordValidation.errors[0] });
-            return { success: false, error: passwordValidation.errors[0] };
+          if (password.length < 6) {
+            set({
+              isLoading: false,
+              error: "Password must be at least 6 characters",
+            });
+            return {
+              success: false,
+              error: "Password must be at least 6 characters",
+            };
           }
 
-          const usernameValidation = validateUsername(username);
-          if (!usernameValidation.isValid) {
-            set({ isLoading: false, error: usernameValidation.errors[0] });
-            return { success: false, error: usernameValidation.errors[0] };
-          }
-
-          const fullNameValidation = validateFullName(fullName);
-          if (!fullNameValidation.isValid) {
-            set({ isLoading: false, error: fullNameValidation.errors[0] });
-            return { success: false, error: fullNameValidation.errors[0] };
-          }
-
-          // Simulate API call delay
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-
-          // Create mock user with proper types
-          const mockUser: User = {
-            id: "user-" + Date.now(),
-            email: sanitizeInput(email),
-            username: sanitizeInput(username),
-            full_name: sanitizeInput(fullName),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-
-          const mockProfile: Profile = {
-            id: mockUser.id,
-            user_id: mockUser.id,
-            username: mockUser.username,
-            full_name: mockUser.full_name,
-            total_coins: 100, // New users start with 100 coins
-            streak_count: 0,
-            longest_streak: 0,
-            dark_mode: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-
-          set({
-            user: mockUser,
-            profile: mockProfile,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
+          // Use Supabase authentication
+          const { data, error: authError } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: {
+                username: username,
+                full_name: fullName,
+              },
+            },
           });
 
-          return { success: true };
+          if (authError) {
+            console.error("Supabase signup error:", authError);
+
+            // Handle specific error cases
+            let errorMessage = authError.message;
+
+            if (authError.message.includes("User already registered")) {
+              errorMessage =
+                "An account with this email already exists. Please try logging in instead.";
+            } else if (authError.message.includes("Password should be")) {
+              errorMessage =
+                "Password does not meet requirements. Please use a stronger password.";
+            } else if (authError.message.includes("Invalid email")) {
+              errorMessage = "Please enter a valid email address.";
+            } else if (authError.message.includes("Signup is disabled")) {
+              errorMessage =
+                "Account creation is currently disabled. Please contact support.";
+            }
+
+            set({ isLoading: false, error: errorMessage });
+            return { success: false, error: errorMessage };
+          }
+
+          if (data.user) {
+            console.log("Signup successful for user:", data.user.id);
+
+            // Try to create user profile in our users table
+            try {
+              const { error: insertError } = await supabase
+                .from("users")
+                .insert({
+                  id: data.user.id,
+                  email: data.user.email!,
+                  username: sanitizeInput(username),
+                  full_name: sanitizeInput(fullName),
+                  total_coins: 100,
+                  streak_count: 0,
+                  longest_streak: 0,
+                  dark_mode: false,
+                });
+
+              if (insertError) {
+                console.log(
+                  "Could not create profile (table may not exist):",
+                  insertError.message
+                );
+              } else {
+                console.log("Profile created successfully");
+              }
+            } catch (error) {
+              console.log("Users table not available - using default profile");
+            }
+
+            // Create user and profile objects
+            const user: User = {
+              id: data.user.id,
+              email: data.user.email!,
+              username: sanitizeInput(username),
+              full_name: sanitizeInput(fullName),
+              avatar_url: data.user.user_metadata?.avatar_url,
+              created_at: data.user.created_at,
+              updated_at: data.user.updated_at || data.user.created_at,
+            };
+
+            const profile: Profile = {
+              id: data.user.id,
+              user_id: data.user.id,
+              username: sanitizeInput(username),
+              full_name: sanitizeInput(fullName),
+              avatar_url: data.user.user_metadata?.avatar_url,
+              total_coins: 100,
+              streak_count: 0,
+              longest_streak: 0,
+              dark_mode: false,
+              created_at: data.user.created_at,
+              updated_at: data.user.updated_at || data.user.created_at,
+            };
+
+            set({
+              user,
+              profile,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            console.log("Signup completed successfully");
+            return { success: true };
+          }
+
+          set({ isLoading: false, error: "No user data received" });
+          return { success: false, error: "No user data received" };
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : "Signup failed";
@@ -278,8 +367,20 @@ export const useAuthStore = create<AuthStoreState>()(
         try {
           set({ isLoading: true });
 
-          // Simulate logout delay
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          // Sign out from Supabase
+          await supabase.auth.signOut();
+
+          // Clear all localStorage stores including auth
+          try {
+            localStorage.removeItem("gavalogy-auth-storage");
+            localStorage.removeItem("gavalogy-payment-storage");
+            localStorage.removeItem("gavalogy-gamification-storage");
+            localStorage.removeItem("gavalogy-quiz-storage");
+            localStorage.removeItem("gavalogy-mistakes-storage");
+            localStorage.setItem("gavalogy-manual-logout", "true");
+          } catch (error) {
+            console.log("Could not clear storage");
+          }
 
           set({
             user: null,
@@ -357,11 +458,107 @@ export const useAuthStore = create<AuthStoreState>()(
         try {
           set({ isLoading: true });
 
-          // Simulate auth check delay
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          // Check if user manually logged out
+          const manualLogout = localStorage.getItem("gavalogy-manual-logout");
+          if (manualLogout === "true") {
+            set({
+              user: null,
+              profile: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null,
+            });
+            return;
+          }
 
-          // With localStorage persistence, auth state is automatically restored
-          set({ isLoading: false, error: null });
+          // First check if we have stored auth data
+          const storedAuth = localStorage.getItem("gavalogy-auth-storage");
+          if (storedAuth) {
+            try {
+              const parsedAuth = JSON.parse(storedAuth);
+              if (parsedAuth.state?.user && parsedAuth.state?.isAuthenticated) {
+                set({
+                  user: parsedAuth.state.user,
+                  profile: parsedAuth.state.profile,
+                  isAuthenticated: true,
+                  isLoading: false,
+                  error: null,
+                });
+                return;
+              }
+            } catch (e) {
+              console.log("Could not parse stored auth data");
+            }
+          }
+
+          // Check Supabase session
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (session?.user) {
+            // User is authenticated in Supabase
+            // Try to fetch user profile
+            let profileData = null;
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+
+              if (!profileError) {
+                profileData = profile;
+              }
+            } catch (error) {
+              console.log("Users table not found - using default profile");
+            }
+
+            const user: User = {
+              id: session.user.id,
+              email: session.user.email!,
+              username:
+                profileData?.username || session.user.email!.split("@")[0],
+              full_name:
+                profileData?.full_name ||
+                session.user.user_metadata?.full_name ||
+                "User",
+              avatar_url: session.user.user_metadata?.avatar_url,
+              created_at: session.user.created_at,
+              updated_at: session.user.updated_at || session.user.created_at,
+            };
+
+            const profile: Profile = {
+              id: session.user.id,
+              user_id: session.user.id,
+              username: user.username,
+              full_name: user.full_name,
+              avatar_url: user.avatar_url,
+              total_coins: profileData?.total_coins || 100,
+              streak_count: profileData?.streak_count || 0,
+              longest_streak: profileData?.longest_streak || 0,
+              dark_mode: profileData?.dark_mode || false,
+              created_at: session.user.created_at,
+              updated_at: session.user.updated_at || session.user.created_at,
+            };
+
+            set({
+              user,
+              profile,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+          } else {
+            // No session found
+            set({
+              user: null,
+              profile: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null,
+            });
+          }
         } catch (error) {
           console.error("Auth check error:", error);
           set({ isLoading: false, error: "Auth check failed" });

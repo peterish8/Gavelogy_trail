@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-// Removed unused imports
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PerformanceTab from "./PerformanceTab";
 import MistakesTab from "./MistakesTab";
 import ConsistencyTab from "./ConsistencyTab";
-import ReadinessTab from "./ReadinessTab";
 
 export default function AnalyticsSection() {
   const [activeTab, setActiveTab] = useState("performance");
@@ -32,7 +30,7 @@ export default function AnalyticsSection() {
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="performance" className="flex items-center gap-2">
             📈 Performance
           </TabsTrigger>
@@ -41,9 +39,6 @@ export default function AnalyticsSection() {
           </TabsTrigger>
           <TabsTrigger value="consistency" className="flex items-center gap-2">
             📅 Consistency
-          </TabsTrigger>
-          <TabsTrigger value="readiness" className="flex items-center gap-2">
-            ⚖️ Exam Readiness
           </TabsTrigger>
         </TabsList>
 
@@ -57,10 +52,6 @@ export default function AnalyticsSection() {
 
         <TabsContent value="consistency" className="space-y-6">
           <ConsistencyTab />
-        </TabsContent>
-
-        <TabsContent value="readiness" className="space-y-6">
-          <ReadinessTab />
         </TabsContent>
       </Tabs>
     </div>

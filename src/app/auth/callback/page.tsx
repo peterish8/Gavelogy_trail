@@ -4,11 +4,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useStreakStore } from "@/lib/stores/streaks";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { DottedBackground } from "@/components/DottedBackground";
 
 export default function AuthCallback() {
   const router = useRouter();
   const { setUser, setProfile, setIsAuthenticated, setError } = useAuthStore();
+  const { initializeUserStreak } = useStreakStore();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -97,6 +100,12 @@ export default function AuthCallback() {
           });
 
           setIsAuthenticated(true);
+          
+          // Initialize user streak
+          const username = profileData?.username || user.email!.split("@")[0];
+          const fullName = profileData?.full_name || user.user_metadata?.full_name || "User";
+          await initializeUserStreak(user.id, username);
+
           router.push("/dashboard");
         } else {
           router.push("/login?error=no_session");
@@ -112,7 +121,8 @@ export default function AuthCallback() {
   }, [router, setUser, setProfile, setIsAuthenticated, setError]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex items-center justify-center min-h-screen">
+      <DottedBackground />
       <LoadingSpinner text="Processing authentication..." />
     </div>
   );

@@ -515,9 +515,39 @@ export default function QuizPage() {
                     key={index}
                     onClick={() => handleAnswerSelect(index)}
                     disabled={showFeedback || isSubmitting}
-                    className={`w-full p-4 text-left border-2 rounded-lg transition-all duration-200 ${getAnswerColor(
+                    className={`w-full p-4 text-left border-2 rounded-lg transition-all duration-200 shadow-lg ${getAnswerColor(
                       index
                     )} ${showFeedback ? "cursor-default" : "hover:shadow-md"}`}
+                    style={{
+                      backgroundColor: showFeedback
+                        ? index === selectedAnswer
+                          ? answers[answers.length - 1]?.isCorrect
+                            ? '#22c55e'
+                            : '#dc2626'
+                          : currentQuestion && [
+                              currentQuestion.option_a,
+                              currentQuestion.option_b,
+                              currentQuestion.option_c,
+                              currentQuestion.option_d,
+                            ][index] === currentQuestion.correct_answer
+                          ? '#22c55e'
+                          : undefined
+                        : selectedAnswer === index
+                        ? '#3b82f6'
+                        : undefined,
+                      color: showFeedback
+                        ? (index === selectedAnswer || (currentQuestion && [
+                            currentQuestion.option_a,
+                            currentQuestion.option_b,
+                            currentQuestion.option_c,
+                            currentQuestion.option_d,
+                          ][index] === currentQuestion.correct_answer))
+                          ? 'white'
+                          : 'var(--foreground)'
+                        : selectedAnswer === index
+                        ? 'white'
+                        : 'var(--foreground)'
+                    }}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">

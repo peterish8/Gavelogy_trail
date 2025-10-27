@@ -1,0 +1,981 @@
+⚖️ CQ-24-11 | Bar of Indian Lawyers v. D.K. Gandhi (2024)
+📜 Passage 
+In Bar of Indian Lawyers v. D.K. Gandhi (2024), the Supreme Court held that advocates’ services are not “services” under the Consumer Protection Act, 2019. It ruled that the advocate–client relationship is a fiduciary “contract of personal service”, where the client exercises control over representation, and the advocate owes duties of loyalty, confidentiality, and obedience to instructions. Such services are therefore excluded from Section 2(42) of the CPA. The Court clarified that professional misconduct by advocates must be dealt with exclusively under the Advocates Act, 1961, through the Bar Council’s disciplinary jurisdiction, and not by consumer fora. It described the legal profession as sui generis, emphasizing professional independence, fiduciary trust, and regulatory autonomy distinct from commercial service sectors.
+📘 Source: Supreme Court of India, Civil Appeal No. 2646 of 2009, decided on 14 May 2024 (Justices Bela M. Trivedi & Pankaj Mithal).
+
+CQ-24-11-01
+The primary legal issue before the Supreme Court in Bar of Indian Lawyers (2024) concerned—
+ (A) Regulation of advocates under the CPA and Advocates Act
+ (B) Right to legal aid under Article 39A
+ (C) Consumer liability of doctors
+ (D) Freedom of profession under Article 19(1)(g)
+ ✅ Answer: (A)
+ 📘 Explanation: The Court examined whether legal services are “services” under the CPA and if consumer complaints can lie against advocates regulated by the Advocates Act.
+
+CQ-24-11-02
+According to Section 2(1)(o)/2(42) of the CPA, which of the following is excluded from “service”?
+ (A) Banking and insurance
+ (B) Transport and education
+ (C) Contract of personal service
+ (D) Medical consultation for consideration
+ ✅ Answer: (C)
+ 📘 Explanation: A contract of personal service—involving direct supervision and fiduciary duty—is excluded from CPA coverage, as in the case of advocates.
+
+CQ-24-11-03
+The Supreme Court held that the advocate–client relationship is governed by which kind of contract?
+ (A) Contract of service
+ (B) Contract for service
+ (C) Contract of personal service
+ (D) Quasi-contract
+ ✅ Answer: (C)
+ 📘 Explanation: The Court classified advocacy as a personal service contract, involving trust, control, and fiduciary duty, hence outside CPA jurisdiction.
+
+CQ-24-11-04
+The judgment primarily harmonises which two statutory frameworks?
+ (A) Advocates Act, 1961 and Legal Services Authorities Act, 1987
+ (B) Advocates Act, 1961 and Consumer Protection Act, 1986/2019
+ (C) Indian Contract Act, 1872 and CPA
+ (D) Bar Council Rules and Evidence Act, 1872
+ ✅ Answer: (B)
+ 📘 Explanation: The Court reconciled the Advocates Act’s disciplinary regime with the CPA, holding that advocates are regulated exclusively by the former.
+
+CQ-24-11-05
+Which statement best reflects the Court’s ratio?
+ (A) Advocates render commercial services and fall under CPA.
+ (B) Legal services are sui generis and excluded from CPA’s scope.
+ (C) Legal services are akin to healthcare.
+ (D) CPA overrides the Advocates Act.
+ ✅ Answer: (B)
+ 📘 Explanation: The Court held that legal practice is unique and not a commercial service; thus, CPA consumer complaints are not maintainable.
+
+CQ-24-11-06
+Which precedent did the respondent rely on to argue that professionals can be held liable under CPA?
+ (A) Indian Medical Association v. V.P. Shantha (1995)
+ (B) Vishaka v. State of Rajasthan (1997)
+ (C) State of U.P. v. Deoman Upadhyaya (1960)
+ (D) Ramanand v. State of U.P. (2022)
+ ✅ Answer: (A)
+ 📘 Explanation: In V.P. Shantha (1995), medical professionals were held liable under CPA; however, the Court distinguished doctors from advocates.
+
+CQ-24-11-07
+Treating advocates as service providers under CPA would—
+ (A) Strengthen consumer protection
+ (B) Undermine professional independence and invite frivolous complaints
+ (C) Have no impact on justice delivery
+ (D) Increase access to justice
+ ✅ Answer: (B)
+ 📘 Explanation: The Court cautioned that CPA liability would erode professional independence and lead to vexatious litigation.
+
+CQ-24-11-08
+The Court described the legal profession as sui generis. What does this term mean?
+ (A) Regulated under multiple statutes
+ (B) Unique and distinct in nature
+ (C) Commercial and profit-oriented
+ (D) Governed by ordinary contract law
+ ✅ Answer: (B)
+ 📘 Explanation: Sui generis means “of its own kind” — the legal profession is unique, involving fiduciary trust and ethical duties.
+
+CQ-24-11-09
+According to the Court, complaints regarding professional misconduct of advocates must be addressed—
+ (A) Before District Consumer Forum
+ (B) Before Bar Council under Sections 35–44, Advocates Act, 1961
+ (C) Before Legal Services Authority
+ (D) Before High Court under Article 226
+ ✅ Answer: (B)
+ 📘 Explanation: The Court directed that professional misconduct complaints lie only before the Bar Council, not under the CPA.
+
+CQ-24-11-10
+The Bar of Indian Lawyers (2024) decision primarily reinforces which broader principle?
+ (A) Doctrine of proportionality
+ (B) Independence of the legal profession and regulatory autonomy
+ (C) Right to profession under Article 19(1)(g)
+ (D) Equality before law under Article 14
+ ✅ Answer: (B)
+ 📘 Explanation: The ruling upholds the independence and self-regulation of the Bar, ensuring advocates remain governed by the Advocates Act framework alone.
+
+⚖️ CQ-24-12 | Bilkis Yakub Rasool v. Union of India (2024)
+📜 Passage Context
+In Bilkis Yakub Rasool v. Union of India (2024), the Supreme Court struck down the Gujarat Government’s remission of eleven convicts in the 2002 gang-rape and mass-murder case. The Court held that Gujarat lacked competence under Section 432 CrPC since the trial and sentencing occurred in Maharashtra, which alone was the “appropriate government.” The remission orders were declared void ab initio as they were obtained by fraud on the Court through suppression of facts in Radheshyam Shah (2022). Reaffirming Articles 14 and 21, the Court ruled that remission is a privilege, not a right, and must uphold rule of law and victims’ dignity. The judgment restores faith in constitutional justice and restricts arbitrary executive clemency.
+📘 Source: Supreme Court of India, W.P. (Crl.) No. 284 of 2022, decided on 8 January 2024 (Justices B.V. Nagarathna & Ujjal Bhuyan).
+
+🧠 CLAT-PG Style Questions (with Explanations)
+
+CQ-24-12-01
+The central question in Bilkis Yakub Rasool (2024) concerned—
+ (A) The validity of the death sentence imposed by the trial court
+ (B) The legality and jurisdictional competence of remission orders passed by the State of Gujarat
+ (C) The maintainability of a PIL filed by third parties
+ (D) The quantum of compensation payable to the victim
+ ✅ Answer: (B)
+ 📘 Explanation: The Court decided whether Gujarat had authority under Section 432(7) CrPC to grant remission when conviction occurred in Maharashtra.
+
+CQ-24-12-02
+Under Section 432(7) CrPC, which government is the “appropriate government” for granting remission?
+ (A) The State where the offence occurred
+ (B) The State where the convict is imprisoned
+ (C) The State where conviction and sentencing occurred
+ (D) The Union Government in all cases
+ ✅ Answer: (C)
+ 📘 Explanation: The appropriate government is that within whose jurisdiction the sentencing court functions.
+
+CQ-24-12-03
+The Court held that remission obtained through “fraud on the court” is—
+ (A) Irregular but can be ratified
+ (B) Voidable at the State’s discretion
+ (C) Void ab initio and non est in law
+ (D) Merely a procedural irregularity
+ ✅ Answer: (C)
+ 📘 Explanation: The remission orders were null from inception, as the earlier order in Radheshyam Shah was procured by fraudulent suppression of facts.
+
+CQ-24-12-04
+Which fundamental rights were invoked by the petitioner?
+ (A) Articles 19 and 22
+ (B) Articles 14 and 21
+ (C) Articles 19(1)(a) and 32
+ (D) Articles 20 and 22
+ ✅ Answer: (B)
+ 📘 Explanation: The petitioner asserted that arbitrary remission violated her right to equality and right to life and dignity.
+
+CQ-24-12-05
+Why was the writ petition under Article 32 held maintainable?
+ (A) Because the High Court had rejected a similar plea
+ (B) Because it sought enforcement of fundamental rights directly before the Supreme Court
+ (C) Because Article 32 applies only to PILs
+ (D) Because it was an administrative dispute
+ ✅ Answer: (B)
+ 📘 Explanation: The petitioner rightly approached the Supreme Court under Article 32 to protect Articles 14 and 21.
+
+CQ-24-12-06
+Which earlier Supreme Court order was declared invalid for fraud?
+ (A) State of Haryana v. Jagdish
+ (B) Radheshyam Bhagwandas Shah v. State of Gujarat
+ (C) Maru Ram v. Union of India
+ (D) State of Gujarat v. Bilkis Rasool
+ ✅ Answer: (B)
+ 📘 Explanation: The Court nullified Radheshyam Shah (2022) for fraudulently enabling Gujarat to decide remission.
+
+CQ-24-12-07
+Under Section 433A CrPC, a life convict becomes eligible for remission only after—
+ (A) 10 years of sentence
+ (B) 14 years of actual imprisonment
+ (C) 20 years including remission
+ (D) Half the maximum term
+ ✅ Answer: (B)
+ 📘 Explanation: Section 433A mandates at least 14 years of actual imprisonment before remission consideration.
+
+CQ-24-12-08
+The Court observed that liberty can be protected only when—
+ (A) It aligns with rule of law and due process
+ (B) It serves political expediency
+ (C) Public pressure demands it
+ (D) It is granted by the executive alone
+ ✅ Answer: (A)
+ 📘 Explanation: Justice Nagarathna held that liberty must operate within the framework of rule of law, not through abuse of process.
+
+CQ-24-12-09
+Which principle governs the choice of remission policy?
+ (A) Policy of the State where offence occurred
+ (B) Opinion of the trial judge is unnecessary
+ (C) Remission becomes automatic after 14 years
+ (D) Policy of the competent State at the time of conviction applies
+ ✅ Answer: (D)
+ 📘 Explanation: The policy of the competent State—where conviction occurred—must guide remission.
+
+CQ-24-12-10
+The Bilkis Yakub Rasool (2024) judgment primarily reinforces which constitutional doctrine?
+ (A) Doctrine of separation of powers
+ (B) Doctrine of legitimate expectation
+ (C) Doctrine of rule of law and victim’s right to justice
+ (D) Doctrine of proportionality in sentencing
+ ✅ Answer: (C)
+ 📘 Explanation: The Court upheld the rule of law and victims’ right to justice, ensuring remission cannot defeat public confidence in judicial integrity.
+
+⚖️ CQ-24-13 | CORE v. ECI-SPIC-SMO-MCML (2024)
+📜 Passage 
+In Central Organisation for Railway Electrification v. ECI-SPIC-SMO-MCML (JV) (2024 INSC 857), a five-judge Constitution Bench of the Supreme Court settled conflicting rulings on unilateral appointment of arbitrators by public bodies. By a 3 : 2 majority, the Court held that contractual clauses allowing a PSU or State entity to control appointment of arbitrators from its own panel violate Section 18 (equal treatment) and Section 12(5) (impartiality) of the Arbitration and Conciliation Act 1996, as well as Article 14 of the Constitution. Such clauses were declared unconstitutional and inconsistent with the rule of neutrality in arbitration.
+📘 Source: Supreme Court of India, Constitution Bench Judgment (2024 INSC 857) – CJI D.Y. Chandrachud for the majority.
+
+CQ-24-13-01
+The primary issue before the Constitution Bench in CORE (2024) was—
+ (A) Whether a PSU can maintain an arbitral panel of its employees
+ (B) Whether an ineligible person under Section 12(5) can nominate arbitrators from its own panel
+ (C) Whether courts can intervene under Section 37
+ (D) Whether PSU arbitral awards are binding
+ ✅ Answer: (B)
+ 📘 Explanation: The Court examined whether a disqualified entity could still control the appointment process through its internal panel.
+
+CQ-24-13-02
+Which provision ensures equality of parties in arbitration?
+ (A) Section 11 (B) Section 12(5) (C) Section 18 (D) Section 34(2)(b)
+ ✅ Answer: (C)
+ 📘 Explanation: Section 18 mandates equal treatment and full opportunity—the majority applied it even at the appointment stage.
+
+CQ-24-13-03
+Under Section 12(5) read with the Seventh Schedule, who is disqualified from acting as arbitrator?
+ (A) Retired public servants only
+ (B) Anyone having financial, business, or employment ties with a party
+ (C) Arbitrators appointed by mutual consent
+ (D) Foreign institutional nominees
+ ✅ Answer: (B)
+ 📘 Explanation: Persons with any financial or professional relationship with a party are ineligible under the Seventh Schedule.
+
+CQ-24-13-04
+The majority opinion in CORE (2024) was authored by—
+ (A) Justice Hrishikesh Roy (B) CJI D.Y. Chandrachud (C) Justice P.S. Narasimha (D) Justice J.B. Pardiwala
+ ✅ Answer: (B)
+ 📘 Explanation: CJI Chandrachud wrote for himself and Justices Pardiwala & Misra, forming the majority.
+
+CQ-24-13-05
+Which earlier decision permitting PSU panels was overruled?
+ (A) TRF Ltd. v. Energo Engg. (2017)
+ (B) Perkins Eastman v. HSCC (India) (2019)
+ (C) CORE v. ECI-SPIC-SMO-MCML (2019)
+ (D) Union of India v. Tantia Constructions (2021)
+ ✅ Answer: (C)
+ 📘 Explanation: The 2019 CORE ruling allowing PSU panels was expressly overruled by this Constitution Bench.
+
+CQ-24-13-06
+Requiring a private party to choose from a PSU’s panel violates—
+ (A) Proportionality (B) Equal treatment of parties (C) Estoppel (D) Minimal interference
+ ✅ Answer: (B)
+ 📘 Explanation: It deprives the counter-party of parity, violating Section 18 and Article 14.
+
+CQ-24-13-07
+Which dissenting judge upheld limited validity of unilateral appointments?
+ (A) Justice Ujjal Bhuyan (B) Justice Hrishikesh Roy (C) Justice P.S. Narasimha (D) Justice B.V. Nagarathna
+ ✅ Answer: (B)
+ 📘 Explanation: Justice Roy’s dissent held Section 12 already provides safeguards; hence unilateral appointments aren’t inherently void.
+
+CQ-24-13-08
+The majority linked arbitral fairness with which constitutional principle?
+ (A) Article 14 – Equality and non-arbitrariness
+ (B) Article 19(1)(g) – Freedom of profession
+ (C) Article 32 – Right to remedies
+ (D) Article 300A – Property rights
+ ✅ Answer: (A)
+ 📘 Explanation: CJI Chandrachud held that fairness & neutrality in arbitration flow from Article 14.
+
+CQ-24-13-09
+The rule that “an ineligible person cannot nominate another” comes from—
+ (A) Union of India v. Tantia Constructions (2021)
+ (B) TRF Ltd. v. Energo Engg. (2017)
+ (C) Perkins Eastman v. HSCC (India) (2019)
+ (D) ONGC v. Afcons Gunanusa (2022)
+ ✅ Answer: (B)
+ 📘 Explanation: TRF Ltd. (2017) introduced this ineligibility-cum-nomination bar, reaffirmed in CORE (2024).
+
+CQ-24-13-10
+The CORE (2024) judgment chiefly strengthens which doctrine?
+ (A) Minimal interference (B) Kompetenz-kompetenz (C) Neutrality and equality in arbitration (D) Judicial supremacy
+ ✅ Answer: (C)
+ 📘 Explanation: The ruling entrenches neutrality, impartiality, and equal treatment as core constitutional values in Indian arbitration.
+
+⚖️ CQ-24-14 | Child in Conflict with Law v. The State of Karnataka (2024)
+📜 Passage 
+In Child in Conflict with Law v. The State of Karnataka (2024), the Supreme Court clarified that the three-month limit prescribed under Section 14(3) of the Juvenile Justice (Care and Protection of Children) Act, 2015 for completing preliminary assessments in heinous-offence cases is directory, not mandatory. The Court held that justice for children must remain rehabilitative and restorative, and technical delays should not defeat substantive fairness. Emphasizing purposive interpretation of welfare legislation, it underscored that procedural timelines exist to aid—not hinder—the child-centric goals of the JJ Act.
+📘 Source: Supreme Court of India, Criminal Appeal No. 1452 of 2024, decided on 10 May 2024 (Bench: Justices B.V. Nagarathna & Ujjal Bhuyan).
+
+CQ-24-14-01
+The main issue in Child in Conflict with Law (2024) was—
+ (A) Whether the child should be tried under the IPC or the JJ Act
+ (B) Whether the three-month limit in Section 14(3) JJ Act is mandatory or directory
+ (C) Whether juveniles can be charged under POCSO
+ (D) Whether the victim’s family can challenge a Board order
+ ✅ Answer: (B)
+ 📘 Explanation: The Court decided that exceeding the three-month limit does not vitiate proceedings—the provision is directory.
+
+CQ-24-14-02
+Which interpretive principle guided the Court’s approach?
+ (A) Strict penal construction (B) Beneficial and purposive interpretation (C) Severability (D) Strict liability
+ ✅ Answer: (B)
+ 📘 Explanation: As the JJ Act is a beneficial law, the Court adopted a purposive interpretation favouring rehabilitation over rigidity.
+
+CQ-24-14-03
+Which provision empowers transfer of a juvenile’s case for adult trial?
+ (A) Section 14(3) (B) Section 15(1) (C) Section 19 (D) Section 101(2)
+ ✅ Answer: (C)
+ 📘 Explanation: Under Section 19, after assessment under Section 15, the Board may transfer the case to a Children’s Court for adult trial.
+
+CQ-24-14-04
+The judgment primarily reinforces which object of the JJ Act?
+ (A) Retributive justice (B) Restorative and rehabilitative justice (C) Deterrent punishment (D) Administrative convenience
+ ✅ Answer: (B)
+ 📘 Explanation: The focus is on rehabilitation and reintegration of the child, not punishment.
+
+CQ-24-14-05
+Why did the Court consider the three-month period directory?
+ (A) It conflicts with Section 19
+ (B) The statute provides no penal consequence for delay
+ (C) It conflicts with POCSO timelines
+ (D) The State issued clarificatory rules
+ ✅ Answer: (B)
+ 📘 Explanation: Absence of penal consequence indicates legislative intent for a directory timeline.
+
+CQ-24-14-06
+Which earlier case discussed preliminary-assessment standards under Section 15?
+ (A) Shilpa Mittal v. State of NCT Delhi (2020)
+ (B) Pratap Singh v. State of Jharkhand (2005)
+ (C) Barun Chandra Thakur v. Master Bholu (2022)
+ (D) State of Punjab v. Gurmit Singh (1996)
+ ✅ Answer: (C)
+ 📘 Explanation: Master Bholu (2022) clarified procedure and standards for mental-capacity evaluation in Section 15 assessments.
+
+CQ-24-14-07
+Under Section 15(1), preliminary assessment involves—
+ (A) Only the child’s age
+ (B) Family background
+ (C) Capacity to commit and understand consequences
+ (D) Medical history
+ ✅ Answer: (C)
+ 📘 Explanation: Section 15(1) directs the Board to assess mental/physical capacity, understanding, and circumstances of the offence.
+
+CQ-24-14-08
+Which statement best reflects the Court’s reasoning?
+ (A) Delay nullifies proceedings
+ (B) Section 14(3) creates a victim’s right
+ (C) JJ Act procedures are flexible to ensure substantive justice
+ (D) Board loses jurisdiction after three months
+ ✅ Answer: (C)
+ 📘 Explanation: The Court stressed procedural flexibility to secure fairness and avoid injustice.
+
+CQ-24-14-09
+When can the Juvenile Justice Board transfer a case to the Children’s Court?
+ (A) Only when the offence is heinous and the child is above 16 years
+ (B) When requested by the child’s family
+ (C) If investigation exceeds 3 months
+ (D) When quorum is incomplete
+ ✅ Answer: (A)
+ 📘 Explanation: Transfer is allowed only for heinous offences involving a child above 16 capable of understanding consequences.
+
+CQ-24-14-10
+The Child in Conflict with Law (2024) judgment aligns with which jurisprudential doctrine?
+ (A) Procedural fairness (B) Strict compliance (C) Presumption of guilt (D) Ultra vires
+ ✅ Answer: (A)
+ 📘 Explanation: The Court reaffirmed procedural fairness and due process as essential to child-centric justice.
+
+
+⚖️ CQ-24-15 | Cox and Kings Ltd. v. SAP India Pvt. Ltd. (2024)
+📜 Passage Context
+In Cox and Kings Ltd. v. SAP India Pvt. Ltd. (2024), a five-judge Constitution Bench of the Supreme Court affirmed that the Group of Companies Doctrine (GoCD) forms part of Indian arbitration law. It held that even non-signatories can be bound by an arbitration clause if objective evidence shows their intention to be bound—through active participation in negotiation, performance, or control over the contract. The Court balanced party autonomy with commercial reality, aligning Indian jurisprudence with international standards. Consent remains central, but it may be implied from conduct, not only expressed in writing.
+📘 Source: Supreme Court of India, Constitution Bench Judgment, decided on 6 December 2024 (CJI D.Y. Chandrachud; Justices Sanjiv Khanna, Surya Kant, J.B. Pardiwala & P.S. Narasimha [dissenting]).
+
+CQ-24-15-01
+The primary legal question in Cox and Kings (2024) concerned—
+ (A) Whether a non-signatory can initiate arbitration
+ (B) Whether the Group of Companies Doctrine applies under Indian law
+ (C) Whether arbitration clauses survive insolvency
+ (D) Whether courts can refuse to appoint arbitrators under Section 11
+ ✅ Answer: (B)
+ 📘 Explanation: The Constitution Bench decided that the GoCD is part of Indian arbitration law, enabling arbitration against non-signatories in appropriate cases.
+
+CQ-24-15-02
+Under Section 7 of the Arbitration and Conciliation Act, 1996, an arbitration agreement must—
+ (A) Be expressly in writing and signed by all parties
+ (B) Be oral if all parties consent
+ (C) Contain written or implied consent to arbitrate disputes
+ (D) Mention a specific arbitral institution
+ ✅ Answer: (C)
+ 📘 Explanation: Section 7 requires the agreement to be in writing but allows implied consent inferred from conduct, as clarified in this judgment.
+
+CQ-24-15-03
+The Group of Companies Doctrine permits arbitration with non-signatories when—
+ (A) The parent company owns more than 50% of the subsidiary
+ (B) The non-signatory has expressly consented in writing
+ (C) There is clear evidence of intention or conduct showing implied consent
+ (D) The arbitral tribunal finds economic benefit to the non-signatory
+ ✅ Answer: (C)
+ 📘 Explanation: The doctrine applies where objective evidence shows intent to be bound—through involvement in negotiation, performance, or supervision.
+
+CQ-24-15-04
+Which statement correctly reflects the Court’s holding in Cox and Kings (2024)?
+ (A) Corporate groups are presumed bound by arbitration clauses
+ (B) Non-signatories can never be compelled to arbitrate
+ (C) Non-signatories may be bound if directly involved in negotiation or performance
+ (D) Only written consent satisfies Section 7
+ ✅ Answer: (C)
+ 📘 Explanation: The Court held that participation and control can imply consent to arbitration, making a non-signatory bound.
+
+CQ-24-15-05
+Which earlier case first recognized the Group of Companies Doctrine in India?
+ (A) MTNL v. Canara Bank (2020)
+ (B) Chloro Controls India (P) Ltd. v. Severn Trent Water Purification Inc. (2013)
+ (C) Cheran Properties v. Kasturi & Sons (2018)
+ (D) Ameet Lalchand Shah v. Rishabh Enterprises (2018)
+ ✅ Answer: (B)
+ 📘 Explanation: Chloro Controls (2013) was the first to adopt the GoCD in India for composite transactions involving group companies.
+
+CQ-24-15-06
+Justice P.S. Narasimha’s dissent emphasized that—
+ (A) Arbitration requires strict adherence to written consent under Section 7
+ (B) All group companies are automatically bound
+ (C) Implied consent is sufficient without a written agreement
+ (D) The doctrine violates constitutional equality
+ ✅ Answer: (A)
+ 📘 Explanation: Justice Narasimha cautioned that GoCD dilutes party autonomy, insisting on written consent to ensure certainty.
+
+CQ-24-15-07
+Which test did the Court lay down for applying the Group of Companies Doctrine?
+ (A) Common shareholding and board overlap
+ (B) Corporate control alone
+ (C) Direct involvement in negotiation/performance and clear intention to arbitrate
+ (D) Economic benefit from the transaction
+ ✅ Answer: (C)
+ 📘 Explanation: The Court laid a three-factor test—(1) participation in negotiation/performance, (2) common intention, and (3) integrated transaction.
+
+CQ-24-15-08
+Which international case influenced the Court’s reasoning?
+ (A) Dow Chemical v. Isover Saint-Gobain (ICC Case No. 4131/1982)
+ (B) Hall Street v. Mattel (U.S.)
+ (C) Fiona Trust v. Privalov (U.K.)
+ (D) Dallah Real Estate v. Pakistan (U.K. 2010)
+ ✅ Answer: (A)
+ 📘 Explanation: The Court cited Dow Chemical, the leading ICC case recognizing GoCD where affiliates were bound by implied consent.
+
+CQ-24-15-09
+Recognition of GoCD in Cox and Kings (2024) strengthens which arbitration principle?
+ (A) Party autonomy
+ (B) Single economic entity principle
+ (C) Kompetenz-Kompetenz
+ (D) Minimal judicial interference
+ ✅ Answer: (B)
+ 📘 Explanation: The judgment affirms the single economic entity principle—treating corporate groups as one economic unit when justified by intent.
+
+CQ-24-15-10
+Scenario-Based Question:
+ “OceanLink India Pvt. Ltd.” contracts with “TechWave Singapore Pte. Ltd.” (with arbitration clause). The parent company, “TechWave Global Ltd.,” supervises the project, handles invoices, and appoints managers. OceanLink initiates arbitration against both entities.
+ According to Cox and Kings (2024), what is the correct outcome?
+(A) Arbitration cannot proceed against the parent company
+ (B) The parent company can be included if conduct indicates implied consent
+ (C) All group companies are automatically bound
+ (D) Separate written consent is mandatory
+ ✅ Answer: (B)
+ 📘 Explanation: Under Cox and Kings, implied consent through control and performance allows inclusion of the non-signatory parent under GoCD.
+
+
+⚖️ CQ-24-16 | Dablu Kujur v. State of Jharkhand (2024)
+📜 Passage Context
+In Dablu Kujur v. State of Jharkhand (2024), the Supreme Court clarified the scope of Section 173(2) of the Code of Criminal Procedure (CrPC) — which defines the mandatory contents of a police report (chargesheet). The Court held that a chargesheet is synonymous with the final police report under Section 173(2) and must include all statutory particulars such as names of parties, nature of information, witness details, and the accused’s custody status. It further observed that procedural lapses in the chargesheet may affect the validity of cognizance, but do not automatically entitle an accused to bail in serious offences.
+📘 Source: Supreme Court of India, Criminal Appeal No. 885 of 2024, decided on 17 May 2024 (Bench: Justices Surya Kant & Dipankar Datta).
+
+CQ-24-16-01
+The Supreme Court in Dablu Kujur (2024) reaffirmed that the term “chargesheet” refers to—
+ (A) A preliminary inquiry report by police
+ (B) The complaint filed by an informant
+ (C) The final report under Section 173(2) CrPC
+ (D) The evidence summary during trial
+ ✅ Answer: (C)
+ 📘 Explanation: The Court held that “chargesheet” and “final report” under Section 173(2) are interchangeable terms representing the completion of investigation.
+
+CQ-24-16-02
+Which of the following is not a mandatory component of a police report under Section 173(2) CrPC?
+ (A) Names of parties
+ (B) Nature of information
+ (C) Opinion of the Magistrate
+ (D) Whether the accused has been arrested or released
+ ✅ Answer: (C)
+ 📘 Explanation: Section 173(2) lists only details required from the investigating officer, not the Magistrate’s opinion.
+
+CQ-24-16-03
+Under Dablu Kujur (2024), failure to comply with Section 173(2) primarily affects—
+ (A) The accused’s guilt or innocence
+ (B) The Magistrate’s ability to take cognizance
+ (C) The admissibility of evidence
+ (D) The accused’s right to appeal
+ ✅ Answer: (B)
+ 📘 Explanation: A defective or incomplete police report may hinder the Magistrate’s jurisdiction to take cognizance until rectified.
+
+CQ-24-16-04
+What additional requirement does Section 173(2)(h) impose in sexual offence cases under Section 376 IPC?
+ (A) Attaching witness affidavits
+ (B) Including the medical examination report of the victim
+ (C) Listing the accused’s criminal record
+ (D) Detailing investigation expenditure
+ ✅ Answer: (B)
+ 📘 Explanation: Section 173(2)(h) mandates inclusion of the medical report of the woman in cases involving sexual offences.
+
+CQ-24-16-05
+Which provision of the CrPC requires a day-to-day investigation record?
+ (A) Section 167 (B) Section 170 (C) Section 172 (D) Section 175
+ ✅ Answer: (C)
+ 📘 Explanation: Section 172 obligates the officer to maintain a case diary recording daily progress in investigation.
+
+CQ-24-16-06
+What was the Supreme Court’s view on granting bail to Dablu Kujur?
+ (A) Bail was granted due to incomplete investigation
+ (B) Bail was denied as the trial was nearing completion
+ (C) Bail was granted on compassionate grounds
+ (D) Bail was denied for lack of jurisdiction
+ ✅ Answer: (B)
+ 📘 Explanation: The Court declined bail, citing the serious nature of the offence and that the trial was almost complete.
+
+CQ-24-16-07
+According to Dablu Kujur (2024), compliance under Section 172(1B) CrPC requires—
+ (A) Paginated, bound case diaries
+ (B) Loose-sheet notes permissible
+ (C) Only final entries preserved
+ (D) No Magistrate verification
+ ✅ Answer: (A)
+ 📘 Explanation: The Court insisted that case diaries be bound and paginated to maintain authenticity and prevent tampering.
+
+CQ-24-16-08
+The purpose of Section 173(2) CrPC, as emphasised by the Court, is to—
+ (A) Enable the Magistrate to determine guilt
+ (B) Ensure a complete and transparent record for judicial scrutiny
+ (C) Protect investigating officers from liability
+ (D) Delay trial proceedings
+ ✅ Answer: (B)
+ 📘 Explanation: The provision safeguards procedural transparency and fairness, enabling judicial oversight of investigations.
+
+CQ-24-16-09
+The ruling in Dablu Kujur (2024) primarily strengthens which legal principle?
+ (A) Double jeopardy
+ (B) Procedural fairness and due process
+ (C) Res judicata
+ (D) Proportionality
+ ✅ Answer: (B)
+ 📘 Explanation: The decision reinforces due process, ensuring procedural integrity in the criminal justice system.
+
+CQ-24-16-10
+Scenario-Based Question:
+ In a dowry-death case, police submit a final report missing the witness list and medical report. The Magistrate still takes cognizance. The accused challenges it citing Dablu Kujur (2024).
+ What should the Court do?
+(A) Treat cognizance as void due to non-compliance
+ (B) Direct rectification or supplementation of the report before proceeding
+ (C) Ignore the omission as minor error
+ (D) Allow submission of missing records during final arguments
+ ✅ Answer: (B)
+ 📘 Explanation: As per Dablu Kujur, the Magistrate must seek correction or supplementation of missing particulars before continuing with trial proceedings.
+Here’s your numbered and CLAT-PG–ready version of the case quiz for
+ 🧾 CQ-24-17 | Devu G. Nair v. State of Kerala (2024) 👇
+
+⚖️ CQ-24-17 | Devu G. Nair v. State of Kerala (2024)
+📜 Passage Context
+In Devu G. Nair v. State of Kerala (2024), the Supreme Court addressed a habeas corpus petition involving two adult women in a same-sex relationship, where one partner was allegedly confined by her parents. The Kerala High Court had ordered “counselling” for the detained woman, which the Supreme Court later criticised as unconstitutional, holding that counselling cannot be used to suppress or alter a person’s sexual orientation or autonomy.
+ The Court reaffirmed that sexual orientation, privacy, and identity are protected under Articles 14, 15, and 21, and issued guidelines for handling habeas corpus cases involving adult relationships — directing courts to respect personal liberty, privacy, and judicial neutrality while avoiding judicial paternalism.
+📘 Source: Supreme Court of India, Writ Petition (Criminal) No. 104 of 2024, decided on 18 April 2024 (Bench: Justices S. Ravindra Bhat & P.S. Narasimha).
+
+CQ-24-17-01
+The principal constitutional right reaffirmed by the Supreme Court in Devu G. Nair (2024) was—
+ (A) Right to marry under Article 19
+ (B) Right to life and dignity under Article 21
+ (C) Right to freedom of speech under Article 19(1)(a)
+ (D) Right to education under Article 21-A
+ ✅ Answer: (B)
+ 📘 Explanation: The Court reaffirmed that autonomy, identity, and liberty in adult relationships are integral to Article 21.
+
+CQ-24-17-02
+The Court held that counselling in habeas corpus cases—
+ (A) Can be used to change a person’s orientation
+ (B) Should be under parental supervision
+ (C) Must not be used to overcome or suppress free will
+ (D) Should be mandatory for same-sex partners
+ ✅ Answer: (C)
+ 📘 Explanation: The Court condemned counselling intended to override autonomy or identity, calling it unconstitutional.
+
+CQ-24-17-03
+Which constitutional doctrine prevents judges from imposing personal moral beliefs?
+ (A) Basic structure doctrine
+ (B) Doctrine of proportionality
+ (C) Doctrine of constitutional morality
+ (D) Separation of powers
+ ✅ Answer: (C)
+ 📘 Explanation: The Court invoked constitutional morality, urging judges to uphold constitutional values rather than social morality.
+
+CQ-24-17-04
+The concept of “family” in Devu G. Nair (2024) was interpreted to include—
+ (A) Only biological relatives
+ (B) Persons related by marriage
+ (C) Chosen partners and support networks beyond natal family
+ (D) Only married heterosexual couples
+ ✅ Answer: (C)
+ 📘 Explanation: The Court recognised chosen families and intimate partners, expanding the idea of family to include LGBTQ+ relationships.
+
+CQ-24-17-05
+Which earlier judgment did Devu G. Nair (2024) build upon?
+ (A) Shafin Jahan v. Asokan K.M. (2018)
+ (B) Navtej Singh Johar v. Union of India (2018)
+ (C) Joseph Shine v. Union of India (2018)
+ (D) Lata Singh v. State of U.P. (2006)
+ ✅ Answer: (B)
+ 📘 Explanation: The judgment extended Navtej Singh Johar’s reasoning, protecting the dignity and equality of LGBTQ+ persons.
+
+CQ-24-17-06
+The Court directed that habeas corpus petitions involving same-sex partners must—
+ (A) Be handled with restraint and prioritised for speedy hearing
+ (B) Be referred to family courts
+ (C) Be decided by police authorities
+ (D) Await parental consent
+ ✅ Answer: (A)
+ 📘 Explanation: The Court mandated judicial restraint, privacy, and expeditious hearing in such petitions.
+
+CQ-24-17-07
+The Court’s interpretation of personal liberty aligns most closely with—
+ (A) A.K. Gopalan v. State of Madras (1950)
+ (B) K.S. Puttaswamy v. Union of India (2017)
+ (C) ADM Jabalpur v. Shivkant Shukla (1976)
+ (D) State of Rajasthan v. Balchand (1977)
+ ✅ Answer: (B)
+ 📘 Explanation: The judgment drew from Puttaswamy (2017), which recognised privacy and decisional autonomy as core elements of liberty.
+
+CQ-24-17-08
+According to the Court, what must not occur during judicial interaction with the detained person?
+ (A) In-camera dialogue ensuring safety
+ (B) Neutral recording of free will
+ (C) Counselling to alter sexual orientation
+ (D) Provision of police protection if needed
+ ✅ Answer: (C)
+ 📘 Explanation: The Court prohibited “corrective” counselling, affirming freedom of identity and choice.
+
+CQ-24-17-09
+What did the Court mean by warning against “judicial paternalism” in LGBTQ+ matters?
+ (A) Courts must defer to parents’ wishes
+ (B) Judges cannot act as moral guardians or impose beliefs
+ (C) Courts should encourage reconciliation before ruling
+ (D) Judges must mediate family disputes
+ ✅ Answer: (B)
+ 📘 Explanation: “Judicial paternalism” denotes overreach; the Court urged neutrality and respect for adult autonomy.
+
+CQ-24-17-10
+Scenario-Based Question:
+ An adult woman files a habeas corpus petition alleging her same-sex partner is confined by her parents. The High Court orders “family counselling” for both women before ruling.
+ According to Devu G. Nair (2024), which approach is constitutionally sound?
+(A) The order is valid since counselling helps reconciliation
+ (B) The order is unconstitutional as it violates autonomy and dignity
+ (C) The order is justified because parents have protective rights
+ (D) The order is valid if approved by the State
+ ✅ Answer: (B)
+ 📘 Explanation: The Supreme Court held that such counselling orders violate Articles 14, 15, and 21, as they intrude upon autonomy and reinforce heteronormative bias.
+
+⚖️ CQ-24-18 | Dolly Rani v. Manish Kumar Chanchal (2024)
+📜 Passage Context
+In Dolly Rani v. Manish Kumar Chanchal (2024), the Supreme Court examined whether a Hindu marriage registered without being solemnised under Section 7 of the Hindu Marriage Act, 1955 was valid.
+ The parties had obtained a certificate from a private body but never performed the essential ceremony of saptapadi. They jointly sought relief under Article 142 to declare the marriage void ab initio.
+ The Court held that solemnisation is mandatory, and registration under Section 8 only evidences a pre-existing marriage. Without the performance of customary rites, no valid marriage exists in law.
+📘 Source – Supreme Court of India, Civil Appeal No. 1214 of 2024 (decided on 10 April 2024, Bench: Justices Sanjiv Khanna & B.V. Nagarathna).
+
+CQ-24-18-01
+Under the Hindu Marriage Act, what is the legal effect of non-performance of customary rites such as saptapadi?
+ (A) Marriage remains valid but irregular
+ (B) Marriage is void ab initio
+ (C) Registration validates it
+ (D) Marriage becomes voidable
+ ✅ Answer: (B)
+ 📘 Explanation: Section 7 makes solemnisation through customary rites essential; without it, no marriage ever comes into existence.
+
+CQ-24-18-02
+Registration under Section 8 of the Act—
+ (A) Creates a valid marriage
+ (B) Is conclusive proof of marriage
+ (C) Is only evidentiary and cannot substitute solemnisation
+ (D) Is unnecessary for existence of marriage
+ ✅ Answer: (C)
+ 📘 Explanation: Registration evidences a marriage already performed; it does not itself create one.
+
+CQ-24-18-03
+What is the core distinction between Sections 7 and 8 of the Act?
+ (A) Section 7 – ceremonies; Section 8 – registration
+ (B) Section 7 optional; Section 8 mandatory
+ (C) Both concern registration
+ (D) Section 7 for Hindus; Section 8 for inter-faith couples
+ ✅ Answer: (A)
+ 📘 Explanation: Section 7 relates to solemnisation; Section 8 provides evidentiary registration.
+
+CQ-24-18-04
+Which constitutional provision empowered the Supreme Court to declare the marriage void and quash related proceedings?
+ (A) Article 32 (B) Article 136 (C) Article 141 (D) Article 142
+ ✅ Answer: (D)
+ 📘 Explanation: The Court invoked Article 142 to exercise its plenary power to do complete justice.
+
+CQ-24-18-05
+The Supreme Court described Hindu marriage as—
+ (A) A contract capable of registration
+ (B) A civil union without spiritual import
+ (C) A samskara requiring solemnisation
+ (D) A social arrangement dispensing with rituals
+ ✅ Answer: (C)
+ 📘 Explanation: The judgment reaffirmed the sacramental character of Hindu marriage.
+
+CQ-24-18-06
+What was the Court’s view on registering marriages that never occurred?
+ (A) Permissible if both consent
+ (B) Harmless irregularity
+ (C) Undermines sanctity and is invalid
+ (D) Promotes transparency
+ ✅ Answer: (C)
+ 📘 Explanation: The Court condemned false registrations as illegal and contrary to the sanctity of marriage.
+
+CQ-24-18-07
+Which precedent aligns most closely with Dolly Rani (2024) regarding proof of solemnisation?
+ (A) Seema v. Ashwani Kumar (2006)
+ (B) Kanwal Ram v. H.P. Administration (1966)
+ (C) Sarla Mudgal v. Union of India (1995)
+ (D) Lily Thomas v. Union of India (2000)
+ ✅ Answer: (B)
+ 📘 Explanation: Kanwal Ram held that actual performance of ceremonies must be proved for a valid marriage.
+
+CQ-24-18-08
+Why did the Supreme Court quash all civil and criminal proceedings between the parties?
+ (A) Marriage was void ab initio
+ (B) Private settlement reached
+ (C) High Court annulled marriage
+ (D) FIRs were time-barred
+ ✅ Answer: (A)
+ 📘 Explanation: No valid marriage existed; all dependent proceedings therefore became infructuous.
+
+CQ-24-18-09
+The ruling reinforces which broader legal principle?
+ (A) Contractual freedom in marriage
+ (B) Doctrine of severability
+ (C) Distinction between substantive validity and procedural proof
+ (D) Constitutional morality
+ ✅ Answer: (C)
+ 📘 Explanation: Substantive validity (rituals) precedes procedural proof (registration).
+
+CQ-24-18-10 – Application Based
+A and B, both Hindus, sign an affidavit and register it as marriage without performing ceremonies. Later, A files for divorce.
+ According to Dolly Rani (2024), the correct legal position is—
+ (A) Divorce can be granted based on registration
+ (B) Marriage void ab initio for lack of solemnisation
+ (C) Marriage validated under Article 21
+ (D) Court will order performance of saptapadi
+ ✅ Answer: (B)
+ 📘 Explanation: Without customary solemnisation under Section 7, registration or affidavit cannot create marital status.
+
+🧾 CQ-24-19 | Dr. Bhim Rao Ambedkar Vichar Manch Bihar v. State of Bihar & Ors. (2024)
+📜 Passage 
+In Dr. Bhim Rao Ambedkar Vichar Manch Bihar v. State of Bihar (2024), the Supreme Court struck down the Bihar Government’s Resolution dated 01 July 2015 which had merged the “Tanti-Tantwa” community (previously part of the Extremely Backward Class) into the Scheduled Caste (SC) list.
+ The Court held that the State Government has no constitutional power to modify or alter the SC list once notified by the President under Article 341(1).
+ It reaffirmed that only Parliament, under Article 341(2), can change or amend the list of Scheduled Castes.
+ The judgment reinforced federal balance, constitutional supremacy, and procedural legality, while protecting individuals who had already benefited under the invalid notification from retrospective penalisation.
+
+CQ-24-19-01. The Supreme Court in Dr. Bhim Rao Ambedkar Vichar Manch (2024) primarily interpreted which constitutional provision?
+ (A) Article 15(4) (B) Article 341 (C) Article 338 (D) Article 342
+ ✅ Answer: (B)
+ Explanation: Article 341 empowers the President to specify Scheduled Castes and provides that only Parliament may amend or modify such lists.
+
+CQ-24-19-02. Under Article 341(2), who has the power to amend or vary the list of Scheduled Castes once it has been notified?
+ (A) State Government (B) President (C) Parliament (D) Governor
+ ✅ Answer: (C)
+ Explanation: Only Parliament can alter, include, or exclude any caste from the SC list, ensuring national uniformity.
+
+CQ-24-19-03. The Bihar Government’s Resolution merging “Tanti-Tantwa” with Scheduled Castes was held unconstitutional because—
+ (A) It violated Article 14 (B) State lacked competence under Article 341 (C) It exceeded the 50% limit (D) It discriminated on gender
+ ✅ Answer: (B)
+ Explanation: Only Parliament can modify SC lists; the State had no constitutional competence.
+
+CQ-24-19-04. Which principle of Indian federalism was reaffirmed by the Supreme Court in this case?
+ (A) Separation of powers (B) Central supremacy in SC/ST matters (C) Co-operative federalism (D) Decentralised autonomy
+ ✅ Answer: (B)
+ Explanation: Classification of SCs lies exclusively with the Union, confirming central supremacy.
+
+CQ-24-19-05. What equitable direction did the Supreme Court issue regarding those who had already availed benefits under the invalid resolution?
+ (A) Repay benefits (B) Face prosecution (C) Past benefits protected; no future claims (D) Certificates valid indefinitely
+ ✅ Answer: (C)
+ Explanation: Past benefits were preserved in good faith, but future entitlements were stopped.
+
+CQ-24-19-06. Which precedent supported protection of accrued benefits under an invalid order?
+ (A) E.V. Chinnaiah v. State of A.P. (2005) (B) State of Maharashtra v. Keshao Vishwanath Sonone (2021) (C) Indra Sawhney v. Union of India (1992) (D) M. Nagaraj v. Union of India (2006)
+ ✅ Answer: (B)
+ Explanation: Keshao Sonone upheld equitable protection for beneficiaries of invalid administrative acts.
+
+CQ-24-19-07. The legal effect of a Presidential Notification under Article 341(1) is—
+ (A) Advisory only (B) Modifiable by State (C) Binding; amendable only by Parliament (D) Expires after five years
+ ✅ Answer: (C)
+ Explanation: A Presidential Notification has constitutional finality; amendment requires Parliamentary law.
+
+CQ-24-19-08. What did the Supreme Court direct regarding posts occupied by “Tanti-Tantwa” candidates under SC quota?
+ (A) Cancel retrospectively (B) Revert prospectively to SC category (C) Retain permanently (D) Remand to High Court
+ ✅ Answer: (B)
+ Explanation: Posts to revert prospectively; completed appointments left undisturbed.
+
+CQ-24-19-09. The decision in Dr. Bhim Rao Ambedkar Vichar Manch (2024) aligns most closely with which precedent?
+ (A) Marri Chandra Shekhar Rao v. Dean, S.G.S. Medical College (1990)
+ (B) Ashoka Kumar Thakur v. Union of India (2008)
+ (C) S. Krishnan v. State of Madras (1951)
+ (D) Sarla Mudgal v. Union of India (1995)
+ ✅ Answer: (A)
+ Explanation: Marri Chandra Shekhar Rao held that SC/ST status depends strictly on Presidential notification and territorial applicability.
+
+CQ-24-19-10. (Application-Based)
+ Suppose State X adds “Pasi-Nayak” to the SC list by executive order, granting benefits. Several appointments follow before challenge.
+ Applying Dr. Bhim Rao Ambedkar Vichar Manch (2024), which is correct?
+ (A) Order valid; promotes justice (B) Order unconstitutional; only Parliament can amend SC list (C) State’s interim power validates it (D) Appointments valid permanently under Article 142
+ ✅ Answer: (B)
+ Explanation: Only Parliament can modify the SC list under Article 341(2); equitable relief may protect past beneficiaries.
+
+🧾 CQ-24-20 | Dr. Brajendra Singh Chauhan & Ors. v. Central Administrative Tribunal & Ors. (2024)
+📜 Passage
+In Dr. Brajendra Singh Chauhan & Ors. v. Central Administrative Tribunal & Ors. (2024), the Allahabad High Court ruled that orders passed by the Central Administrative Tribunal (CAT) in the exercise of contempt jurisdiction under Section 17 of the Administrative Tribunals Act, 1985 can be challenged only before the Supreme Court under Section 19 of the Contempt of Courts Act, 1971, not before the High Court under Article 226.
+The Court relied on T. Sudhakar Prasad v. Govt. of A.P. (2001) and L. Chandra Kumar v. Union of India (1997), emphasising that when a specific statutory appellate remedy exists, the writ jurisdiction of High Courts cannot be invoked.
+The judgment reinforces constitutional federalism, judicial discipline, and statutory hierarchy within India’s tribunal system.
+
+CQ-24-20-01
+The core legal question in Dr. Brajendra Singh Chauhan (2024) concerned—
+
+ (A) Jurisdiction of High Courts to review CAT’s service orders
+
+ (B) Maintainability of a writ petition against CAT’s contempt orders
+
+ (C) Power of CAT to review its own orders under Section 22
+
+ (D) Legality of CAT’s recruitment decisions
+
+ ✅ Answer: (B)
+
+ Explanation: The central issue was whether the High Court could entertain a writ petition against a CAT order passed in contempt jurisdiction.
+
+
+
+CQ-24-20-02
+Which statutory provision confers contempt jurisdiction upon the Central Administrative Tribunal?
+
+ (A) Section 19, Contempt of Courts Act, 1971
+
+ (B) Section 17, Administrative Tribunals Act, 1985
+
+ (C) Section 12, Administrative Tribunals Act, 1985
+
+ (D) Article 323B of the Constitution
+
+ ✅ Answer: (B)
+
+ Explanation: Section 17 of the Administrative Tribunals Act, 1985 gives CAT the same powers as a High Court under the Contempt of Courts Act.
+
+
+
+CQ-24-20-03
+Under Section 19 of the Contempt of Courts Act, an appeal from a contempt order of the CAT lies directly to—
+
+ (A) The concerned High Court
+
+ (B) The Supreme Court of India
+
+ (C) The President of India
+
+ (D) The National Tribunal Appellate Authority
+
+ ✅ Answer: (B)
+
+ Explanation: Section 19 expressly provides that appeals from contempt orders of High Courts or equivalent tribunals lie directly to the Supreme Court.
+
+
+
+CQ-24-20-04
+The High Court in this case dismissed the writ petition primarily because—
+
+ (A) The CAT lacked contempt powers
+
+ (B) An alternate statutory appeal to the Supreme Court existed
+
+ (C) Contempt jurisdiction is purely administrative
+
+ (D) The petitioners failed to exhaust departmental remedies
+
+ ✅ Answer: (B)
+
+ Explanation: The existence of a specific statutory appeal to the Supreme Court under Section 19 barred invocation of Article 226 jurisdiction.
+
+
+
+CQ-24-20-05
+Which constitutional article was not directly invoked in this judgment?
+
+ (A) Article 226
+
+ (B) Article 323A
+
+ (C) Article 142
+
+ (D) Article 227
+
+ ✅ Answer: (C)
+
+ Explanation: Article 142 (Supreme Court’s power to do complete justice) was not invoked. The case centered on Articles 226, 227, and 323A.
+
+
+
+
+CQ-24-20-06
+The Court’s reasoning in Dr. Brajendra Singh Chauhan (2024) primarily draws upon which doctrine?
+
+ (A) Doctrine of Pith and Substance
+
+ (B) Doctrine of Alternate Remedy
+
+ (C) Doctrine of Basic Structure
+
+ (D) Doctrine of Colourable Legislation
+
+ ✅ Answer: (B)
+
+ Explanation: The Court applied the doctrine of alternate remedy — holding that when a specific appellate provision exists, the writ jurisdiction should not be exercised.
+
+
+
+CQ-24-20-07
+In T. Sudhakar Prasad v. Govt. of A.P. (2001), which principle was established regarding tribunal contempt powers?
+
+ (A) Tribunals cannot exercise contempt powers
+
+ (B) Tribunals share coextensive contempt powers with High Courts
+
+ (C) Tribunals’ contempt orders are subject to district court appeal
+
+ (D) Tribunals exercise contempt powers only with High Court approval
+
+ ✅ Answer: (B)
+
+ Explanation: The Supreme Court held that tribunals under Section 17 have the same contempt powers as High Courts, with appeals lying to the Supreme Court.
+
+
+
+CQ-24-20-08
+Which landmark case preserved judicial review over tribunal decisions as part of the basic structure, yet excluded contempt matters from High Court purview?
+
+ (A) Kesavananda Bharati v. State of Kerala (1973)
+
+ (B) L. Chandra Kumar v. Union of India (1997)
+
+ (C) Union of India v. R. Gandhi (2010)
+
+ (D) State of W.B. v. Committee for Protection of Democratic Rights (2010)
+
+ ✅ Answer: (B)
+
+ Explanation: L. Chandra Kumar upheld judicial review over tribunals but clarified that contempt orders are separately governed by statutory appeal under Section 19.
+
+
+
+CQ-24-20-09
+The High Court’s decision reinforced which aspect of the relationship between High Courts and Tribunals?
+
+ (A) High Courts have concurrent appellate powers over all tribunal orders
+
+ (B) Tribunals function outside constitutional supervision
+
+ (C) High Courts’ writ powers cannot override statutory appellate frameworks
+
+ (D) Tribunals are subordinate to High Courts in every respect
+
+ ✅ Answer: (C)
+
+ Explanation: The Court affirmed judicial discipline by limiting High Court writ powers when a statutory appellate route (to the Supreme Court) is available.
+
+
+
+CQ-24-20-10
+(Application-Based Question)
+
+ Assume the Central Administrative Tribunal convicts an official for wilful disobedience of its order and imposes a fine under Section 17 of the Administrative Tribunals Act. The official seeks to challenge this order. Which forum is competent to entertain his appeal?
+
+ (A) High Court under Article 226
+
+ (B) Supreme Court under Section 19 of the Contempt of Courts Act
+
+ (C) Division Bench of CAT
+
+ (D) State Administrative Tribunal
+
+ ✅ Answer: (B)
+
+ Explanation: Appeals against CAT’s contempt orders lie directly to the Supreme Court under Section 19 of the Contempt of Courts Act, 1971.

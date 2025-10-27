@@ -18,6 +18,7 @@ import {
   Edit3,
 } from "lucide-react";
 import { Header } from "@/components/header";
+import { DottedBackground } from "@/components/DottedBackground";
 import Link from "next/link";
 
 export default function ProfilePage() {
@@ -71,7 +72,8 @@ export default function ProfilePage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
+        <DottedBackground />
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center">
@@ -89,7 +91,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
+      <DottedBackground />
       <Header />
 
       <div className="container mx-auto px-4 py-8">

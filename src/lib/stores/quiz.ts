@@ -14,6 +14,16 @@ export interface QuizAttempt {
   timeSpent: number;
   wrongQuestions: string[];
   confidence: Record<string, "confident" | "guess" | "fluke">;
+  // Additional fields for contemporary case quizzes
+  quizId?: string;
+  accuracy?: number;
+  detailedAnswers?: Array<{
+    questionId: string;
+    selectedAnswer: string;
+    confidence: "confident" | "guess" | "fluke";
+    isCorrect: boolean;
+    timeSpent: number;
+  }>;
 }
 
 export interface QuizStats {
@@ -29,7 +39,9 @@ export interface QuizStats {
 
 interface QuizStore {
   attempts: QuizAttempt[];
-  addAttempt: (attempt: Omit<QuizAttempt, "id" | "timestamp">) => void;
+  addAttempt: (
+    attempt: Omit<QuizAttempt, "id" | "timestamp">
+  ) => Promise<string>;
   getAttemptsBySubject: (subject: string) => QuizAttempt[];
   getAttemptsByTopic: (subject: string, topic: string) => QuizAttempt[];
   getRecentAttempts: (limit?: number) => QuizAttempt[];
@@ -44,7 +56,7 @@ export const useQuizStore = create<QuizStore>()(
     (set, get) => ({
       attempts: [],
 
-      addAttempt: (attemptData) => {
+      addAttempt: async (attemptData) => {
         const newAttempt: QuizAttempt = {
           ...attemptData,
           id: `attempt_${Date.now()}_${Math.random()
@@ -56,6 +68,8 @@ export const useQuizStore = create<QuizStore>()(
         set((state) => ({
           attempts: [...state.attempts, newAttempt],
         }));
+
+        return newAttempt.id;
       },
 
       getAttemptsBySubject: (subject) => {

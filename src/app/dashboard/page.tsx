@@ -2,21 +2,17 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/lib/stores/auth";
-import { useGamificationStore } from "@/lib/stores/gamification";
+import { useStreakStore } from "@/lib/stores/streaks";
+import { useQuizStore } from "@/lib/stores/quiz";
+import { useMistakeStore } from "@/lib/stores/mistakes";
 import { Header } from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Flame,
-  Coins,
-  BookOpen,
-  Target,
-  BarChart3,
-  BookOpenCheck,
-  Trophy,
-} from "lucide-react";
-import AnalyticsSection from "@/components/dashboard/analytics";
+import { Badge } from "@/components/ui/badge";
+import { DottedBackground } from "@/components/DottedBackground";
+import { useCopyProtection } from "@/hooks/useCopyProtection";
+import { BookOpen, Target, BarChart3, BookOpenCheck, AlertTriangle, Clock, CheckCircle, XCircle } from "lucide-react";
 import {
   purchaseCourse,
   COURSES,
@@ -28,14 +24,18 @@ import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const { user, profile, isAuthenticated, isLoading } = useAuthStore();
-  const { coins, streak, longestStreak, fetchGamificationData } =
-    useGamificationStore();
   const { getUserCourses: getCourses, purchaseCourse: buyCourse } =
     usePaymentStore();
+
+  const { getRecentAttempts } = useQuizStore();
+  const { mistakes, loadMistakes } = useMistakeStore();
   const router = useRouter();
   const [userCourses, setUserCourses] = useState<Course[]>([]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+
+  // Enable copy protection
+  useCopyProtection();
 
   const loadUserCourses = useCallback(async () => {
     const courses = getCourses();
@@ -44,16 +44,77 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
+      console.log('Not authenticated, redirecting to login');
       router.push("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
+  // Debug logging
+  console.log('Dashboard state:', { isLoading, isAuthenticated, user: !!user, profile: !!profile });
+
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchGamificationData();
+    if (isAuthenticated && user && profile) {
       loadUserCourses();
+      loadMistakes();
+
     }
-  }, [isAuthenticated, fetchGamificationData, loadUserCourses]);
+  }, [isAuthenticated, user, profile, loadUserCourses, loadMistakes]);
+
+  // Get recent activity data
+  const recentAttempts = getRecentAttempts(12);
+  const allAttempts = getRecentAttempts(1000); // Get all attempts for total count
+  const wrongAnswers = mistakes.filter(m => !m.is_mastered && m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim());
+  const unsureCorrect = mistakes.filter(m => !m.is_mastered && m.user_answer === m.correct_answer.replace(/[()]/g, "").trim() && (m.confidence_level === 'educated_guess' || m.confidence_level === 'fluke'));
+  
+  const totalMistakes = wrongAnswers.length;
+  const totalUnsures = unsureCorrect.length;
+
+  const formatTimeAgo = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    return 'Just now';
+  };
+
+  const getQuizTypeIcon = (subject: string) => {
+    if (subject === 'Contemporary Cases') return '📚';
+    if (subject === 'PYQ') return '📝';
+    if (subject === 'Mock Test') return '🎯';
+    return '📖';
+  };
+
+  const getAccuracyColor = (accuracy: number) => {
+    if (accuracy < 35) return 'destructive';
+    if (accuracy < 76) return 'outline';
+    return 'default';
+  };
+
+  const getAccuracyBorderColor = (accuracy: number) => {
+    if (accuracy < 35) return 'border-l-red-500';
+    if (accuracy < 76) return 'border-l-yellow-500';
+    return 'border-l-green-500';
+  };
+
+  const formatTopicName = (subject: string, topic: string) => {
+    if (subject === 'Contemporary Cases') {
+      const parts = topic.split('. ');
+      if (parts.length > 1) {
+        const firstPart = parts[0];
+        const isNumber = !isNaN(Number(firstPart));
+        if (isNumber) {
+          return parts.slice(1).join('. ');
+        }
+      }
+      return topic;
+    }
+    return topic;
+  };
 
   const handlePurchase = async (
     courseId: string,
@@ -66,7 +127,6 @@ export default function DashboardPage() {
       const result = await buyCourse(courseId);
 
       if (result.success) {
-        // Reload courses after successful purchase
         loadUserCourses();
         alert(`Successfully purchased ${courseName}!`);
       } else {
@@ -81,7 +141,8 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
+        <DottedBackground />
         <Header />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">Loading...</div>
@@ -91,321 +152,294 @@ export default function DashboardPage() {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen">
+        <DottedBackground />
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <p>Please log in to access the dashboard.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
+      <DottedBackground />
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
+      <div className="container mx-auto px-4 py-8 no-copy">
         <div className="mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-2">
                 Hi 👋 {profile?.full_name || "Student"}, ready to improve today?
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-lg text-muted-foreground">
                 Ready to continue your CLAT PG preparation journey?
               </p>
             </div>
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-              Start Mock
-            </Button>
           </div>
         </div>
 
-        {/* Dashboard Navigation Tabs */}
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="courses" className="flex items-center gap-2">
-              <BookOpenCheck className="h-4 w-4" />
-              Courses
-            </TabsTrigger>
-            <TabsTrigger
-              value="achievements"
-              className="flex items-center gap-2"
-            >
-              <Trophy className="h-4 w-4" />
-              Achievements
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            {/* Combined Stats Card - Mobile App Style */}
-            <Card className="bg-gradient-to-br from-blue-50 to-orange-50 border-blue-200">
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  {/* Top Row - Streak and Score Trend */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-orange-500 rounded-full">
-                        <Flame className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold text-orange-800">
-                          {streak}-day streak 🔥
-                        </p>
-                        <p className="text-sm text-orange-600">
-                          Longest: {longestStreak} days
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Score Trend Mini Chart */}
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Score Trend
-                      </p>
-                      <div className="flex items-end space-x-1">
-                        {[65, 68, 72, 75, 78].map((score, index) => (
-                          <div
-                            key={index}
-                            className="bg-blue-400 rounded-t"
-                            style={{
-                              width: "4px",
-                              height: `${(score / 100) * 20}px`,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Middle Row - Accuracy and Weak Topics */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Accuracy</p>
-                      <p className="text-2xl font-bold text-blue-600">72%</p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Weak Topics
-                      </p>
-                      <div className="flex flex-wrap gap-1 justify-end">
-                        <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                          Evidence
-                        </span>
-                        <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                          TPA 🏠
-                        </span>
-                        <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                          Constitution ⚖️
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Row - Coins and Courses */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="relative">
-                          <div className="w-8 h-8 bg-pink-200 rounded-full flex items-center justify-center">
-                            <Coins className="h-4 w-4 text-yellow-600" />
-                          </div>
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-bold text-white">
-                              +
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold">+{coins} coins</p>
-                          <p className="text-xs text-muted-foreground">
-                            Keep earning!
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-sm font-medium">Courses</p>
-                      <p className="text-lg font-bold text-blue-600">
-                        {userCourses.length}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {userCourses.length === 0
-                          ? "Purchase to get started"
-                          : `${userCourses.length} owned`}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Task of the Day */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  Task of the Day ✔
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    Attempt 1 Evidence Quiz
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-green-500 h-2 rounded-full"
-                        style={{ width: "90%" }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">90%</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Upload 1 mock</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-green-500 h-2 rounded-full"
-                        style={{ width: "50%" }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">50%</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
-                    Watch 2 mistake-based reels
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gray-300 h-2 rounded-full"
-                        style={{ width: "0%" }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">0%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Static Subjects Course</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    13 Law Subjects • 650 Questions • 20 Mock Tests
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary mb-4">
-                    ₹1,999
-                  </div>
-                  <Button
-                    className="w-full"
-                    onClick={() =>
-                      handlePurchase(
-                        COURSES.STATIC_SUBJECTS.id,
-                        COURSES.STATIC_SUBJECTS.name,
-                        COURSES.STATIC_SUBJECTS.price
-                      )
-                    }
-                    disabled={purchasing === COURSES.STATIC_SUBJECTS.id}
+          <div className="border-b border-border mb-6 relative">
+            <nav className="flex space-x-8">
+              {[
+                { id: "overview", label: "Overview", icon: BookOpen },
+                { id: "analytics", label: "Analytics", icon: BarChart3 },
+                { id: "courses", label: "Courses", icon: BookOpenCheck }
+              ].map((tab, index) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 py-3 px-1 font-medium text-sm transition-colors duration-300 ${
+                      activeTab === tab.id
+                        ? "text-primary"
+                        : "text-foreground hover:text-primary/70"
+                    }`}
                   >
-                    {purchasing === COURSES.STATIC_SUBJECTS.id
-                      ? "Processing..."
-                      : "Purchase Course"}
-                  </Button>
+                    <Icon className="h-4 w-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+            {/* Moving gradient line */}
+            <div 
+              className="absolute bottom-0 h-0.5 bg-gradient-to-r from-primary via-primary to-primary/50 transition-all duration-300 ease-out"
+              style={{
+                width: activeTab === "overview" ? "120px" : activeTab === "analytics" ? "130px" : "115px",
+                left: activeTab === "overview" ? "8px" : activeTab === "analytics" ? "112px" : "229px"
+              }}
+            />
+          </div>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-3 gap-3 mb-8 mt-2">
+              <Card>
+                <CardContent className="p-3">
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Total Quizzes</p>
+                    <div className="flex items-center justify-center gap-1">
+                      <BookOpen className="h-4 w-4 text-primary" />
+                      <p className="text-lg font-bold">{allAttempts.length}</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-
               <Card>
-                <CardHeader>
-                  <CardTitle>Contemporary Cases Course</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    150 Legal Cases • 2023-2025 • Month Quizzes
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary mb-4">
-                    ₹1,499
+                <CardContent className="p-3">
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Mistakes</p>
+                    <div className="flex items-center justify-center gap-1">
+                      <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      <p className="text-lg font-bold">{totalMistakes}</p>
+                    </div>
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() =>
-                      handlePurchase(
-                        COURSES.CONTEMPORARY_CASES.id,
-                        COURSES.CONTEMPORARY_CASES.name,
-                        COURSES.CONTEMPORARY_CASES.price
-                      )
-                    }
-                    disabled={purchasing === COURSES.CONTEMPORARY_CASES.id}
-                  >
-                    {purchasing === COURSES.CONTEMPORARY_CASES.id
-                      ? "Processing..."
-                      : "Purchase Course"}
-                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-3">
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Unsure</p>
+                    <div className="flex items-center justify-center gap-1">
+                      <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      <p className="text-lg font-bold">{totalUnsures}</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Recent Activity */}
+
+
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Your learning progress and achievements
+                  Your last 12 quiz attempts across all subjects
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                  <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No activity yet. Start by purchasing a course!</p>
+                {recentAttempts.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {recentAttempts.map((attempt) => {
+                      const accuracy = Math.round((attempt.score / attempt.totalQuestions) * 100);
+                      const displayTopic = formatTopicName(attempt.subject, attempt.topic);
+                      return (
+                        <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)}`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{getQuizTypeIcon(attempt.subject)}</span>
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">{attempt.subject}</p>
+                                  <p className="text-xs text-muted-foreground line-clamp-2" title={displayTopic}>
+                                    {displayTopic}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge 
+                                variant={accuracy < 35 ? 'destructive' : 'outline'}
+                                className={accuracy >= 76 ? 'bg-green-500 text-white border-green-500' : accuracy >= 35 ? 'bg-yellow-500 text-white border-yellow-500' : ''}
+                              >
+                                {accuracy}%
+                              </Badge>
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {formatTimeAgo(attempt.timestamp)}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  <CheckCircle className="h-3 w-3 text-green-500" />
+                                  {attempt.score}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <XCircle className="h-3 w-3 text-red-500" />
+                                  {attempt.totalQuestions - attempt.score}
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No activity yet. Start by taking a quiz!</p>
+                    <Button 
+                      onClick={() => router.push('/subjects')}
+                      className="mt-4"
+                      variant="outline"
+                    >
+                      Browse Subjects
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <Card className="border-orange-200 bg-orange-50/50">
+              <CardContent className="p-12 text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="rounded-full bg-orange-100 p-4">
+                    <BarChart3 className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Analytics Coming Soon
+                    </h3>
+                    <p className="text-gray-600 max-w-md">
+                      Advanced analytics and performance insights are under
+                      development. Track your progress, identify weak areas, and
+                      optimize your study strategy.
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-orange-600 font-medium">
+                    <span>🚀</span>
+                    <span>Under Development</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <AnalyticsSection />
-          </TabsContent>
-
-          {/* Courses Tab */}
           <TabsContent value="courses" className="space-y-6">
-            <div className="text-center py-8">
-              <BookOpenCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Course Management</h3>
-              <p className="text-muted-foreground">
-                Manage your purchased courses and track progress
-              </p>
-            </div>
-          </TabsContent>
-
-          {/* Achievements Tab */}
-          <TabsContent value="achievements" className="space-y-6">
-            <div className="text-center py-8">
-              <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Achievements</h3>
-              <p className="text-muted-foreground">
-                Track your milestones and accomplishments
-              </p>
-            </div>
+            {userCourses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {userCourses.map((course) => (
+                  <Card
+                    key={course.id}
+                    className="overflow-hidden border-green-200 bg-green-50/50"
+                  >
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        <span>{course.name}</span>
+                        <span className="text-sm bg-green-600 text-white px-2 py-1 rounded-full">
+                          Purchased
+                        </span>
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {course.description}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-green-600 font-medium">
+                            Status
+                          </span>
+                          <span className="text-green-600 font-medium">
+                            Active
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Access</span>
+                          <span className="text-green-600 font-medium">
+                            Lifetime
+                          </span>
+                        </div>
+                        <Button
+                          className="w-full bg-green-600 hover:bg-green-700"
+                          onClick={() => {
+                            if (course.id === COURSES.STATIC_SUBJECTS.id) {
+                              router.push("/subjects");
+                            } else if (
+                              course.id === COURSES.CONTEMPORARY_CASES.id
+                            ) {
+                              router.push("/subjects?tab=contemporary-cases");
+                            }
+                          }}
+                        >
+                          Continue Learning →
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="border-blue-200 bg-blue-50/50">
+                <CardContent className="p-12 text-center">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="rounded-full bg-blue-100 p-4">
+                      <BookOpenCheck className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        No Courses Purchased Yet
+                      </h3>
+                      <p className="text-gray-600 max-w-md">
+                        Start your learning journey by purchasing a course.
+                        Access comprehensive study materials, quizzes, and track
+                        your progress.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => router.push("/courses")}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Browse Courses
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -3,239 +3,110 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  CheckCircle,
-  XCircle,
-  Clock,
-  TrendingUp,
-  Target,
-  BookOpen,
-  RefreshCw,
-  Filter,
-  Search,
-} from "lucide-react";
-
-interface Mistake {
-  id: string;
-  question_id: string;
-  question_text: string;
-  user_answer: string;
-  correct_answer: string;
-  confidence: "confident" | "guess" | "fluke";
-  subject: string;
-  quiz_title: string;
-  created_at: string;
-  time_spent: number;
-  explanation: string;
-  option_a: string;
-  option_b: string;
-  option_c: string;
-  option_d: string;
-  retake_count: number;
-  mastered: boolean;
-}
-
-interface MistakeStats {
-  total_mistakes: number;
-  confident_mistakes: number;
-  guess_mistakes: number;
-  fluke_mistakes: number;
-  mastered_count: number;
-  avg_time_per_mistake: number;
-  most_difficult_subject: string;
-  improvement_rate: number;
-}
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft, Check, Clock, BookOpen } from "lucide-react";
+import { useMistakeStore } from "@/lib/stores/mistakes";
+import { useCopyProtection } from "@/hooks/useCopyProtection";
+import { DottedBackground } from "@/components/DottedBackground";
 
 export default function MistakesPage() {
   const router = useRouter();
-  const [mistakes, setMistakes] = useState<Mistake[]>([]);
-  const [stats, setStats] = useState<MistakeStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<
-    "all" | "confident" | "guess" | "fluke" | "mastered"
-  >("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMistake, setSelectedMistake] = useState<Mistake | null>(null);
+  const { mistakes, loading, loadMistakes, markAsMastered } = useMistakeStore();
+  const [activeTab, setActiveTab] = useState("static-subjects");
+  const [expandedSubjects, setExpandedSubjects] = useState<Set<string>>(new Set());
+  const [expanded2025Subjects, setExpanded2025Subjects] = useState<Set<string>>(new Set());
+  const [expandedCases, setExpandedCases] = useState<Set<string>>(new Set());
+  const [selectedMistakes, setSelectedMistakes] = useState<Set<string>>(new Set());
 
-  // Demo data for development
-  const loadMistakes = async () => {
-    try {
-      // Demo mode - use mock data
-      if (process.env.NODE_ENV === "development") {
-        const mockMistakes: Mistake[] = [
-          {
-            id: "1",
-            question_id: "q1",
-            question_text:
-              "Which Article of the Indian Constitution deals with the Right to Equality?",
-            user_answer: "B",
-            correct_answer: "A",
-            confidence: "confident",
-            subject: "Constitutional Law",
-            quiz_title: "Fundamental Rights - Part 1",
-            created_at: "2024-01-15T10:30:00Z",
-            time_spent: 45,
-            explanation:
-              "Article 14 guarantees equality before law and equal protection of laws to all persons within the territory of India.",
-            option_a: "Article 14",
-            option_b: "Article 19",
-            option_c: "Article 21",
-            option_d: "Article 32",
-            retake_count: 0,
-            mastered: false,
-          },
-          {
-            id: "2",
-            question_id: "q2",
-            question_text:
-              "What is the maximum punishment for murder under Section 302 of IPC?",
-            user_answer: "A",
-            correct_answer: "C",
-            confidence: "guess",
-            subject: "Criminal Law",
-            quiz_title: "IPC Basics",
-            created_at: "2024-01-14T15:20:00Z",
-            time_spent: 30,
-            explanation:
-              "Section 302 IPC provides that whoever commits murder shall be punished with death, or imprisonment for life.",
-            option_a: "Life imprisonment",
-            option_b: "Death penalty",
-            option_c: "Either death penalty or life imprisonment",
-            option_d: "10 years imprisonment",
-            retake_count: 1,
-            mastered: false,
-          },
-          {
-            id: "3",
-            question_id: "q3",
-            question_text: "In contract law, what is consideration?",
-            user_answer: "D",
-            correct_answer: "A",
-            confidence: "fluke",
-            subject: "Contract Law",
-            quiz_title: "Contract Formation",
-            created_at: "2024-01-13T09:15:00Z",
-            time_spent: 20,
-            explanation:
-              "Consideration is something of value that is exchanged between parties to a contract, making the contract legally binding.",
-            option_a: "Something of value exchanged between parties",
-            option_b: "The intention to create legal relations",
-            option_c: "The capacity to contract",
-            option_d: "The offer and acceptance",
-            retake_count: 2,
-            mastered: true,
-          },
-        ];
-
-        const mockStats: MistakeStats = {
-          total_mistakes: 3,
-          confident_mistakes: 1,
-          guess_mistakes: 1,
-          fluke_mistakes: 1,
-          mastered_count: 1,
-          avg_time_per_mistake: 32,
-          most_difficult_subject: "Constitutional Law",
-          improvement_rate: 33,
-        };
-
-        setMistakes(mockMistakes);
-        setStats(mockStats);
-        setLoading(false);
-        return;
-      }
-
-      // TODO: Implement actual Supabase fetch
-      // const { data, error } = await supabase
-      //   .from('mistakes')
-      //   .select('*')
-      //   .order('created_at', { ascending: false });
-    } catch (error) {
-      console.error("Error loading mistakes:", error);
-      setLoading(false);
-    }
-  };
+  useCopyProtection();
 
   useEffect(() => {
     loadMistakes();
   }, []);
 
-  const filteredMistakes = mistakes.filter((mistake) => {
-    const matchesFilter =
-      filter === "all" ||
-      mistake.confidence === filter ||
-      (filter === "mastered" && mistake.mastered);
-    const matchesSearch =
-      mistake.question_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mistake.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-
-  const getConfidenceIcon = (confidence: string) => {
-    switch (confidence) {
-      case "confident":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "guess":
-        return <Target className="h-4 w-4 text-yellow-600" />;
-      case "fluke":
-        return <RefreshCw className="h-4 w-4 text-red-600" />;
-      default:
-        return <XCircle className="h-4 w-4 text-gray-600" />;
-    }
+  const toggleSubject = (subjectId: string) => {
+    setExpandedSubjects((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(subjectId)) {
+        newSet.delete(subjectId);
+      } else {
+        newSet.add(subjectId);
+      }
+      return newSet;
+    });
   };
 
-  const getConfidenceText = (confidence: string) => {
-    switch (confidence) {
-      case "confident":
-        return "Confident Mistake";
-      case "guess":
-        return "Educated Guess";
-      case "fluke":
-        return "Random Guess";
-      default:
-        return "Unknown";
-    }
+  const toggle2025Subject = (subjectId: string) => {
+    setExpanded2025Subjects((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(subjectId)) {
+        newSet.delete(subjectId);
+      } else {
+        newSet.add(subjectId);
+      }
+      return newSet;
+    });
   };
 
-  const getConfidenceColor = (confidence: string) => {
-    switch (confidence) {
-      case "confident":
-        return "bg-green-50 border-green-200 text-green-800";
-      case "guess":
-        return "bg-yellow-50 border-yellow-200 text-yellow-800";
-      case "fluke":
-        return "bg-red-50 border-red-200 text-red-800";
-      default:
-        return "bg-gray-50 border-gray-200 text-gray-800";
-    }
+  const toggleCase = (caseId: string) => {
+    setExpandedCases((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(caseId)) {
+        newSet.delete(caseId);
+      } else {
+        newSet.add(caseId);
+      }
+      return newSet;
+    });
   };
 
-  const retakeQuestion = (mistake: Mistake) => {
-    // Navigate to quiz with specific question
-    router.push(`/quiz/retake/${mistake.question_id}`);
+  const toggleMistakeSelection = (mistakeId: string) => {
+    setSelectedMistakes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(mistakeId)) {
+        newSet.delete(mistakeId);
+      } else {
+        newSet.add(mistakeId);
+      }
+      return newSet;
+    });
   };
 
-  const markAsMastered = (mistakeId: string) => {
-    setMistakes((prev) =>
-      prev.map((mistake) =>
-        mistake.id === mistakeId
-          ? { ...mistake, mastered: !mistake.mastered }
-          : mistake
-      )
-    );
+  const startRetakeQuiz = (mistakeIds: string[]) => {
+    const selectedIds = mistakeIds.join(',');
+    router.push(`/quiz/retake?mistakes=${selectedIds}`);
   };
+
+  // Group mistakes by quiz type and subject
+  const mistakesByType = {
+    "static-subjects": mistakes.filter(m => m.subject && m.subject !== 'Contemporary Cases'),
+    "contemporary-cases": mistakes.filter(m => m.subject === 'Contemporary Cases'),
+    "pyqs": mistakes.filter(m => m.quiz_type === 'pyq'),
+    "mock": mistakes.filter(m => m.quiz_type === 'mock')
+  };
+
+  // Group contemporary cases by year
+  const contemporaryMistakesByYear = {
+    "2023": mistakesByType["contemporary-cases"].filter(m => m.question_id.includes('-23-')),
+    "2024": mistakesByType["contemporary-cases"].filter(m => m.question_id.includes('-24-')),
+    "2025": mistakesByType["contemporary-cases"].filter(m => m.question_id.includes('-25-'))
+  };
+
+  // Group 2025 cases by subject
+  const mistakes2025BySubject = contemporaryMistakesByYear["2025"].reduce((acc, mistake) => {
+    const subject = mistake.subject || "Other";
+    if (!acc[subject]) acc[subject] = [];
+    acc[subject].push(mistake);
+    return acc;
+  }, {} as Record<string, any[]>);
+
+
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen" style={{ backgroundColor: "white" }}>
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center">
@@ -247,305 +118,462 @@ export default function MistakesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
+      <DottedBackground />
       <Header />
-
+      
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Mistake Tracking</h1>
-            <p className="text-muted-foreground mt-2">
-              Review and learn from your mistakes with intelligent tracking
-            </p>
+        <div className="mb-8">
+          <div className="flex items-center mb-4">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push("/subjects")}
+              className="mr-3 p-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-4xl font-bold">Mistake Tracking</h1>
           </div>
-          <Button variant="outline" onClick={() => router.push("/subjects")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Subjects
-          </Button>
+          <p className="text-muted-foreground ml-11">
+            Review and retake your mistakes by subject and case
+          </p>
         </div>
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Total Mistakes
-                    </p>
-                    <p className="text-2xl font-bold">{stats.total_mistakes}</p>
-                  </div>
-                  <BookOpen className="h-8 w-8 text-primary" />
-                </div>
-              </CardContent>
-            </Card>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-12">
+          {/* Tab Pills */}
+          <div className="grid grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
+            <button
+              onClick={() => setActiveTab("static-subjects")}
+              className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
+                activeTab === "static-subjects"
+                  ? "bg-gradient-to-r from-pink-200 to-purple-200 text-purple-800 shadow-lg border border-pink-300"
+                  : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
+              }`}
+            >
+              <span className="relative z-10">Static Subjects</span>
+            </button>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Mastered
-                    </p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {stats.mastered_count}
-                    </p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
+            <button
+              onClick={() => setActiveTab("contemporary-cases")}
+              className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
+                activeTab === "contemporary-cases"
+                  ? "bg-gradient-to-r from-emerald-200 to-teal-200 text-emerald-800 shadow-lg border border-emerald-300"
+                  : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
+              }`}
+            >
+              <span className="relative z-10">Contemporary Cases</span>
+            </button>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Avg Time
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {stats.avg_time_per_mistake}s
-                    </p>
-                  </div>
-                  <Clock className="h-8 w-8 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
+            <button
+              onClick={() => setActiveTab("pyqs")}
+              className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
+                activeTab === "pyqs"
+                  ? "bg-gradient-to-r from-purple-200 to-pink-200 text-purple-800 shadow-lg border border-purple-300"
+                  : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
+              }`}
+            >
+              <span className="relative z-10">PYQ's</span>
+            </button>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Improvement
-                    </p>
-                    <p className="text-2xl font-bold text-purple-600">
-                      {stats.improvement_rate}%
-                    </p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
-                </div>
-              </CardContent>
-            </Card>
+            <button
+              onClick={() => setActiveTab("mock")}
+              className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
+                activeTab === "mock"
+                  ? "bg-gradient-to-r from-orange-200 to-red-200 text-orange-800 shadow-lg border border-orange-300"
+                  : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
+              }`}
+            >
+              <span className="relative z-10">Mock</span>
+            </button>
           </div>
-        )}
 
-        {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search mistakes by question or subject..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-input rounded-md bg-background"
-                  />
+          {/* Tab Contents */}
+          <TabsContent value="static-subjects" className="mt-0">
+            <div className="space-y-6">
+              {mistakesByType["static-subjects"].length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No Static Subject Mistakes</h3>
+                    <p className="text-muted-foreground">Great job! No mistakes in static subjects yet.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {/* Group by subject */}
+                  {Object.entries(
+                    mistakesByType["static-subjects"].reduce((acc, mistake) => {
+                      const subject = mistake.subject || "Other";
+                      if (!acc[subject]) acc[subject] = [];
+                      acc[subject].push(mistake);
+                      return acc;
+                    }, {} as Record<string, any[]>)
+                  ).map(([subject, subjectMistakes]) => {
+                    const isExpanded = expandedSubjects.has(subject);
+                    const selectedCount = subjectMistakes.filter(m => selectedMistakes.has(m.id)).length;
+                    
+                    return (
+                      <Card key={subject} className="border-l-4 border-l-blue-500">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between mb-4" onClick={() => toggleSubject(subject)}>
+                            <div className="flex items-center gap-3 cursor-pointer">
+                              <h2 className="text-2xl font-bold text-gray-900">{subject}</h2>
+                              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">
+                                {subjectMistakes.length} mistakes
+                              </span>
+                              {selectedCount > 0 && (
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+                                  {selectedCount} selected
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {selectedCount > 0 && (
+                                <Button
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    startRetakeQuiz(subjectMistakes.filter(m => selectedMistakes.has(m.id)).map(m => m.id));
+                                  }}
+                                  className="bg-blue-500 hover:bg-blue-600"
+                                >
+                                  Retake Selected ({selectedCount})
+                                </Button>
+                              )}
+                              <div className="h-5 w-5 text-gray-600">
+                                {isExpanded ? "▼" : "▶"}
+                              </div>
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="space-y-3">
+                              {subjectMistakes.map((mistake) => (
+                                <Card key={mistake.id} className="border-l-4 border-l-red-300">
+                                  <CardContent className="p-4">
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <button
+                                        onClick={() => toggleMistakeSelection(mistake.id)}
+                                        className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
+                                          selectedMistakes.has(mistake.id)
+                                            ? "bg-blue-500 border-blue-500"
+                                            : "border-gray-300 hover:border-blue-400"
+                                        }`}
+                                      >
+                                        {selectedMistakes.has(mistake.id) && (
+                                          <Check className="w-4 h-4 text-white" />
+                                        )}
+                                      </button>
+                                      <h4 className="text-lg font-semibold">{mistake.question_text}</h4>
+                                    </div>
+                                    <div className="space-y-2 text-sm mb-2">
+                                      <div>
+                                        <div>Your Answer: <span className="text-red-600 font-medium">{mistake.user_answer.replace(/[()]/g, "")}</span></div>
+                                        {mistake.user_answer_text && (
+                                          <div className="text-red-600 ml-4">{mistake.user_answer_text.replace(/^[A-D][).]?\s*/, "")}</div>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <div>Correct: <span className="text-green-600 font-medium">{mistake.correct_answer.replace(/[()]/g, "")}</span></div>
+                                        {mistake.correct_answer_text && (
+                                          <div className="text-green-600 ml-4">{mistake.correct_answer_text.replace(/^[A-D][).]?\s*/, "")}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="text-sm text-gray-600 mb-2">
+                                      Confidence: <span className={`px-2 py-1 rounded-full ${
+                                        mistake.confidence_level === "confident" ? "bg-red-100 text-red-800" :
+                                        mistake.confidence_level === "educated_guess" ? "bg-yellow-100 text-yellow-800" :
+                                        "bg-orange-100 text-orange-800"
+                                      }`}>
+                                        {mistake.confidence_level === "confident" ? "Confident" :
+                                         mistake.confidence_level === "educated_guess" ? "Educated Guess" : "Fluke"}
+                                      </span>
+                                    </div>
+                                    {mistake.explanation && (
+                                      <div className="text-sm text-gray-900 bg-blue-50 border border-blue-200 p-3 rounded mb-3">
+                                        <strong className="text-blue-800">Explanation:</strong> <span className="font-semibold">{mistake.explanation}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex justify-end">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => markAsMastered(mistake.id)}
+                                        disabled={mistake.is_mastered}
+                                      >
+                                        {mistake.is_mastered ? "Mastered" : "Mark Mastered"}
+                                      </Button>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
-              </div>
-              <div className="flex gap-2">
-                {["all", "confident", "guess", "fluke", "mastered"].map(
-                  (filterType) => (
-                    <Button
-                      key={filterType}
-                      variant={filter === filterType ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setFilter(filterType as "all" | "confident" | "guess" | "fluke" | "mastered")}
-                      className="capitalize"
-                    >
-                      <Filter className="h-4 w-4 mr-2" />
-                      {filterType}
-                    </Button>
-                  )
-                )}
-              </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
 
-        {/* Mistakes List */}
-        <div className="space-y-4">
-          {filteredMistakes.length === 0 ? (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">
-                  No Mistakes Found
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchTerm || filter !== "all"
-                    ? "Try adjusting your search or filter criteria."
-                    : "Great job! You haven't made any mistakes yet. Keep practicing to build your mistake tracking data."}
-                </p>
-                <Button onClick={() => router.push("/subjects")}>
-                  Start Practicing
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredMistakes.map((mistake) => (
-              <Card
-                key={mistake.id}
-                className="hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium border ${getConfidenceColor(
-                            mistake.confidence
-                          )}`}
-                        >
-                          {getConfidenceIcon(mistake.confidence)}
-                          <span className="ml-1">
-                            {getConfidenceText(mistake.confidence)}
-                          </span>
-                        </span>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                          {mistake.subject}
-                        </span>
-                        {mistake.mastered && (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                            ✓ Mastered
-                          </span>
+          <TabsContent value="contemporary-cases" className="mt-0">
+            <div className="space-y-6">
+
+              {/* Year Cards */}
+              {Object.entries(contemporaryMistakesByYear).map(([year, yearMistakes]) => {
+                // Always show year cards even if empty
+                const wrongAnswers = yearMistakes.filter(m => m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim());
+                const unsureAnswers = yearMistakes.filter(m => m.user_answer === m.correct_answer.replace(/[()]/g, "").trim());
+                
+                return (
+                  <Card
+                    key={year}
+                    className={`overflow-hidden relative border-0 shadow-lg rounded-2xl bg-gradient-to-br ${
+                      year === "2023"
+                        ? "from-blue-100 to-blue-200"
+                        : year === "2024"
+                        ? "from-emerald-100 to-emerald-200"
+                        : "from-purple-100 to-purple-200"
+                    } transition-all duration-300 backdrop-blur-sm ${
+                      yearMistakes.length > 0 
+                        ? "hover:shadow-xl cursor-pointer" 
+                        : "opacity-60 cursor-default"
+                    }`}
+                  >
+                    <CardContent className="p-6">
+                      <div 
+                        className="mb-4 cursor-pointer"
+                        onClick={() => toggleSubject(`year-${year}`)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="text-3xl font-bold text-gray-900 ml-2">
+                            {year}
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            {yearMistakes.length > 0 ? (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/mistakes/retake/${year}`);
+                                  }}
+                                  className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                                >
+                                  <span className="text-white font-bold text-lg">
+                                    Q
+                                  </span>
+                                </button>
+                                <div className="h-5 w-5 text-gray-600">
+                                  {expandedSubjects.has(`year-${year}`) ? "▼" : "▶"}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="h-5 w-5 text-gray-400">
+                                ○
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {yearMistakes.length > 0 ? (
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            {wrongAnswers.length > 0 && (
+                              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                {wrongAnswers.length} Mistakes
+                              </span>
+                            )}
+                            {unsureAnswers.length > 0 && (
+                              <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                {unsureAnswers.length} Unsure
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 text-sm mt-2">
+                            No mistakes yet
+                          </div>
                         )}
                       </div>
 
-                      <h3 className="font-semibold mb-2">
-                        {mistake.question_text}
-                      </h3>
+                      {expandedSubjects.has(`year-${year}`) && yearMistakes.length > 0 && (
+                        <div className="space-y-4">
+                          {/* Group mistakes by case number */}
+                          {Object.entries(
+                            yearMistakes.reduce((acc, mistake) => {
+                              const caseNumber = mistake.question_id.split('-')[2] || 'Unknown';
+                              if (!acc[caseNumber]) acc[caseNumber] = [];
+                              acc[caseNumber].push(mistake);
+                              return acc;
+                            }, {} as Record<string, any[]>)
+                          )
+                          .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                          .map(([caseNumber, caseMistakes]) => {
+                            const caseId = `${year}-${caseNumber}`;
+                            const isExpanded = expandedCases.has(caseId);
+                            const wrongAnswers = caseMistakes.filter(m => m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim());
+                            const unsureAnswers = caseMistakes.filter(m => m.user_answer === m.correct_answer.replace(/[()]/g, "").trim());
+                            
+                            return (
+                              <div key={caseNumber} className={`overflow-hidden relative border shadow-md rounded-xl transition-all duration-300 hover:shadow-lg p-4 ${
+                                year === "2023"
+                                  ? "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200"
+                                  : year === "2024"
+                                  ? "bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200"
+                                  : "bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200"
+                              }`}>
+                                <div 
+                                  className="flex items-center justify-between mb-4 cursor-pointer"
+                                  onClick={() => toggleCase(caseId)}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <h3 className="text-lg font-semibold text-gray-800">
+                                      Case {caseNumber}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                      {wrongAnswers.length > 0 && (
+                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                          {wrongAnswers.length} Mistakes
+                                        </span>
+                                      )}
+                                      {unsureAnswers.length > 0 && (
+                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                          {unsureAnswers.length} Unsure
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const caseQuestionIds = caseMistakes.map(m => m.id).join(',');
+                                        router.push(`/quiz/retake?mistakes=${caseQuestionIds}`);
+                                      }}
+                                      className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                                    >
+                                      <span className="text-white font-bold text-xs">
+                                        Q
+                                      </span>
+                                    </button>
+                                    <div className="h-5 w-5 text-gray-600">
+                                      {isExpanded ? "▼" : "▶"}
+                                    </div>
+                                  </div>
+                                </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">
-                            Your Answer:
-                          </p>
-                          <p
-                            className={`font-medium ${
-                              mistake.user_answer === mistake.correct_answer
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {mistake.user_answer}.{" "}
-                            {
-                              mistake[
-                                `option_${mistake.user_answer.toLowerCase()}` as keyof Mistake
-                              ]
-                            }
-                          </p>
+                                {isExpanded && (
+                                  <div className="space-y-3">
+                                    {caseMistakes
+                                      .sort((a, b) => {
+                                        if (!a.is_mastered && b.is_mastered) return -1;
+                                        if (a.is_mastered && !b.is_mastered) return 1;
+                                        const aIsWrong = a.user_answer !== a.correct_answer.replace(/[()]/g, "").trim();
+                                        const bIsWrong = b.user_answer !== b.correct_answer.replace(/[()]/g, "").trim();
+                                        if (aIsWrong && !bIsWrong) return -1;
+                                        if (!aIsWrong && bIsWrong) return 1;
+                                        return 0;
+                                      })
+                                      .map((mistake) => {
+                                        const isWrongAnswer = mistake.user_answer !== mistake.correct_answer.replace(/[()]/g, "").trim();
+                                        
+                                        return (
+                                          <Card key={mistake.id} className={`border-l-4 ${
+                                            isWrongAnswer ? "border-l-red-300" : "border-l-yellow-300"
+                                          } ${mistake.is_mastered ? 'opacity-60 bg-gray-100' : 'bg-white'}`}>
+                                            <CardContent className="p-4">
+                                              <h4 className={`text-lg font-semibold mb-2 ${
+                                                mistake.is_mastered ? 'line-through text-gray-500' : ''
+                                              }`}>{mistake.question_text}</h4>
+                                              <div className="space-y-2 text-sm mb-2">
+                                                <div>
+                                                  <div>Your Answer: <span className={`${isWrongAnswer ? "text-red-600" : "text-green-600"} font-medium`}>{mistake.user_answer.replace(/[()]/g, "")}</span></div>
+                                                  {mistake.user_answer_text && (
+                                                    <div className={`${isWrongAnswer ? "text-red-600" : "text-green-600"} ml-4`}>{mistake.user_answer_text.replace(/^[A-D][).]?\s*/, "")}</div>
+                                                  )}
+                                                </div>
+                                                <div>
+                                                  <div>Correct Answer: <span className="text-green-600 font-medium">{mistake.correct_answer.replace(/[()]/g, "")}</span></div>
+                                                  {mistake.correct_answer_text && (
+                                                    <div className="text-green-600 ml-4">{mistake.correct_answer_text.replace(/^[A-D][).]?\s*/, "")}</div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              {!isWrongAnswer && (
+                                                <div className="text-sm text-yellow-700 bg-yellow-50 p-2 rounded mb-2">
+                                                  <strong>Note:</strong> Correct answer but marked as {mistake.confidence_level} - review for confidence
+                                                </div>
+                                              )}
+                                              {mistake.explanation && (
+                                                <div className="text-sm text-gray-900 bg-blue-50 border border-blue-200 p-3 rounded mb-3">
+                                                  <strong className="text-blue-800">Explanation:</strong> <span className="font-semibold">{mistake.explanation}</span>
+                                                </div>
+                                              )}
+                                              <div className="flex justify-end">
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  onClick={() => markAsMastered(mistake.id)}
+                                                >
+                                                  {mistake.is_mastered ? "Unmark" : "Mark Mastered"}
+                                                </Button>
+                                              </div>
+                                            </CardContent>
+                                          </Card>
+                                        );
+                                      })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground mb-1">
-                            Correct Answer:
-                          </p>
-                          <p className="font-medium text-green-600">
-                            {mistake.correct_answer}.{" "}
-                            {
-                              mistake[
-                                `option_${mistake.correct_answer.toLowerCase()}` as keyof Mistake
-                              ]
-                            }
-                          </p>
-                        </div>
-                      </div>
+                      )}
+                      
 
-                      <div className="bg-muted/50 p-3 rounded-lg mb-4">
-                        <p className="text-sm font-medium text-muted-foreground mb-1">
-                          Explanation:
-                        </p>
-                        <p className="text-sm">{mistake.explanation}</p>
-                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
 
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>Quiz: {mistake.quiz_title}</span>
-                        <span>Time: {mistake.time_spent}s</span>
-                        <span>Retakes: {mistake.retake_count}</span>
-                        <span>
-                          {new Date(mistake.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
+          <TabsContent value="pyqs" className="mt-0">
+            <div className="space-y-6">
+              {mistakesByType["pyqs"].length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No PYQ Mistakes</h3>
+                    <p className="text-muted-foreground">Great job! No mistakes in previous year questions yet.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div>PYQ mistakes content here</div>
+              )}
+            </div>
+          </TabsContent>
 
-                    <div className="flex flex-col gap-2 ml-4">
-                      <Button
-                        size="sm"
-                        onClick={() => retakeQuestion(mistake)}
-                        disabled={mistake.mastered}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Retake
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => markAsMastered(mistake.id)}
-                      >
-                        {mistake.mastered ? "Unmark" : "Mark as Mastered"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-
-        {/* Insight Card */}
-        {stats && stats.total_mistakes > 0 && (
-          <Card className="mt-8 border-orange-200 bg-orange-50 dark:bg-orange-950 dark:border-orange-800">
-            <CardHeader>
-              <CardTitle className="text-orange-800 dark:text-orange-200">
-                🧠 Intelligent Mistake Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-orange-700 dark:text-orange-300">
-                  Based on your mistake patterns, here are some insights:
-                </p>
-                <ul className="space-y-2 text-sm text-orange-700 dark:text-orange-300">
-                  <li>
-                    • <strong>Most Difficult Subject:</strong>{" "}
-                    {stats.most_difficult_subject}
-                  </li>
-                  <li>
-                    • <strong>Confident Mistakes:</strong>{" "}
-                    {stats.confident_mistakes} - These need immediate attention
-                  </li>
-                  <li>
-                    • <strong>Guess Mistakes:</strong> {stats.guess_mistakes} -
-                    Focus on understanding concepts
-                  </li>
-                  <li>
-                    • <strong>Fluke Mistakes:</strong> {stats.fluke_mistakes} -
-                    Review basic knowledge
-                  </li>
-                  <li>
-                    • <strong>Mastery Rate:</strong>{" "}
-                    {Math.round(
-                      (stats.mastered_count / stats.total_mistakes) * 100
-                    )}
-                    %
-                  </li>
-                </ul>
-                <div className="bg-orange-100 dark:bg-orange-900 p-3 rounded">
-                  <p className="text-sm text-orange-800 dark:text-orange-200">
-                    <strong>Recommendation:</strong> Focus on retaking confident
-                    mistakes first, as these indicate overconfidence in
-                    incorrect knowledge.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+          <TabsContent value="mock" className="mt-0">
+            <div className="space-y-6">
+              {mistakesByType["mock"].length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No Mock Test Mistakes</h3>
+                    <p className="text-muted-foreground">Great job! No mistakes in mock tests yet.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div>Mock test mistakes content here</div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

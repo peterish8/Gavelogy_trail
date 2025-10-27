@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import {
@@ -36,9 +36,10 @@ interface Question {
 export default function RetakeQuestionPage({
   params,
 }: {
-  params: { questionId: string };
+  params: Promise<{ questionId: string }>;
 }) {
   const router = useRouter();
+  const { questionId } = use(params);
   const [question, setQuestion] = useState<Question | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
   const [confidence, setConfidence] = useState<
@@ -55,7 +56,7 @@ export default function RetakeQuestionPage({
       // Demo mode - use mock data
       if (process.env.NODE_ENV === "development") {
         const mockQuestion: Question = {
-          id: params.questionId,
+          id: questionId,
           question_text:
             "Which Article of the Indian Constitution deals with the Right to Equality?",
           option_a: "Article 14",
@@ -89,7 +90,7 @@ export default function RetakeQuestionPage({
 
   useEffect(() => {
     loadQuestion();
-  }, [params.questionId]);
+  }, [questionId]);
 
   useEffect(() => {
     if (startTime > 0) {
@@ -257,11 +258,11 @@ export default function RetakeQuestionPage({
                   </div>
 
                   {/* Explanation */}
-                  <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                  <div className="mt-6 p-4 rounded-lg border bg-yellow-200 dark:bg-yellow-300/20 border-yellow-500">
+                    <h4 className="font-semibold mb-2" style={{ color: 'var(--foreground)' }}>
                       Explanation:
                     </h4>
-                    <p className="text-blue-700 dark:text-blue-300">
+                    <p style={{ color: 'var(--foreground)' }}>
                       {question.explanation}
                     </p>
                   </div>
@@ -371,11 +372,15 @@ export default function RetakeQuestionPage({
                   <button
                     key={option.key}
                     onClick={() => setSelectedAnswer(option.key)}
-                    className={`w-full p-4 text-left border rounded-lg transition-colors ${
+                    className={`w-full p-4 text-left border-2 rounded-lg transition-all shadow-lg ${
                       selectedAnswer === option.key
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-primary/50"
+                        ? "border-blue-500"
+                        : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                     }`}
+                    style={{
+                      backgroundColor: selectedAnswer === option.key ? '#3b82f6' : undefined,
+                      color: selectedAnswer === option.key ? 'white' : 'var(--foreground)'
+                    }}
                   >
                     <span className="font-medium mr-3">{option.key}.</span>
                     {option.text}

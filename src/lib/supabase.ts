@@ -360,6 +360,73 @@ export interface Database {
           case_summary?: string;
         };
       };
+      contemprory_case_notes: {
+        Row: {
+          id: string;
+          case_number: string;
+          overall_content: string;
+        };
+        Insert: {
+          id?: string;
+          case_number: string;
+          overall_content: string;
+        };
+        Update: {
+          id?: string;
+          case_number?: string;
+          overall_content?: string;
+        };
+      };
+      contemporary_case_quizzes: {
+        Row: {
+          id: string;
+          case_number: string;
+          case_name: string;
+          passage: string;
+          case_question_id: string;
+          question: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
+          correct_answer: string;
+          explanation: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          case_number: string;
+          case_name: string;
+          passage: string;
+          case_question_id: string;
+          question: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
+          correct_answer: string;
+          explanation: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          case_number?: string;
+          case_name?: string;
+          passage?: string;
+          case_question_id?: string;
+          question?: string;
+          option_a?: string;
+          option_b?: string;
+          option_c?: string;
+          option_d?: string;
+          correct_answer?: string;
+          explanation?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       coin_transactions: {
         Row: {
           id: string;
@@ -416,6 +483,319 @@ export interface Database {
           status?: "pending" | "success" | "failed";
           payment_method?: string;
           created_at?: string;
+        };
+      };
+      badges: {
+        Row: {
+          id: string;
+          user_id: string;
+          badge_type:
+            | "accuracy_champ"
+            | "speedster"
+            | "consistent_learner"
+            | "insight_seeker";
+          badge_level: "bronze" | "silver" | "gold";
+          achieved_at: string;
+          metadata: Record<string, unknown>;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          badge_type:
+            | "accuracy_champ"
+            | "speedster"
+            | "consistent_learner"
+            | "insight_seeker";
+          badge_level: "bronze" | "silver" | "gold";
+          achieved_at?: string;
+          metadata?: Record<string, unknown>;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          badge_type?:
+            | "accuracy_champ"
+            | "speedster"
+            | "consistent_learner"
+            | "insight_seeker";
+          badge_level?: "bronze" | "silver" | "gold";
+          achieved_at?: string;
+          metadata?: Record<string, unknown>;
+        };
+      };
+      badge_progress: {
+        Row: {
+          id: string;
+          user_id: string;
+          badge_type:
+            | "accuracy_champ"
+            | "speedster"
+            | "consistent_learner"
+            | "insight_seeker";
+          current_value: number;
+          bronze_achieved: boolean;
+          silver_achieved: boolean;
+          gold_achieved: boolean;
+          last_updated: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          badge_type:
+            | "accuracy_champ"
+            | "speedster"
+            | "consistent_learner"
+            | "insight_seeker";
+          current_value?: number;
+          bronze_achieved?: boolean;
+          silver_achieved?: boolean;
+          gold_achieved?: boolean;
+          last_updated?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          badge_type?:
+            | "accuracy_champ"
+            | "speedster"
+            | "consistent_learner"
+            | "insight_seeker";
+          current_value?: number;
+          bronze_achieved?: boolean;
+          silver_achieved?: boolean;
+          gold_achieved?: boolean;
+          last_updated?: string;
+        };
+      };
+      daily_activity: {
+        Row: {
+          id: string;
+          user_id: string;
+          activity_date: string;
+          quizzes_completed: number;
+          mocks_completed: number;
+          mistakes_cleared: number;
+          time_spent: number;
+          coins_earned: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          activity_date: string;
+          quizzes_completed?: number;
+          mocks_completed?: number;
+          mistakes_cleared?: number;
+          time_spent?: number;
+          coins_earned?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          activity_date?: string;
+          quizzes_completed?: number;
+          mocks_completed?: number;
+          mistakes_cleared?: number;
+          time_spent?: number;
+          coins_earned?: number;
+          created_at?: string;
+        };
+      };
+      activity_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          activity_type:
+            | "quiz"
+            | "mock"
+            | "mistake_quiz"
+            | "explanation_viewed";
+          activity_id: string | null;
+          subject: string | null;
+          duration: number | null;
+          coins_earned: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          activity_type:
+            | "quiz"
+            | "mock"
+            | "mistake_quiz"
+            | "explanation_viewed";
+          activity_id?: string | null;
+          subject?: string | null;
+          duration?: number | null;
+          coins_earned?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          activity_type?:
+            | "quiz"
+            | "mock"
+            | "mistake_quiz"
+            | "explanation_viewed";
+          activity_id?: string | null;
+          subject?: string | null;
+          duration?: number | null;
+          coins_earned?: number;
+          created_at?: string;
+        };
+      };
+      subject_performance: {
+        Row: {
+          id: string;
+          user_id: string;
+          subject_id: string;
+          total_attempts: number;
+          total_correct: number;
+          total_questions: number;
+          average_accuracy: number;
+          average_time_per_question: number;
+          last_updated: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          subject_id: string;
+          total_attempts?: number;
+          total_correct?: number;
+          total_questions?: number;
+          average_accuracy?: number;
+          average_time_per_question?: number;
+          last_updated?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          subject_id?: string;
+          total_attempts?: number;
+          total_correct?: number;
+          total_questions?: number;
+          average_accuracy?: number;
+          average_time_per_question?: number;
+          last_updated?: string;
+        };
+      };
+      weekly_performance: {
+        Row: {
+          id: string;
+          user_id: string;
+          week_start: string;
+          quizzes_completed: number;
+          mocks_completed: number;
+          total_questions: number;
+          total_correct: number;
+          average_accuracy: number;
+          time_spent: number;
+          coins_earned: number;
+          active_days: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          week_start: string;
+          quizzes_completed?: number;
+          mocks_completed?: number;
+          total_questions?: number;
+          total_correct?: number;
+          average_accuracy?: number;
+          time_spent?: number;
+          coins_earned?: number;
+          active_days?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          week_start?: string;
+          quizzes_completed?: number;
+          mocks_completed?: number;
+          total_questions?: number;
+          total_correct?: number;
+          average_accuracy?: number;
+          time_spent?: number;
+          coins_earned?: number;
+          active_days?: number;
+          created_at?: string;
+        };
+      };
+      mock_test_questions: {
+        Row: {
+          id: string;
+          mock_test_id: string;
+          question_text: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
+          correct_answer: string;
+          explanation: string | null;
+          subject: string | null;
+          order_index: number;
+        };
+        Insert: {
+          id?: string;
+          mock_test_id: string;
+          question_text: string;
+          option_a: string;
+          option_b: string;
+          option_c: string;
+          option_d: string;
+          correct_answer: string;
+          explanation?: string | null;
+          subject?: string | null;
+          order_index?: number;
+        };
+        Update: {
+          id?: string;
+          mock_test_id?: string;
+          question_text?: string;
+          option_a?: string;
+          option_b?: string;
+          option_c?: string;
+          option_d?: string;
+          correct_answer?: string;
+          explanation?: string | null;
+          subject?: string | null;
+          order_index?: number;
+        };
+      };
+      mock_answers: {
+        Row: {
+          id: string;
+          attempt_id: string;
+          question_id: string;
+          selected_answer: string;
+          confidence: "confident" | "guess" | "fluke";
+          is_correct: boolean;
+          time_spent: number | null;
+          subject: string | null;
+        };
+        Insert: {
+          id?: string;
+          attempt_id: string;
+          question_id: string;
+          selected_answer: string;
+          confidence: "confident" | "guess" | "fluke";
+          is_correct: boolean;
+          time_spent?: number | null;
+          subject?: string | null;
+        };
+        Update: {
+          id?: string;
+          attempt_id?: string;
+          question_id?: string;
+          selected_answer?: string;
+          confidence?: "confident" | "guess" | "fluke";
+          is_correct?: boolean;
+          time_spent?: number | null;
+          subject?: string | null;
         };
       };
     };

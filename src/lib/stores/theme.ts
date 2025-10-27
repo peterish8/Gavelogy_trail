@@ -16,18 +16,28 @@ export const useThemeStore = create<ThemeState>()(
         const newTheme = !get().isDarkMode
         set({ isDarkMode: newTheme })
         
-        // Update HTML attribute for CSS variables
+        // Update HTML classes and attributes for proper dark mode
         if (typeof window !== 'undefined') {
           document.documentElement.setAttribute('data-theme', newTheme ? 'dark' : 'light')
+          if (newTheme) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
         }
       },
 
       setTheme: (isDark: boolean) => {
         set({ isDarkMode: isDark })
         
-        // Update HTML attribute for CSS variables
+        // Update HTML classes and attributes for proper dark mode
         if (typeof window !== 'undefined') {
           document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+          if (isDark) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
         }
       },
     }),
@@ -37,6 +47,11 @@ export const useThemeStore = create<ThemeState>()(
         // Apply theme on hydration
         if (state && typeof window !== 'undefined') {
           document.documentElement.setAttribute('data-theme', state.isDarkMode ? 'dark' : 'light')
+          if (state.isDarkMode) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
         }
       },
     }

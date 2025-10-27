@@ -1,153 +1,202 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { supabase } from "../supabase";
 
 export interface MistakeRecord {
   id: string;
-  questionId: string;
+  question_id: string;
   subject: string;
-  topic: string;
-  question: string;
-  userAnswer: string;
-  correctAnswer: string;
-  explanation: string;
-  timestamp: number;
-  isCleared: boolean;
-  clearedAt?: number;
-  attempts: number;
+  topic?: string;
+  question_text: string;
+  user_answer: string;
+  correct_answer: string;
+  confidence_level: 'confident' | 'educated_guess' | 'fluke';
+  explanation?: string;
+  option_a?: string;
+  option_b?: string;
+  option_c?: string;
+  option_d?: string;
+  is_mastered: boolean;
+  retake_count: number;
+  created_at: string;
 }
 
-export interface MistakeStats {
-  totalMistakes: number;
-  activeMistakes: number;
-  clearedMistakes: number;
-  clearanceRate: number;
-  mistakesBySubject: Record<string, number>;
-  mistakesByTopic: Record<string, number>;
+export interface ConfidenceStats {
+  subject: string;
+  total_questions: number;
+  correct_confident: number;
+  correct_educated_guess: number;
+  correct_fluke: number;
+  wrong_confident: number;
+  wrong_educated_guess: number;
+  wrong_fluke: number;
 }
 
 interface MistakeStore {
   mistakes: MistakeRecord[];
-  addMistake: (
-    mistake: Omit<MistakeRecord, "id" | "timestamp" | "isCleared" | "attempts">
-  ) => void;
-  clearMistake: (mistakeId: string) => void;
-  clearMistakeByQuestionId: (questionId: string) => void;
-  getMistakesBySubject: (subject: string) => MistakeRecord[];
-  getMistakesByTopic: (subject: string, topic: string) => MistakeRecord[];
-  getActiveMistakes: () => MistakeRecord[];
-  getClearedMistakes: () => MistakeRecord[];
-  getMistakeStats: () => MistakeStats;
-  incrementAttempts: (mistakeId: string) => void;
-  resetMistakes: () => void;
+  confidenceStats: ConfidenceStats[];
+  loading: boolean;
+  
+  loadMistakes: () => Promise<void>;
+  loadConfidenceStats: () => Promise<void>;
+  markAsMastered: (mistakeId: string) => Promise<void>;
+  addMistake: (mistake: {
+    questionId: string;
+    question: string;
+    correctAnswer: string;
+    userAnswer: string;
+    userAnswerText?: string;
+    correctAnswerText?: string;
+    explanation?: string;
+    subject: string;
+    topic?: string;
+  }) => Promise<void>;
+  clearMistakeByQuestionId: (questionId: string) => Promise<void>;
+  saveQuizAttempt: (attempt: {
+    question_id: string;
+    quiz_id?: string;
+    quiz_type?: string;
+    subject: string;
+    topic?: string;
+    question_text: string;
+    option_a?: string;
+    option_b?: string;
+    option_c?: string;
+    option_d?: string;
+    user_answer: string;
+    correct_answer: string;
+    is_correct: boolean;
+    confidence_level: 'confident' | 'educated_guess' | 'fluke';
+    time_spent?: number;
+    explanation?: string;
+  }) => Promise<void>;
 }
 
-export const useMistakeStore = create<MistakeStore>()(
-  persist(
-    (set, get) => ({
-      mistakes: [],
+export const useMistakeStore = create<MistakeStore>()((set, get) => ({
+  mistakes: [],
+  confidenceStats: [],
+  loading: false,
 
-      addMistake: (mistakeData) => {
-        const newMistake: MistakeRecord = {
-          ...mistakeData,
-          id: `mistake_${Date.now()}_${Math.random()
-            .toString(36)
-            .substr(2, 9)}`,
-          timestamp: Date.now(),
-          isCleared: false,
-          attempts: 1,
-        };
+  loadMistakes: async () => {
+    try {
+      set({ loading: true });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-        set((state) => ({
-          mistakes: [...state.mistakes, newMistake],
-        }));
-      },
+      const { data, error } = await supabase
+        .from('contemporary_mistakes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-      clearMistake: (mistakeId) => {
-        set((state) => ({
-          mistakes: state.mistakes.map((mistake) =>
-            mistake.id === mistakeId
-              ? { ...mistake, isCleared: true, clearedAt: Date.now() }
-              : mistake
-          ),
-        }));
-      },
+      if (error) throw error;
 
-      clearMistakeByQuestionId: (questionId) => {
-        set((state) => ({
-          mistakes: state.mistakes.map((mistake) =>
-            mistake.questionId === questionId
-              ? { ...mistake, isCleared: true, clearedAt: Date.now() }
-              : mistake
-          ),
-        }));
-      },
-
-      getMistakesBySubject: (subject) => {
-        return get().mistakes.filter((mistake) => mistake.subject === subject);
-      },
-
-      getMistakesByTopic: (subject, topic) => {
-        return get().mistakes.filter(
-          (mistake) => mistake.subject === subject && mistake.topic === topic
-        );
-      },
-
-      getActiveMistakes: () => {
-        return get().mistakes.filter((mistake) => !mistake.isCleared);
-      },
-
-      getClearedMistakes: () => {
-        return get().mistakes.filter((mistake) => mistake.isCleared);
-      },
-
-      incrementAttempts: (mistakeId) => {
-        set((state) => ({
-          mistakes: state.mistakes.map((mistake) =>
-            mistake.id === mistakeId
-              ? { ...mistake, attempts: mistake.attempts + 1 }
-              : mistake
-          ),
-        }));
-      },
-
-      getMistakeStats: () => {
-        const mistakes = get().mistakes;
-        const totalMistakes = mistakes.length;
-        const activeMistakes = mistakes.filter((m) => !m.isCleared).length;
-        const clearedMistakes = mistakes.filter((m) => m.isCleared).length;
-        const clearanceRate =
-          totalMistakes > 0 ? (clearedMistakes / totalMistakes) * 100 : 0;
-
-        // Group by subject
-        const mistakesBySubject: Record<string, number> = {};
-        mistakes.forEach((mistake) => {
-          mistakesBySubject[mistake.subject] =
-            (mistakesBySubject[mistake.subject] || 0) + 1;
-        });
-
-        // Group by topic
-        const mistakesByTopic: Record<string, number> = {};
-        mistakes.forEach((mistake) => {
-          const key = `${mistake.subject} - ${mistake.topic}`;
-          mistakesByTopic[key] = (mistakesByTopic[key] || 0) + 1;
-        });
-
-        return {
-          totalMistakes,
-          activeMistakes,
-          clearedMistakes,
-          clearanceRate,
-          mistakesBySubject,
-          mistakesByTopic,
-        };
-      },
-
-      resetMistakes: () => {
-        set({ mistakes: [] });
-      },
-    }),
-    {
-      name: "mistake-storage",
+      set({ mistakes: data || [], loading: false });
+    } catch (error) {
+      console.error('Error loading mistakes:', error);
+      set({ loading: false });
     }
-  )
-);
+  },
+
+  loadConfidenceStats: async () => {
+    try {
+      set({ confidenceStats: [] });
+    } catch (error) {
+      console.error('Error loading confidence stats:', error);
+    }
+  },
+
+  markAsMastered: async (mistakeId: string) => {
+    try {
+      console.log('Toggling mistake mastery:', mistakeId);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('No user found');
+        return;
+      }
+
+      // Get current state to toggle
+      const currentMistake = get().mistakes.find(m => m.id === mistakeId);
+      const newMasteredState = !currentMistake?.is_mastered;
+
+      const { data, error } = await supabase
+        .from('contemporary_mistakes')
+        .update({ is_mastered: newMasteredState })
+        .eq('id', mistakeId)
+        .eq('user_id', user.id)
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Updated mistake:', data);
+
+      set(state => ({
+        mistakes: state.mistakes.map(mistake =>
+          mistake.id === mistakeId
+            ? { ...mistake, is_mastered: newMasteredState }
+            : mistake
+        )
+      }));
+    } catch (error) {
+      console.error('Error toggling mastery:', error?.message || error);
+    }
+  },
+
+  addMistake: async (mistake) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('contemporary_mistakes')
+        .upsert({
+          user_id: user.id,
+          question_id: mistake.questionId,
+          question_text: mistake.question,
+          user_answer: mistake.userAnswer,
+          user_answer_text: mistake.userAnswerText,
+          correct_answer: mistake.correctAnswer,
+          correct_answer_text: mistake.correctAnswerText,
+          explanation: mistake.explanation,
+          subject: mistake.subject,
+          topic: mistake.topic,
+          confidence_level: 'confident',
+          is_mastered: false
+        }, {
+          onConflict: 'user_id,question_id'
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding mistake:', error?.message || error);
+    }
+  },
+
+  clearMistakeByQuestionId: async (questionId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('contemporary_mistakes')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('question_id', questionId);
+
+      if (error) throw error;
+
+      set(state => ({
+        mistakes: state.mistakes.filter(mistake => mistake.question_id !== questionId)
+      }));
+    } catch (error) {
+      console.error('Error clearing mistake:', error?.message || error);
+    }
+  },
+
+  saveQuizAttempt: async (attempt) => {
+    // Not implemented for current schema
+  },
+}));

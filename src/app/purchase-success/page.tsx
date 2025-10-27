@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
+import { DottedBackground } from "@/components/DottedBackground";
 import {
   Card,
   CardContent,
@@ -43,7 +44,8 @@ export default function PurchaseSuccessPage() {
 
   if (!orderDetails) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
+        <DottedBackground />
         <Header />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">Loading...</div>
@@ -53,7 +55,8 @@ export default function PurchaseSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
+      <DottedBackground />
       <Header />
 
       <div className="container mx-auto px-4 py-16">
