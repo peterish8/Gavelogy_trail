@@ -396,7 +396,9 @@ export default function PYQMockExamPage({
       timestamp: new Date().toISOString(),
     };
 
-    localStorage.setItem("pyq-mock-results", JSON.stringify(results));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("pyq-mock-results", JSON.stringify(results));
+    }
 
     // Update user streak
     await updateStreak("pyq", correct * 5); // 5 points per correct PYQ answer

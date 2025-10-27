@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useMistakeStore } from "@/lib/stores/mistakes";
@@ -14,7 +14,7 @@ import { Lock, Clock, Check } from "lucide-react";
 import { DottedBackground } from "@/components/DottedBackground";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 
-export default function SubjectsPage() {
+function SubjectsContent() {
   const { isAuthenticated, isLoading } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1047,20 +1047,16 @@ export default function SubjectsPage() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      <DottedBackground />
-      <Header />
-
-      <div className="container mx-auto px-4 py-8 no-copy">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">CLAT PG Subjects</h1>
-          <p className="text-muted-foreground">
-            Master all 13 law subjects with our hierarchical quiz system.
-            Complete quizzes to unlock progress tracking and intelligent mistake
-            analysis.
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8 no-copy">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2">CLAT PG Subjects</h1>
+        <p className="text-muted-foreground">
+          Master all 13 law subjects with our hierarchical quiz system.
+          Complete quizzes to unlock progress tracking and intelligent mistake
+          analysis.
+        </p>
+      </div>
 
         {/* Course Tabs - Responsive scrollable pills */}
         <Tabs
@@ -1684,7 +1680,22 @@ export default function SubjectsPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+    </div>
+  );
+}
+
+export default function SubjectsPage() {
+  return (
+    <div className="min-h-screen relative">
+      <DottedBackground />
+      <Header />
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">Loading subjects...</div>
+        </div>
+      }>
+        <SubjectsContent />
+      </Suspense>
     </div>
   );
 }
