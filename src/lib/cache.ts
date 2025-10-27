@@ -40,11 +40,14 @@ class CacheManager {
 
   clear() {
     this.cache.clear();
-    localStorage.removeItem('gavalogy_cache');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('gavalogy_cache');
+    }
   }
 
   private saveToStorage() {
     try {
+      if (typeof window === 'undefined') return;
       const cacheData = Array.from(this.cache.entries());
       localStorage.setItem('gavalogy_cache', JSON.stringify(cacheData));
     } catch (error) {
@@ -54,6 +57,7 @@ class CacheManager {
 
   private loadFromStorage() {
     try {
+      if (typeof window === 'undefined') return;
       const stored = localStorage.getItem('gavalogy_cache');
       if (stored) {
         const cacheData = JSON.parse(stored);
