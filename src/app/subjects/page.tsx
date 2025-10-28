@@ -1561,7 +1561,7 @@ function SubjectsContent() {
                                                     <div className="flex-1">
                                                       <div className="flex items-center gap-3 mb-2">
                                                         <h4 className="text-lg font-semibold text-gray-900">
-                                                          {parseInt(caseItem.caseNumber.split('-')[3]) || parseInt(caseItem.caseNumber.split('-')[2])}.{" "}
+                                                          {(parseInt(caseItem.caseNumber.split('-')[3]) || parseInt(caseItem.caseNumber.split('-')[2])) + 1}.{" "}
                                                           {caseItem.title}
                                                         </h4>
                                                         {!isAccessible && (

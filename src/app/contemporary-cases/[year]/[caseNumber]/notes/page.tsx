@@ -302,8 +302,11 @@ export default function CaseNotesPage({
   useEffect(() => {
 
     loadCaseNotes();
-    // Extract case number from caseNumber string (e.g., "CQ-24-01" -> 1)
-    const match = caseNumber.match(/CQ-\d+-(\d+)/);
+    // Extract case number from caseNumber string
+    let match = caseNumber.match(/CQ-\d+-(\d+)/); // 2024 format: CQ-24-01
+    if (!match) {
+      match = caseNumber.match(/CS-\d+-[A-Z]-(\d+)/); // 2025 format: CS-25-A-01
+    }
     if (match) {
       setCaseNumberInt(parseInt(match[1]));
     }
@@ -343,10 +346,21 @@ export default function CaseNotesPage({
       // Start fade out
       setIsTransitioning(true);
 
-      // Preload next case data during animation
-      const newCaseId = `CQ-${year.slice(-2)}-${newCaseNumber
-        .toString()
-        .padStart(2, "0")}`;
+      let newCaseId: string;
+      
+      // Handle different case number formats
+      if (caseNumber.startsWith('CQ-')) {
+        // 2024 format: CQ-24-XX
+        newCaseId = `CQ-${year.slice(-2)}-${newCaseNumber.toString().padStart(2, "0")}`;
+      } else if (caseNumber.startsWith('CS-')) {
+        // 2025 format: CS-25-X-XX (extract subject letter)
+        const parts = caseNumber.split('-');
+        const subjectLetter = parts[2]; // A, B, C, etc.
+        newCaseId = `CS-${year.slice(-2)}-${subjectLetter}-${newCaseNumber.toString().padStart(2, "0")}`;
+      } else {
+        // Fallback
+        newCaseId = caseNumber;
+      }
       
       // Start preloading immediately
       DataLoader.preloadCaseData(year, newCaseId).catch(() => null);
