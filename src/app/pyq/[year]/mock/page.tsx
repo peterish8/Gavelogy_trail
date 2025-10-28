@@ -9,6 +9,7 @@ import { ArrowLeft, Clock } from "lucide-react";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useQuizStore } from "@/lib/stores/quiz";
 import { supabase } from "@/lib/supabase";
 
 interface PYQQuestion {
@@ -32,6 +33,7 @@ export default function PYQMockExamPage({
   const router = useRouter();
   const { user } = useAuthStore();
   const { updateStreak } = useStreakStore();
+  const { addAttempt } = useQuizStore();
 
   // Enable copy protection
   useCopyProtection();
@@ -399,6 +401,28 @@ export default function PYQMockExamPage({
     if (typeof window !== 'undefined') {
       localStorage.setItem("pyq-mock-results", JSON.stringify(results));
     }
+
+    // Save quiz attempt
+    await addAttempt({
+      subject: "PYQ",
+      topic: `${year} Mock Test`,
+      questions: questions.map(q => q.id.toString()),
+      answers: Object.fromEntries(
+        Object.entries(answers).map(([key, value]) => [key, value])
+      ),
+      correctAnswers: Object.fromEntries(
+        questions.map(q => [q.question_no.toString(), q.correct_answer])
+      ),
+      score: correct,
+      totalQuestions: total,
+      timeSpent: Math.floor((180 * 60 - timeRemaining) / 60), // Convert to minutes
+      wrongQuestions: questions
+        .filter(q => answers[q.question_no] !== q.correct_answer)
+        .map(q => q.id.toString()),
+      confidence: Object.fromEntries(
+        Object.keys(answers).map(key => [key, "confident"]) // Default confidence for PYQ
+      )
+    });
 
     // Update user streak
     await updateStreak("pyq", correct * 5); // 5 points per correct PYQ answer

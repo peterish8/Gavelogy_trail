@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { DottedBackground } from "@/components/DottedBackground";
+import { useQuizStore } from "@/lib/stores/quiz";
 import {
   Card,
   CardContent,
@@ -44,6 +45,7 @@ interface QuizSettings {
 
 export default function QuizPage({ params }: { params: { quizId: string } }) {
   const router = useRouter();
+  const { addAttempt } = useQuizStore();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<
     Record<
@@ -231,6 +233,30 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
         }
       });
       setScore(correct);
+      
+      // Save quiz attempt
+      addAttempt({
+        subject: "Demo Quiz",
+        topic: "Sample Questions",
+        questions: questions.map(q => q.id),
+        answers: Object.fromEntries(
+          Object.entries(answers).map(([key, value]) => [key, value.selected])
+        ),
+        correctAnswers: Object.fromEntries(
+          questions.map((q, index) => [index.toString(), q.correct_answer])
+        ),
+        score: correct,
+        totalQuestions: questions.length,
+        timeSpent: totalTimeUsed,
+        wrongQuestions: questions
+          .map((q, index) => ({ q, index }))
+          .filter(({ q, index }) => answers[index]?.selected !== q.correct_answer)
+          .map(({ index }) => index.toString()),
+        confidence: Object.fromEntries(
+          Object.entries(answers).map(([key, value]) => [key, value.confidence])
+        )
+      });
+      
       setQuizState("completed");
       setShowResults(true);
     }

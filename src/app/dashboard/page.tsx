@@ -63,6 +63,10 @@ export default function DashboardPage() {
   // Get recent activity data
   const recentAttempts = getRecentAttempts(12);
   const allAttempts = getRecentAttempts(1000); // Get all attempts for total count
+  
+  // Debug logging
+  console.log('Recent attempts:', recentAttempts.length, recentAttempts);
+  console.log('All attempts:', allAttempts.length);
   const wrongAnswers = mistakes.filter(m => !m.is_mastered && m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim());
   const unsureCorrect = mistakes.filter(m => !m.is_mastered && m.user_answer === m.correct_answer.replace(/[()]/g, "").trim() && (m.confidence_level === 'educated_guess' || m.confidence_level === 'fluke'));
   
@@ -270,65 +274,72 @@ export default function DashboardPage() {
                 </p>
               </CardHeader>
               <CardContent>
-                {recentAttempts.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {recentAttempts.map((attempt) => {
-                      const accuracy = Math.round((attempt.score / attempt.totalQuestions) * 100);
-                      const displayTopic = formatTopicName(attempt.subject, attempt.topic);
-                      return (
-                        <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)}`}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{getQuizTypeIcon(attempt.subject)}</span>
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm">{attempt.subject}</p>
-                                  <p className="text-xs text-muted-foreground line-clamp-2" title={displayTopic}>
-                                    {displayTopic}
-                                  </p>
-                                </div>
-                              </div>
-                              <Badge 
-                                variant={accuracy < 35 ? 'destructive' : 'outline'}
-                                className={accuracy >= 76 ? 'bg-green-500 text-white border-green-500' : accuracy >= 35 ? 'bg-yellow-500 text-white border-yellow-500' : ''}
-                              >
-                                {accuracy}%
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {formatTimeAgo(attempt.timestamp)}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1">
-                                  <CheckCircle className="h-3 w-3 text-green-500" />
-                                  {attempt.score}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <XCircle className="h-3 w-3 text-red-500" />
-                                  {attempt.totalQuestions - attempt.score}
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+                <div className="space-y-4">
+                  {/* Debug info */}
+                  <div className="text-xs text-muted-foreground mb-4">
+                    Found {recentAttempts.length} recent attempts, {allAttempts.length} total attempts
                   </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No activity yet. Start by taking a quiz!</p>
-                    <Button 
-                      onClick={() => router.push('/subjects')}
-                      className="mt-4"
-                      variant="outline"
-                    >
-                      Browse Subjects
-                    </Button>
-                  </div>
-                )}
+                  
+                  {recentAttempts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {recentAttempts.map((attempt) => {
+                        const accuracy = Math.round((attempt.score / attempt.totalQuestions) * 100);
+                        const displayTopic = formatTopicName(attempt.subject, attempt.topic);
+                        return (
+                          <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)}`}>
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">{getQuizTypeIcon(attempt.subject)}</span>
+                                  <div className="flex-1">
+                                    <p className="font-medium text-sm">{attempt.subject}</p>
+                                    <p className="text-xs text-muted-foreground line-clamp-2" title={displayTopic}>
+                                      {displayTopic}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Badge 
+                                  variant={accuracy < 35 ? 'destructive' : 'outline'}
+                                  className={accuracy >= 76 ? 'bg-green-500 text-white border-green-500' : accuracy >= 35 ? 'bg-yellow-500 text-white border-yellow-500' : ''}
+                                >
+                                  {accuracy}%
+                                </Badge>
+                              </div>
+                              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatTimeAgo(attempt.timestamp)}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    <CheckCircle className="h-3 w-3 text-green-500" />
+                                    {attempt.score}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <XCircle className="h-3 w-3 text-red-500" />
+                                    {attempt.totalQuestions - attempt.score}
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No quiz attempts found. Start by taking a quiz!</p>
+                      <Button 
+                        onClick={() => router.push('/subjects')}
+                        className="mt-4"
+                        variant="outline"
+                      >
+                        Browse Subjects
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
