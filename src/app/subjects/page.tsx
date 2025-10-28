@@ -87,11 +87,14 @@ function SubjectsContent() {
   }, []);
 
   useEffect(() => {
+    // Only redirect if we're sure the user is not authenticated
+    // Wait longer on production to allow for network delays
     const timer = setTimeout(() => {
       if (!isLoading && !isAuthenticated) {
+        console.log('Auth check failed, redirecting to login');
         router.push("/login");
       }
-    }, 500); // Increased timeout to allow auth check to complete
+    }, 2000); // Increased to 2 seconds for production
 
     return () => clearTimeout(timer);
   }, [isAuthenticated, isLoading, router]);
@@ -1041,6 +1044,22 @@ function SubjectsContent() {
       console.log("Quiz not found for topic:", topicName);
     }
   };
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen relative">
+        <DottedBackground />
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;

@@ -459,35 +459,38 @@ export const useAuthStore = create<AuthStoreState>()(
           set({ isLoading: true });
 
           // Check if user manually logged out
-          const manualLogout = localStorage.getItem("gavalogy-manual-logout");
-          if (manualLogout === "true") {
-            set({
-              user: null,
-              profile: null,
-              isAuthenticated: false,
-              isLoading: false,
-              error: null,
-            });
-            return;
-          }
+          if (typeof window !== 'undefined') {
+            const manualLogout = localStorage.getItem("gavalogy-manual-logout");
+            if (manualLogout === "true") {
+              set({
+                user: null,
+                profile: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              });
+              return;
+            }
 
-          // First check if we have stored auth data
-          const storedAuth = localStorage.getItem("gavalogy-auth-storage");
-          if (storedAuth) {
-            try {
-              const parsedAuth = JSON.parse(storedAuth);
-              if (parsedAuth.state?.user && parsedAuth.state?.isAuthenticated) {
-                set({
-                  user: parsedAuth.state.user,
-                  profile: parsedAuth.state.profile,
-                  isAuthenticated: true,
-                  isLoading: false,
-                  error: null,
-                });
-                return;
+            // First check if we have stored auth data
+            const storedAuth = localStorage.getItem("gavalogy-auth-storage");
+            if (storedAuth) {
+              try {
+                const parsedAuth = JSON.parse(storedAuth);
+                if (parsedAuth.state?.user && parsedAuth.state?.isAuthenticated) {
+                  console.log('Found stored auth data, setting user as authenticated');
+                  set({
+                    user: parsedAuth.state.user,
+                    profile: parsedAuth.state.profile,
+                    isAuthenticated: true,
+                    isLoading: false,
+                    error: null,
+                  });
+                  return;
+                }
+              } catch (e) {
+                console.log("Could not parse stored auth data");
               }
-            } catch (e) {
-              console.log("Could not parse stored auth data");
             }
           }
 
