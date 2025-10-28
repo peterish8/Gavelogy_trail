@@ -1626,10 +1626,6 @@ function SubjectsContent() {
                                                         const isSocialWelfare = caseItem.caseNumber.includes('-G-');
                                                         
                                                         let hasQuizData = true; // Enable all quizzes by default
-                                                        // Only disable if we know for sure there are no quizzes
-                                                        if (isCriminalLaw && caseNum > 5) {
-                                                          hasQuizData = false;
-                                                        }
 
                                                         return hasQuizData ? (
                                                           <button
