@@ -332,7 +332,7 @@ function SubjectsContent() {
       setContemporaryCases({
         "2025": {
           year: "2025",
-          totalCases: 22,
+          totalCases: 25,
       timeSpent: "0h 00m",
       progress: 0,
           cases: [],
@@ -715,6 +715,21 @@ function SubjectsContent() {
             title: "Fatima Khan v. State of Maharashtra (2025 INSC 567)",
             isLocked: false,
           },
+          {
+            caseNumber: "CS-25-C-03",
+            title: "Family Law Case 3 (2025)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-C-04",
+            title: "Family Law Case 4 (2025)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-C-05",
+            title: "Family Law Case 5 (2025)",
+            isLocked: false,
+          },
         ],
         "Commercial & Corporate Law": [
           {
@@ -752,7 +767,7 @@ function SubjectsContent() {
       setContemporaryCases({
         "2025": {
           year: "2025",
-          totalCases: 22,
+          totalCases: 25,
       timeSpent: "0h 00m",
           progress: 0,
         },
@@ -1546,7 +1561,7 @@ function SubjectsContent() {
                                                     <div className="flex-1">
                                                       <div className="flex items-center gap-3 mb-2">
                                                         <h4 className="text-lg font-semibold text-gray-900">
-                                                          {parseInt(caseItem.caseNumber.split('-')[2])}.{" "}
+                                                          {parseInt(caseItem.caseNumber.split('-')[3]) || parseInt(caseItem.caseNumber.split('-')[2])}.{" "}
                                                           {caseItem.title}
                                                         </h4>
                                                         {!isAccessible && (
@@ -1605,14 +1620,15 @@ function SubjectsContent() {
                                                         const isConstitutionalLaw = caseItem.caseNumber.includes('-A-');
                                                         const isCriminalLaw = caseItem.caseNumber.includes('-B-');
                                                         const isFamilyLaw = caseItem.caseNumber.includes('-C-');
+                                                        const isCommercialLaw = caseItem.caseNumber.includes('-D-');
+                                                        const isEnvironmentLaw = caseItem.caseNumber.includes('-E-');
+                                                        const isJudiciary = caseItem.caseNumber.includes('-F-');
+                                                        const isSocialWelfare = caseItem.caseNumber.includes('-G-');
                                                         
-                                                        let hasQuizData = false;
-                                                        if (isConstitutionalLaw) {
-                                                          hasQuizData = caseNum >= 1 && caseNum <= 12;
-                                                        } else if (isCriminalLaw) {
-                                                          hasQuizData = false; // Criminal Law has no quizzes
-                                                        } else if (isFamilyLaw) {
-                                                          hasQuizData = caseNum >= 1 && caseNum <= 2;
+                                                        let hasQuizData = true; // Enable all quizzes by default
+                                                        // Only disable if we know for sure there are no quizzes
+                                                        if (isCriminalLaw && caseNum > 5) {
+                                                          hasQuizData = false;
                                                         }
 
                                                         return hasQuizData ? (

@@ -340,9 +340,7 @@ export default function CaseNotesPage({
     const newCaseNumber =
       direction === "prev" ? caseNumberInt - 1 : caseNumberInt + 1;
     if (newCaseNumber >= 1 && newCaseNumber <= 50) {
-      // Set transition direction (swapped)
-      setTransitionDirection(direction === "next" ? "right" : "left");
-      // Start transition
+      // Start fade out
       setIsTransitioning(true);
 
       // Preload next case data during animation
@@ -355,7 +353,7 @@ export default function CaseNotesPage({
       
       setTimeout(() => {
         router.push(`/contemporary-cases/${year}/${newCaseId}/notes`);
-      }, 800); // Slower animation with preloading
+      }, 300); // Faster fade animation
     }
   };
 
@@ -415,12 +413,10 @@ export default function CaseNotesPage({
         {/* Case Notes Card with White Background */}
         <div className="max-w-6xl mx-auto">
           <Card
-            className={`bg-white shadow-2xl transition-all duration-1000 ease-out ${
+            className={`bg-white shadow-2xl transition-all duration-300 ease-out ${
               isTransitioning
-                ? transitionDirection === 'right'
-                  ? 'animate-out slide-out-to-right-full'
-                  : 'animate-out slide-out-to-left-full'
-                : 'animate-in slide-in-from-right-full'
+                ? 'opacity-0'
+                : 'opacity-100 animate-in fade-in-0'
             }`}
           >
             <CardContent className="p-8 max-h-[calc(100vh-40px)] overflow-y-auto no-copy">

@@ -72,7 +72,12 @@ export class DataLoader {
 
       if (error) {
         console.warn('Case notes not found:', notesCaseNumber);
-        return { data: null, fromCache: false };
+        // Return placeholder data for missing cases
+        const placeholderData = {
+          case_number: notesCaseNumber,
+          overall_content: `This case will be available soon. We're working on adding comprehensive notes for this case.\n\nPlease check back later for detailed case analysis, key legal principles, and important takeaways.`
+        };
+        return { data: placeholderData, fromCache: false };
       }
 
       // Cache for 15 minutes (notes don't change often)
@@ -114,7 +119,25 @@ export class DataLoader {
         .eq('case_number', quizCaseNumber)
         .order('case_question_id');
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Quiz questions not found:', quizCaseNumber);
+        // Return placeholder quiz data
+        const placeholderQuiz = [{
+          id: `placeholder-${quizCaseNumber}`,
+          case_number: quizCaseNumber,
+          case_name: 'Quiz Coming Soon',
+          passage: 'This quiz will be available soon.',
+          case_question_id: `${quizCaseNumber}-01`,
+          question: 'This quiz is being prepared and will be available soon. Please check back later.',
+          option_a: 'Coming Soon',
+          option_b: 'Coming Soon', 
+          option_c: 'Coming Soon',
+          option_d: 'Coming Soon',
+          correct_answer: 'A',
+          explanation: 'This quiz content is being prepared and will be available soon.'
+        }];
+        return { data: placeholderQuiz, fromCache: false };
+      }
 
       // Cache for 10 minutes
       cache.set(cacheKey, data, 10 * 60 * 1000);
