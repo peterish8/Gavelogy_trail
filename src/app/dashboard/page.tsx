@@ -280,36 +280,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Debug info */}
-                  <div className="text-xs text-muted-foreground mb-4">
-                    Found {recentAttempts.length} recent attempts, {allAttempts.length} total attempts
-                    <br />Store has {attempts.length} attempts total
-                    {attempts.length === 0 && (
-                      <>
-                        <br />
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={async () => {
-                            await addAttempt({
-                              subject: "Test Subject",
-                              topic: "Test Topic",
-                              questions: ["1", "2", "3"],
-                              answers: { "1": "A", "2": "B", "3": "C" },
-                              correctAnswers: { "1": "A", "2": "B", "3": "D" },
-                              score: 2,
-                              totalQuestions: 3,
-                              timeSpent: 120,
-                              wrongQuestions: ["3"],
-                              confidence: { "1": "confident", "2": "confident", "3": "guess" }
-                            });
-                          }}
-                        >
-                          Add Test Attempt
-                        </Button>
-                      </>
-                    )}
-                  </div>
+
                   
                   {recentAttempts.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

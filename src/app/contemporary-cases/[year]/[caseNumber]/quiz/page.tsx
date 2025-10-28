@@ -225,7 +225,7 @@ export default function ContemporaryQuizPage({
       // Add quiz attempt
       const attemptId = await addAttempt({
         subject: "Contemporary Cases",
-        topic: currentQuestion.case_name,
+        topic: questions[0]?.case_name || "Contemporary Case",
         questions: questions.map((q) => q.case_question_id),
         answers: answers.reduce(
           (acc, a) => ({ ...acc, [a.questionId]: a.selectedAnswer }),
