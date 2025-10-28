@@ -313,7 +313,7 @@ export default function ContemporaryQuizPage({
                 Error Loading Quiz
               </h2>
               <p className="text-gray-600 mb-6">{error}</p>
-              <Button onClick={loadQuizQuestions}>Try Again</Button>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
             </CardContent>
           </Card>
         </div>
