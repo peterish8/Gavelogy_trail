@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const { getUserCourses: getCourses, purchaseCourse: buyCourse } =
     usePaymentStore();
 
-  const { getRecentAttempts, addAttempt, attempts } = useQuizStore();
+  const { getRecentAttempts, loadAttempts, loading: quizLoading } = useQuizStore();
   const { mistakes, loadMistakes } = useMistakeStore();
   const router = useRouter();
   const [userCourses, setUserCourses] = useState<Course[]>([]);
@@ -56,9 +56,9 @@ export default function DashboardPage() {
     if (isAuthenticated && user && profile) {
       loadUserCourses();
       loadMistakes();
-
+      loadAttempts();
     }
-  }, [isAuthenticated, user, profile, loadUserCourses, loadMistakes]);
+  }, [isAuthenticated, user, profile, loadUserCourses, loadMistakes, loadAttempts]);
 
   // Get recent activity data
   const recentAttempts = getRecentAttempts(12);
@@ -66,11 +66,9 @@ export default function DashboardPage() {
   
   // Debug logging
   console.log('Quiz Store Debug:', {
-    attemptsArray: attempts,
-    attemptsLength: attempts.length,
     recentAttempts: recentAttempts.length,
     allAttempts: allAttempts.length,
-    localStorage: typeof window !== 'undefined' ? localStorage.getItem('quiz-storage') : 'SSR'
+    loading: quizLoading
   });
   // Count all unmastered mistakes (wrong answers)
   const totalMistakes = mistakes.filter(m => !m.is_mastered && m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim()).length;
