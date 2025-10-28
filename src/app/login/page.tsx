@@ -114,37 +114,36 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Clear previous errors
-    setEmailError("");
-    setPasswordError("");
-    setError("");
-
-    // Validate inputs
-    const emailValidation = validateEmail(email);
-    if (!emailValidation.isValid) {
-      setEmailError(emailValidation.errors[0]);
-      return;
-    }
-
-    if (!password) {
-      setPasswordError("Password is required");
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      const result = await signIn(email, password);
+      // Try login first
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      if (result.success) {
-        // Force refresh to clear any cached auth state
-        window.location.href = "/dashboard?t=" + Date.now();
+      if (data.user) {
+        // Login successful - go to dashboard
+        window.location.href = "/dashboard";
+      } else if (error?.message.includes('Invalid login credentials')) {
+        // Try signup if login fails
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (signupData.user) {
+          // Signup successful - go to dashboard
+          window.location.href = "/dashboard";
+        } else {
+          setError(signupError?.message || "Authentication failed");
+        }
       } else {
-        setError(result.error || "Login failed. Please check your email and password.");
+        setError(error?.message || "Authentication failed");
       }
     } catch (error) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("Authentication failed");
     } finally {
       setIsSubmitting(false);
     }
