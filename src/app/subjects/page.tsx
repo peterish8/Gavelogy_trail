@@ -707,27 +707,27 @@ function SubjectsContent() {
         "Family Law & Personal Laws": [
           {
             caseNumber: "CS-25-C-01",
-            title: "Priya Sharma v. Rajesh Sharma (2025 INSC 445)",
+            title: "ABC v. State of Maharashtra (2025 INSC 926) – Irretrievable breakdown of marriage under Article 142.",
             isLocked: false,
           },
           {
             caseNumber: "CS-25-C-02",
-            title: "Fatima Khan v. State of Maharashtra (2025 INSC 567)",
+            title: "Ivan Rathinam v. Milan Joseph (2025 INSC 115) – DNA test discretionary; presumption under Section 112 Evidence Act.",
             isLocked: false,
           },
           {
             caseNumber: "CS-25-C-03",
-            title: "Family Law Case 3 (2025)",
+            title: "Sukhdev Singh v. Sukhbir Kaur (2025) – Maintenance entitlement after divorce clarified.",
             isLocked: false,
           },
           {
             caseNumber: "CS-25-C-04",
-            title: "Family Law Case 4 (2025)",
+            title: "Urmila Dixit v. Sunil Sharan Dixit (2025) – Permanent alimony for spouse in void marriage under Section 25 HMA.",
             isLocked: false,
           },
           {
             caseNumber: "CS-25-C-05",
-            title: "Family Law Case 5 (2025)",
+            title: "Vibhor Garg v. Neha (2025) – Admissibility of secret phone recordings in matrimonial disputes.",
             isLocked: false,
           },
         ],
@@ -1561,7 +1561,7 @@ function SubjectsContent() {
                                                     <div className="flex-1">
                                                       <div className="flex items-center gap-3 mb-2">
                                                         <h4 className="text-lg font-semibold text-gray-900">
-                                                          {(parseInt(caseItem.caseNumber.split('-')[3]) || parseInt(caseItem.caseNumber.split('-')[2])) + 1}.{" "}
+                                                          {parseInt(caseItem.caseNumber.split('-')[3]) || (parseInt(caseItem.caseNumber.split('-')[2]) + 1)}.{" "}
                                                           {caseItem.title}
                                                         </h4>
                                                         {!isAccessible && (
