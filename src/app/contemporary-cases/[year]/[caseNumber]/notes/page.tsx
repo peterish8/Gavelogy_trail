@@ -307,6 +307,9 @@ export default function CaseNotesPage({
     if (!match) {
       match = caseNumber.match(/CS-\d+-[A-Z]-(\d+)/); // 2025 format: CS-25-A-01
     }
+    if (!match) {
+      match = caseNumber.match(/CR-\d+-(\d+)/); // 2023 format: CR-23-01
+    }
     if (match) {
       setCaseNumberInt(parseInt(match[1]));
     }
@@ -357,6 +360,9 @@ export default function CaseNotesPage({
         const parts = caseNumber.split('-');
         const subjectLetter = parts[2]; // A, B, C, etc.
         newCaseId = `CS-${year.slice(-2)}-${subjectLetter}-${newCaseNumber.toString().padStart(2, "0")}`;
+      } else if (caseNumber.startsWith('CR-')) {
+        // 2023 format: CR-23-XX
+        newCaseId = `CR-${year.slice(-2)}-${newCaseNumber.toString().padStart(2, "0")}`;
       } else {
         // Fallback
         newCaseId = caseNumber;
