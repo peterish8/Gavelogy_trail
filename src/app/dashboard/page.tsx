@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const { getUserCourses: getCourses, purchaseCourse: buyCourse } =
     usePaymentStore();
 
-  const { getRecentAttempts } = useQuizStore();
+  const { getRecentAttempts, addAttempt, attempts } = useQuizStore();
   const { mistakes, loadMistakes } = useMistakeStore();
   const router = useRouter();
   const [userCourses, setUserCourses] = useState<Course[]>([]);
@@ -65,13 +65,18 @@ export default function DashboardPage() {
   const allAttempts = getRecentAttempts(1000); // Get all attempts for total count
   
   // Debug logging
-  console.log('Recent attempts:', recentAttempts.length, recentAttempts);
-  console.log('All attempts:', allAttempts.length);
-  const wrongAnswers = mistakes.filter(m => !m.is_mastered && m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim());
-  const unsureCorrect = mistakes.filter(m => !m.is_mastered && m.user_answer === m.correct_answer.replace(/[()]/g, "").trim() && (m.confidence_level === 'educated_guess' || m.confidence_level === 'fluke'));
+  console.log('Quiz Store Debug:', {
+    attemptsArray: attempts,
+    attemptsLength: attempts.length,
+    recentAttempts: recentAttempts.length,
+    allAttempts: allAttempts.length,
+    localStorage: typeof window !== 'undefined' ? localStorage.getItem('quiz-storage') : 'SSR'
+  });
+  // Count all unmastered mistakes (wrong answers)
+  const totalMistakes = mistakes.filter(m => !m.is_mastered && m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim()).length;
   
-  const totalMistakes = wrongAnswers.length;
-  const totalUnsures = unsureCorrect.length;
+  // Count all unmastered unsure answers (correct but guessed/fluke)
+  const totalUnsures = mistakes.filter(m => !m.is_mastered && (m.confidence_level === 'educated_guess' || m.confidence_level === 'fluke')).length;
 
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
@@ -278,6 +283,32 @@ export default function DashboardPage() {
                   {/* Debug info */}
                   <div className="text-xs text-muted-foreground mb-4">
                     Found {recentAttempts.length} recent attempts, {allAttempts.length} total attempts
+                    <br />Store has {attempts.length} attempts total
+                    {attempts.length === 0 && (
+                      <>
+                        <br />
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={async () => {
+                            await addAttempt({
+                              subject: "Test Subject",
+                              topic: "Test Topic",
+                              questions: ["1", "2", "3"],
+                              answers: { "1": "A", "2": "B", "3": "C" },
+                              correctAnswers: { "1": "A", "2": "B", "3": "D" },
+                              score: 2,
+                              totalQuestions: 3,
+                              timeSpent: 120,
+                              wrongQuestions: ["3"],
+                              confidence: { "1": "confident", "2": "confident", "3": "guess" }
+                            });
+                          }}
+                        >
+                          Add Test Attempt
+                        </Button>
+                      </>
+                    )}
                   </div>
                   
                   {recentAttempts.length > 0 ? (
