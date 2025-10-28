@@ -20,7 +20,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DottedBackground } from "@/components/DottedBackground";
 import { validateEmail, validatePassword } from "@/lib/validation";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase-client";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
