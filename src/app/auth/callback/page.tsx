@@ -6,11 +6,9 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DottedBackground } from "@/components/DottedBackground";
 
 export default function AuthCallback() {
-  const router = useRouter();
-
   useEffect(() => {
-    router.push("/dashboard");
-  }, [router]);
+    window.location.href = "/dashboard";
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

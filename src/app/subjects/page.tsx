@@ -81,12 +81,21 @@ function SubjectsContent() {
     }
   }, [searchParams]);
 
-  // Only redirect to login if explicitly not authenticated after loading is complete
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
+  // Remove automatic redirect - show message instead
+  if (!loading && !user) {
+    return (
+      <div className="min-h-screen relative">
+        <DottedBackground />
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Please log in to access this page</h1>
+            <a href="/login" className="text-primary hover:underline">Go to Login</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Load course access once when component mounts
   useEffect(() => {

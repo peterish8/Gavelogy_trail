@@ -34,12 +34,7 @@ export default function LoginPage() {
   const { user, loading, signIn } = useAuth();
   const router = useRouter();
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (!loading && user) {
-      window.location.href = "/dashboard";
-    }
-  }, [loading, user, router]);
+  // Remove automatic redirect - let user manually navigate
 
   // Check if user is already logged in and redirect on form submission
   const handleFormSubmit = async (e: React.FormEvent) => {
