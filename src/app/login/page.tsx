@@ -151,20 +151,20 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      setError("");
-      // Google OAuth will be handled by Supabase directly
+      // Google OAuth handles both login and signup automatically
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       
       if (error) {
         setError(error.message);
       }
+      // If successful, user will be redirected to dashboard
     } catch (error) {
-      setError("Google sign-in failed. Please try again.");
+      setError("Google authentication failed");
     }
   };
 
