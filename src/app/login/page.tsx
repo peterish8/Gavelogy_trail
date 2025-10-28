@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/stores/auth";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { DottedBackground } from "@/components/DottedBackground";
 import { validateEmail, validatePassword } from "@/lib/validation";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,15 +31,15 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const { login, signInWithGoogle, user, isAuthenticated, isLoading, error: authError, clearError } = useAuthStore();
+  const { user, loading, signIn } = useAuth();
   const router = useRouter();
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (!isLoading && isAuthenticated && user) {
+    if (!loading && user) {
       router.push("/dashboard");
     }
-  }, [isAuthenticated, isLoading, user, router]);
+  }, [loading, user, router]);
 
   // Check if user is already logged in and redirect on form submission
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -90,12 +91,7 @@ export default function LoginPage() {
     }
   }, [password, passwordError]);
 
-  useEffect(() => {
-    if (authError) {
-      setError(authError);
-      clearError();
-    }
-  }, [authError, clearError]);
+
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -144,25 +140,15 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      console.log("Attempting login for:", email);
-      const result = await login(email, password);
+      const result = await signIn(email, password);
 
       if (result.success) {
-        console.log("Login successful, redirecting to dashboard");
         router.push("/dashboard");
       } else {
-        console.error("Login failed:", result.error);
-        setError(
-          result.error || "Login failed. Please check your email and password."
-        );
+        setError(result.error || "Login failed. Please check your email and password.");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred. Please try again."
-      );
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -171,19 +157,23 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     try {
       setError("");
-      const result = await signInWithGoogle();
+      // Google OAuth will be handled by Supabase directly
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
       
-      if (!result.success) {
-        setError(result.error || "Google sign-in failed");
+      if (error) {
+        setError(error.message);
       }
-      // Success case is handled by OAuth redirect
     } catch (error) {
-      console.error("Google sign-in error:", error);
       setError("Google sign-in failed. Please try again.");
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <LoadingSpinner text="Loading..." />;
   }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthStore } from "@/lib/stores/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useMistakeStore } from "@/lib/stores/mistakes";
 import { usePaymentStore, COURSES } from "@/lib/payment";
 import { supabase } from "@/lib/supabase";
@@ -15,7 +15,7 @@ import { DottedBackground } from "@/components/DottedBackground";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 
 function SubjectsContent() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -81,18 +81,12 @@ function SubjectsContent() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    const { checkAuth } = useAuthStore.getState();
-    checkAuth();
-  }, []);
-
   // Only redirect to login if explicitly not authenticated after loading is complete
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      console.log('User not authenticated, redirecting to login');
+    if (!loading && !user) {
       router.push("/login");
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [user, loading, router]);
 
   // Load course access once when component mounts
   useEffect(() => {
@@ -1041,7 +1035,7 @@ function SubjectsContent() {
   };
 
   // Show loading while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen relative">
         <DottedBackground />
@@ -1056,7 +1050,7 @@ function SubjectsContent() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return null;
   }
 
