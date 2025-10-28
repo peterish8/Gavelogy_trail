@@ -86,17 +86,12 @@ function SubjectsContent() {
     checkAuth();
   }, []);
 
+  // Only redirect to login if explicitly not authenticated after loading is complete
   useEffect(() => {
-    // Only redirect if we're sure the user is not authenticated
-    // Wait longer on production to allow for network delays
-    const timer = setTimeout(() => {
-      if (!isLoading && !isAuthenticated) {
-        console.log('Auth check failed, redirecting to login');
-        router.push("/login");
-      }
-    }, 2000); // Increased to 2 seconds for production
-
-    return () => clearTimeout(timer);
+    if (!isLoading && !isAuthenticated) {
+      console.log('User not authenticated, redirecting to login');
+      router.push("/login");
+    }
   }, [isAuthenticated, isLoading, router]);
 
   // Load course access once when component mounts

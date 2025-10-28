@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthStoreState>()(
       user: null,
       profile: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true, // Start with loading true
       error: null,
 
       login: async (email: string, password: string) => {
@@ -587,6 +587,16 @@ export const useAuthStore = create<AuthStoreState>()(
         profile: state.profile,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // After rehydration, check auth if we have stored data
+        if (state?.user && state?.isAuthenticated) {
+          console.log('Rehydrated auth state, user is authenticated');
+          state.isLoading = false;
+        } else {
+          // If no stored auth, check Supabase session
+          state?.checkAuth();
+        }
+      },
     }
   )
 );
