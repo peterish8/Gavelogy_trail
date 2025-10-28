@@ -1065,7 +1065,7 @@ function SubjectsContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 no-copy">
-      {/* Header */}
+      {/* Header Text at Top */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">CLAT PG Subjects</h1>
         <p className="text-muted-foreground">
@@ -1075,6 +1075,8 @@ function SubjectsContent() {
         </p>
       </div>
 
+      {/* Content Area */}
+      <div className="mb-8">
         {/* Course Tabs - Responsive scrollable pills */}
         <Tabs
           value={activeTab}
@@ -1697,6 +1699,7 @@ function SubjectsContent() {
             </div>
           </TabsContent>
         </Tabs>
+      </div>
     </div>
   );
 }
