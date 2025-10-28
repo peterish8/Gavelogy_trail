@@ -248,14 +248,18 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full"
-                  disabled={
-                    isSubmitting ||
-                    !email ||
-                    !password ||
-                    !!emailError ||
-                    !!passwordError
-                  }
+                  className="w-full bg-black hover:bg-gray-800 text-white"
+                  disabled={isSubmitting}
+                  onClick={(e) => {
+                    if (!email) {
+                      e.preventDefault();
+                      setEmailError("Please enter your email");
+                    }
+                    if (!password) {
+                      e.preventDefault();
+                      setPasswordError("Please enter your password");
+                    }
+                  }}
                 >
                   {isSubmitting ? (
                     <LoadingSpinner size="sm" text="Signing in..." />
