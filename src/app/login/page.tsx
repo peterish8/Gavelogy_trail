@@ -42,7 +42,7 @@ export default function LoginPage() {
     
     // If user is already logged in, redirect to dashboard
     if (user) {
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
       return;
     }
     
@@ -138,7 +138,7 @@ export default function LoginPage() {
       const result = await signIn(email, password);
 
       if (result.success) {
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
       } else {
         setError(result.error || "Login failed. Please check your email and password.");
       }
