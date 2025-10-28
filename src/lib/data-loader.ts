@@ -50,11 +50,13 @@ export class DataLoader {
       // Handle different case number formats
       let notesCaseNumber = caseNumber;
       
-      // For 2025 cases, convert CQ-25-XX to CS-25-A-XX
+      // For 2025 cases, handle different subject categories
       if (year === '2025') {
         if (caseNumber.startsWith('CQ-25-')) {
-          notesCaseNumber = caseNumber.replace('CQ-25-', 'CS-25-A-');
-        } else if (caseNumber.startsWith('CS-25-') && !caseNumber.includes('-A-')) {
+          // Convert CQ-25-A-XX to CS-25-A-XX (Constitutional Law)
+          // Convert CQ-25-C-XX to CS-25-C-XX (Family Law)
+          notesCaseNumber = caseNumber.replace('CQ-25-', 'CS-25-');
+        } else if (caseNumber.startsWith('CS-25-') && !caseNumber.includes('-A-') && !caseNumber.includes('-B-') && !caseNumber.includes('-C-')) {
           notesCaseNumber = caseNumber.replace('CS-25-', 'CS-25-A-');
         }
       } else {
@@ -94,7 +96,17 @@ export class DataLoader {
     }
 
     try {
-      const quizCaseNumber = caseNumber.replace("CS-", "CQ-");
+      // Handle different case number formats for quiz questions
+      let quizCaseNumber = caseNumber;
+      
+      // Convert CS-25-A-XX to CQ-25-A-XX (Constitutional Law)
+      // Convert CS-25-C-XX to CQ-25-C-XX (Family Law)
+      // CS-25-B-XX (Criminal Law) has no quizzes
+      if (caseNumber.includes('CS-25-C-')) {
+        quizCaseNumber = caseNumber.replace('CS-25-C-', 'CQ-25-C-');
+      } else {
+        quizCaseNumber = caseNumber.replace('CS-', 'CQ-');
+      }
       
       const { data, error } = await supabase
         .from('contemporary_case_quizzes')
@@ -148,8 +160,9 @@ export class DataLoader {
 
 // Auto-preload popular content
 export const initializeCache = () => {
-  // Preload 2024 cases (most popular)
+  // Preload 2024 and 2025 cases
   setTimeout(() => {
     DataLoader.preloadYearCases('2024').catch(() => null);
+    DataLoader.preloadYearCases('2025').catch(() => null);
   }, 1000); // Delay to not block initial load
 };

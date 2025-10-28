@@ -332,7 +332,7 @@ function SubjectsContent() {
       setContemporaryCases({
         "2025": {
           year: "2025",
-          totalCases: 48,
+          totalCases: 22,
       timeSpent: "0h 00m",
       progress: 0,
           cases: [],
@@ -677,6 +677,73 @@ function SubjectsContent() {
             isLocked: false,
           },
         ],
+        "Criminal Law & Procedure": [
+          {
+            caseNumber: "CS-25-B-01",
+            title: "Criminal Law Case 1 (2025)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-B-02",
+            title: "Criminal Law Case 2 (2025)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-B-03",
+            title: "Criminal Law Case 3 (2025)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-B-04",
+            title: "Criminal Law Case 4 (2025)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-B-05",
+            title: "Criminal Law Case 5 (2025)",
+            isLocked: false,
+          },
+        ],
+        "Family Law & Personal Laws": [
+          {
+            caseNumber: "CS-25-C-01",
+            title: "Priya Sharma v. Rajesh Sharma (2025 INSC 445)",
+            isLocked: false,
+          },
+          {
+            caseNumber: "CS-25-C-02",
+            title: "Fatima Khan v. State of Maharashtra (2025 INSC 567)",
+            isLocked: false,
+          },
+        ],
+        "Commercial & Corporate Law": [
+          {
+            caseNumber: "CS-25-D-01",
+            title: "Commercial Law Case 1 (2025)",
+            isLocked: false,
+          },
+        ],
+        "Environment & Public Welfare": [
+          {
+            caseNumber: "CS-25-E-01",
+            title: "Environment Law Case 1 (2025)",
+            isLocked: false,
+          },
+        ],
+        "Judiciary": [
+          {
+            caseNumber: "CS-25-F-01",
+            title: "Judiciary Case 1 (2025)",
+            isLocked: false,
+          },
+        ],
+        "Social Welfare & Rights": [
+          {
+            caseNumber: "CS-25-G-01",
+            title: "Social Welfare Case 1 (2025)",
+            isLocked: false,
+          },
+        ],
       });
     } catch (error) {
       console.error("Error loading contemporary cases:", error);
@@ -685,7 +752,7 @@ function SubjectsContent() {
       setContemporaryCases({
         "2025": {
           year: "2025",
-          totalCases: 48,
+          totalCases: 22,
       timeSpent: "0h 00m",
           progress: 0,
         },
@@ -1534,9 +1601,19 @@ function SubjectsContent() {
                                                               "-"
                                                             )[2]
                                                           );
-                                                        const hasQuizData =
-                                                          caseNum >= 1 &&
-                                                          caseNum <= 10;
+                                                        // Check subject type
+                                                        const isConstitutionalLaw = caseItem.caseNumber.includes('-A-');
+                                                        const isCriminalLaw = caseItem.caseNumber.includes('-B-');
+                                                        const isFamilyLaw = caseItem.caseNumber.includes('-C-');
+                                                        
+                                                        let hasQuizData = false;
+                                                        if (isConstitutionalLaw) {
+                                                          hasQuizData = caseNum >= 1 && caseNum <= 12;
+                                                        } else if (isCriminalLaw) {
+                                                          hasQuizData = false; // Criminal Law has no quizzes
+                                                        } else if (isFamilyLaw) {
+                                                          hasQuizData = caseNum >= 1 && caseNum <= 2;
+                                                        }
 
                                                         return hasQuizData ? (
                                                           <button
