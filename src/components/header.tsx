@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
@@ -8,6 +8,14 @@ import { useThemeStore } from "@/lib/stores/theme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Moon, Sun, User, LogOut, Menu, X, Settings } from "lucide-react";
+
+const AUTH_NAV_LINKS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/subjects", label: "Content" },
+  { href: "/mistakes", label: "Mistakes" },
+  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/courses", label: "Courses" },
+];
 
 export function Header() {
   const { user, profile, isAuthenticated, logout } = useAuthStore();
@@ -26,6 +34,34 @@ export function Header() {
     setShowUserMenu(false);
   };
 
+  const navContainerRef = useRef<HTMLDivElement | null>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, left: 0 });
+
+  useEffect(() => {
+    if (!isAuthenticated || isHomePage || isAuthPage) {
+      if (indicatorStyle.width !== 0) {
+        setIndicatorStyle({ width: 0, left: 0 });
+      }
+      return;
+    }
+
+    const activeLink = AUTH_NAV_LINKS.find((link) =>
+      pathname.startsWith(link.href)
+    );
+
+    if (activeLink) {
+      const element = linkRefs.current[activeLink.href];
+      if (element && navContainerRef.current) {
+        const left = element.offsetLeft;
+        const width = element.offsetWidth;
+        setIndicatorStyle({ width, left });
+      }
+    } else {
+      setIndicatorStyle({ width: 0, left: 0 });
+    }
+  }, [pathname, isAuthenticated, isHomePage, isAuthPage]);
+
   return (
     <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -40,58 +76,34 @@ export function Header() {
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           {isAuthenticated && !isHomePage && !isAuthPage ? (
-            <>
-              <Link
-                href="/dashboard"
-                className={`text-sm font-medium transition-colors ${
-                  pathname === "/dashboard" 
-                    ? "text-primary" 
-                    : "hover:text-primary"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/subjects"
-                className={`text-sm font-medium transition-colors ${
-                  pathname === "/subjects" 
-                    ? "text-primary" 
-                    : "hover:text-primary"
-                }`}
-              >
-                Content
-              </Link>
-              <Link
-                href="/mistakes"
-                className={`text-sm font-medium transition-colors ${
-                  pathname === "/mistakes" 
-                    ? "text-primary" 
-                    : "hover:text-primary"
-                }`}
-              >
-                Mistakes
-              </Link>
-              <Link
-                href="/leaderboard"
-                className={`text-sm font-medium transition-colors ${
-                  pathname === "/leaderboard" 
-                    ? "text-primary" 
-                    : "hover:text-primary"
-                }`}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="/courses"
-                className={`text-sm font-medium transition-colors ${
-                  pathname === "/courses" 
-                    ? "text-primary" 
-                    : "hover:text-primary"
-                }`}
-              >
-                Courses
-              </Link>
-            </>
+            <div
+              className="relative flex items-center space-x-6 border-b border-transparent pb-1"
+              ref={navContainerRef}
+            >
+              {AUTH_NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  ref={(el) => {
+                    linkRefs.current[link.href] = el;
+                  }}
+                  className={`text-sm font-semibold transition-colors ${
+                    pathname.startsWith(link.href)
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-primary/80"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <span
+                className="absolute -bottom-0.5 h-0.5 bg-primary transition-all duration-300 ease-out"
+                style={{
+                  width: `${indicatorStyle.width}px`,
+                  left: `${indicatorStyle.left}px`,
+                }}
+              />
+            </div>
           ) : (
             <>
               <Link

@@ -130,8 +130,8 @@ export default function CoursesPage() {
             const isPurchasing = purchasing === course.id;
 
             return (
-              <Card key={course.id} className="overflow-hidden">
-                <CardContent className="p-6">
+              <Card key={course.id} className="overflow-hidden h-full flex flex-col">
+                <CardContent className="p-6 flex flex-col flex-1">
                   {/* Course Header */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
@@ -168,7 +168,7 @@ export default function CoursesPage() {
                   )}
 
                   {/* Price */}
-                  <div className="mb-6">
+                  <div className="mb-6 flex-grow">
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold">
                         ₹{course.price}
