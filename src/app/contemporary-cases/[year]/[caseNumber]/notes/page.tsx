@@ -13,88 +13,15 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DataLoader } from "@/lib/data-loader";
-import { NoteReader } from "@/components/NoteReader";
-
-// Helper function to make words clickable in a line of text
-function makeWordsClickable(
-  text: string,
-  onWordClick: (wordIndex: number) => void,
-  currentWordIndex: number | null,
-  allWords: Array<{ word: string; index: number }>,
-  startWordIndex: number,
-  className: string = ""
-): React.ReactElement[] {
-  const words: React.ReactElement[] = [];
-  const regex = /\S+/g;
-  let match;
-  let wordCount = startWordIndex;
-
-  while ((match = regex.exec(text)) !== null) {
-    const word = match[0];
-    const wordIndex = wordCount++;
-    const isActive = currentWordIndex === wordIndex;
-
-    // Add whitespace before word if any
-    if (match.index > 0) {
-      const whitespace = text.substring(0, match.index);
-      words.push(
-        <span key={`ws-${match.index}`} className="whitespace-pre">
-          {whitespace}
-        </span>
-      );
-    }
-
-    words.push(
-      <span
-        key={`word-${wordIndex}`}
-        onClick={() => onWordClick(wordIndex)}
-        className={`cursor-pointer transition-all duration-200 rounded px-0.5 inline-block ${
-          isActive
-            ? "bg-yellow-300 font-semibold shadow-md"
-            : "hover:bg-yellow-100 hover:shadow-sm"
-        } ${className}`}
-        style={{
-          backgroundColor: isActive ? "#FDE047" : "transparent",
-        }}
-      >
-        {word}
-      </span>
-    );
-  }
-
-  // Add trailing whitespace if any
-  const lastMatch = text.match(/\S+$/);
-  if (lastMatch && lastMatch.index !== undefined) {
-    const trailingWs = text.substring(lastMatch.index + lastMatch[0].length);
-    if (trailingWs) {
-      words.push(
-        <span key={`ws-trailing`} className="whitespace-pre">
-          {trailingWs}
-        </span>
-      );
-    }
-  }
-
-  return words;
-}
-
 // Function to format case notes with proper styling and clickable words
-function formatCaseNotes(
-  content: string,
-  caseNumberInt: number,
-  onWordClick?: (wordIndex: number) => void,
-  currentWordIndex?: number | null,
-  allWords?: Array<{ word: string; index: number }>
-) {
+function formatCaseNotes(content: string, caseNumberInt: number) {
   if (!content) return "";
 
   const lines = content.split("\n");
   const formattedLines: React.ReactElement[] = [];
   let key = 0;
-  let globalWordIndex = 0; // Track word index across all lines
 
   let firstNonEmptyLine = true;
   let isInSection = false;
@@ -105,8 +32,6 @@ function formatCaseNotes(
 
   lines.forEach((line, index) => {
     const trimmedLine = line.trim();
-    
-
 
     // Check if this line contains "Key Statutes / Provisions:" anywhere
     if (trimmedLine.match(/Key Statutes\s*\/\s*Provisions:/i)) {
@@ -232,7 +157,7 @@ function formatCaseNotes(
         );
       }
 
-      if (trimmedLine.includes('🌟 Significance / Key Takeaways')) {
+      if (trimmedLine.includes("🌟 Significance / Key Takeaways")) {
         isInSignificanceSection = true;
         significanceContent.push(
           <div key={key++} className="mb-2">
@@ -300,7 +225,7 @@ function formatCaseNotes(
       return;
     }
     // Special handling for Significance / Key Takeaways: display in yellow translucent box
-    if (trimmedLine.includes('🌟 Significance / Key Takeaways')) {
+    if (trimmedLine.includes("🌟 Significance / Key Takeaways")) {
       formattedLines.push(
         <div
           key={key++}
@@ -337,36 +262,12 @@ function formatCaseNotes(
       return;
     }
     // Regular content - add bullet point with clickable words
-    const lineWords = trimmedLine.split(/\s+/).filter(w => w.length > 0);
-    const startIndex = globalWordIndex;
-    globalWordIndex += lineWords.length;
-    
-    if (onWordClick && currentWordIndex !== undefined) {
-      // Make words clickable
-      const clickableWords = makeWordsClickable(
-        trimmedLine,
-        onWordClick,
-        currentWordIndex,
-        allWords || [],
-        startIndex,
-        "text-sm lg:text-lg"
-      );
-      
-      formattedLines.push(
-        <div key={key++} className="mb-2 ml-4 text-gray-900">
-          <span className="mr-2">•</span>
-          {clickableWords}
-        </div>
-      );
-    } else {
-      // Regular display without clickable words
-      formattedLines.push(
-        <div key={key++} className="mb-2 ml-4 text-gray-900">
-          <span className="mr-2">•</span>
-          <span className="text-sm lg:text-lg">{trimmedLine}</span>
-        </div>
-      );
-    }
+    formattedLines.push(
+      <div key={key++} className="mb-2 ml-4 text-gray-900">
+        <span className="mr-2">•</span>
+        <span className="text-sm lg:text-lg">{trimmedLine}</span>
+      </div>
+    );
   });
 
   return <>{formattedLines}</>;
@@ -380,15 +281,10 @@ export default function CaseNotesPage({
   const router = useRouter();
   const { year, caseNumber } = use(params);
 
-
-
   const [caseNotes, setCaseNotes] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [caseNumberInt, setCaseNumberInt] = useState<number>(0);
-  const [currentWordIndex, setCurrentWordIndex] = useState<number | null>(null);
-  const [showReader, setShowReader] = useState(false);
-
   // Enable copy protection
   useCopyProtection();
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -397,7 +293,6 @@ export default function CaseNotesPage({
   >("right");
 
   useEffect(() => {
-
     loadCaseNotes();
     // Extract case number from caseNumber string
     let match = caseNumber.match(/CQ-\d+-(\d+)/); // 2024 format: CQ-24-01
@@ -447,27 +342,33 @@ export default function CaseNotesPage({
       setIsTransitioning(true);
 
       let newCaseId: string;
-      
+
       // Handle different case number formats
-      if (caseNumber.startsWith('CQ-')) {
+      if (caseNumber.startsWith("CQ-")) {
         // 2024 format: CQ-24-XX
-        newCaseId = `CQ-${year.slice(-2)}-${newCaseNumber.toString().padStart(2, "0")}`;
-      } else if (caseNumber.startsWith('CS-')) {
+        newCaseId = `CQ-${year.slice(-2)}-${newCaseNumber
+          .toString()
+          .padStart(2, "0")}`;
+      } else if (caseNumber.startsWith("CS-")) {
         // 2025 format: CS-25-X-XX (extract subject letter)
-        const parts = caseNumber.split('-');
+        const parts = caseNumber.split("-");
         const subjectLetter = parts[2]; // A, B, C, etc.
-        newCaseId = `CS-${year.slice(-2)}-${subjectLetter}-${newCaseNumber.toString().padStart(2, "0")}`;
-      } else if (caseNumber.startsWith('CR-')) {
+        newCaseId = `CS-${year.slice(-2)}-${subjectLetter}-${newCaseNumber
+          .toString()
+          .padStart(2, "0")}`;
+      } else if (caseNumber.startsWith("CR-")) {
         // 2023 format: CR-23-XX
-        newCaseId = `CR-${year.slice(-2)}-${newCaseNumber.toString().padStart(2, "0")}`;
+        newCaseId = `CR-${year.slice(-2)}-${newCaseNumber
+          .toString()
+          .padStart(2, "0")}`;
       } else {
         // Fallback
         newCaseId = caseNumber;
       }
-      
+
       // Start preloading immediately
       DataLoader.preloadCaseData(year, newCaseId).catch(() => null);
-      
+
       setTimeout(() => {
         router.push(`/contemporary-cases/${year}/${newCaseId}/notes`);
       }, 300); // Faster fade animation
@@ -477,29 +378,30 @@ export default function CaseNotesPage({
   const loadCaseNotes = async () => {
     try {
       // Try to get cached data first
-      const { data: cachedData, fromCache } = await DataLoader.loadCaseNotes(year, caseNumber);
-      
+      const { data: cachedData, fromCache } = await DataLoader.loadCaseNotes(
+        year,
+        caseNumber
+      );
+
       if (fromCache) {
         // Instant load from cache
-        setCaseNotes(cachedData?.overall_content || 'No notes available');
+        setCaseNotes(cachedData?.overall_content || "No notes available");
         setLoading(false);
         return;
       }
-      
+
       setLoading(true);
-      
+
       if (cachedData?.overall_content) {
         setCaseNotes(cachedData.overall_content);
       } else {
-        setCaseNotes(`Case notes for ${caseNumber} are not available yet. This case will be added soon.`);
+        setCaseNotes(
+          `Case notes for ${caseNumber} are not available yet. This case will be added soon.`
+        );
       }
-
-
-
-
     } catch (error: any) {
       console.error("Error loading case notes:", error);
-      setCaseNotes('Error loading case notes. Please try again.');
+      setCaseNotes("Error loading case notes. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -507,7 +409,6 @@ export default function CaseNotesPage({
 
   // Wait for params to be ready
   if (!caseNumber || loading) {
-
     return (
       <div className="min-h-screen relative">
         <DottedBackground />
@@ -531,9 +432,7 @@ export default function CaseNotesPage({
         <div className="max-w-6xl mx-auto">
           <Card
             className={`bg-white shadow-2xl transition-all duration-300 ease-out ${
-              isTransitioning
-                ? 'opacity-0'
-                : 'opacity-100 animate-in fade-in-0'
+              isTransitioning ? "opacity-0" : "opacity-100 animate-in fade-in-0"
             }`}
           >
             <CardContent className="p-8 max-h-[calc(100vh-40px)] overflow-y-auto no-copy relative">
@@ -578,19 +477,6 @@ export default function CaseNotesPage({
                     </Button>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Voice Reader Button */}
-                    <NoteReader 
-                      text={caseNotes || ""} 
-                      onWordClick={(index) => {
-                        if (index >= 0) {
-                          setCurrentWordIndex(index);
-                        } else {
-                          setCurrentWordIndex(null);
-                        }
-                      }}
-                      currentWordIndex={currentWordIndex}
-                      onShowReaderChange={setShowReader}
-                    />
                     <Button
                       variant="outline"
                       size="sm"
@@ -623,19 +509,8 @@ export default function CaseNotesPage({
                 >
                   {/* Formatted notes display */}
                   <div className="relative z-0">
-                    {formatCaseNotes(
-                      caseNotes, 
-                      caseNumberInt,
-                      showReader ? (index) => {
-                        if (index >= 0) {
-                          setCurrentWordIndex(index);
-                        }
-                      } : undefined,
-                      showReader ? currentWordIndex : null
-                    )}
+                    {formatCaseNotes(caseNotes, caseNumberInt)}
                   </div>
-                  
-
                 </div>
               </div>
 
