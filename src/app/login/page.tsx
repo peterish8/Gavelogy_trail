@@ -21,10 +21,18 @@ import { DottedBackground } from "@/components/DottedBackground";
 import { validateEmail, validatePassword } from "@/lib/validation";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/lib/stores/auth";
+import type { User, Profile } from "@/types";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Hardcoded credentials for localhost testing
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || 
+     window.location.hostname === '127.0.0.1' ||
+     window.location.hostname.includes('localhost'));
+  
+  const [email, setEmail] = useState(isLocalhost ? "test@localhost.com" : "");
+  const [password, setPassword] = useState(isLocalhost ? "Test1234!" : "");
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -33,15 +41,25 @@ export default function LoginPage() {
 
   const { user, loading, signIn } = useAuth();
   const router = useRouter();
+  const { checkAuth, setUser, setProfile, setIsAuthenticated, isAuthenticated: isAuthFromStore, isLoading: isAuthLoading } = useAuthStore();
 
-  // Remove automatic redirect - let user manually navigate
+  // Check if user is already authenticated and redirect to dashboard
+  useEffect(() => {
+    // Wait for auth check to complete
+    if (!isAuthLoading) {
+      // Check both auth context and auth store
+      if (user || isAuthFromStore) {
+        router.push("/dashboard");
+      }
+    }
+  }, [user, isAuthFromStore, isAuthLoading, router]);
 
   // Check if user is already logged in and redirect on form submission
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // If user is already logged in, redirect to dashboard
-    if (user) {
+    if (user || isAuthFromStore) {
       window.location.href = "/dashboard?t=" + Date.now();
       return;
     }
@@ -117,6 +135,54 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
+      // For localhost: auto-login without Supabase check
+      if (isLocalhost && email === "test@localhost.com" && password === "Test1234!") {
+        // Create a mock session for localhost
+        const mockUser = {
+          id: "localhost-user-id",
+          email: "test@localhost.com",
+          user_metadata: {},
+        };
+        
+        // Store in localStorage for auth context and auth store
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('gavalogy-localhost-auth', JSON.stringify(mockUser));
+        }
+        
+        // Directly set auth store state
+        const user = {
+          id: mockUser.id,
+          email: mockUser.email,
+          username: mockUser.email.split("@")[0],
+          full_name: "Test User",
+          avatar_url: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        
+        const profile = {
+          id: mockUser.id,
+          user_id: mockUser.id,
+          username: user.username,
+          full_name: user.full_name,
+          avatar_url: user.avatar_url,
+          total_coins: 100,
+          streak_count: 0,
+          longest_streak: 0,
+          dark_mode: false,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
+        };
+        
+        setUser(user);
+        setProfile(profile);
+        setIsAuthenticated(true);
+        
+        // Redirect to dashboard
+        router.push("/dashboard");
+        return;
+      }
+
       // Try login first
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -168,7 +234,8 @@ export default function LoginPage() {
     }
   };
 
-  if (loading) {
+  // Show loading while checking authentication
+  if (loading || isAuthLoading) {
     return <LoadingSpinner text="Loading..." />;
   }
 

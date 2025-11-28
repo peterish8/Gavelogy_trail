@@ -23,6 +23,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     
     const initAuth = async () => {
+      // Check for localhost auth first
+      if (typeof window !== 'undefined') {
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname.includes('localhost');
+        
+        if (isLocalhost) {
+          const localhostAuth = localStorage.getItem('gavalogy-localhost-auth');
+          if (localhostAuth) {
+            try {
+              const mockUser = JSON.parse(localhostAuth);
+              setUser(mockUser as User);
+              setLoading(false);
+              return;
+            } catch (e) {
+              // Invalid localhost auth, continue to Supabase check
+            }
+          }
+        }
+      }
+      
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
@@ -32,6 +53,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Don't override localhost auth with Supabase changes
+        if (typeof window !== 'undefined') {
+          const isLocalhost = window.location.hostname === 'localhost' || 
+                             window.location.hostname === '127.0.0.1' ||
+                             window.location.hostname.includes('localhost');
+          
+          if (isLocalhost && localStorage.getItem('gavalogy-localhost-auth')) {
+            // Keep localhost auth, don't update from Supabase
+            return;
+          }
+        }
+        
         setUser(session?.user ?? null);
         setLoading(false);
       }
@@ -82,6 +115,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Clear localhost auth if present
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('gavalogy-localhost-auth');
+      }
+      
       await supabase.auth.signOut();
       setUser(null);
     } catch (error) {

@@ -68,15 +68,26 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const { signup, signInWithGoogle, user, isLoading } = useAuthStore();
+  const { signup, signInWithGoogle, user, isLoading, isAuthenticated } = useAuthStore();
   const router = useRouter();
+
+  // Check if user is already authenticated and redirect to dashboard
+  useEffect(() => {
+    // Wait for auth check to complete
+    if (!isLoading) {
+      // Check if user is authenticated
+      if (user || isAuthenticated) {
+        router.push("/dashboard");
+      }
+    }
+  }, [user, isAuthenticated, isLoading, router]);
 
   // Check if user is already logged in and redirect on form submission
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // If user is already logged in, redirect to dashboard
-    if (user) {
+    if (user || isAuthenticated) {
       router.push("/dashboard");
       return;
     }

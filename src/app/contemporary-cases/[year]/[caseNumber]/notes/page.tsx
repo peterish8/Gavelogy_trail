@@ -16,14 +16,85 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DataLoader } from "@/lib/data-loader";
+import { NoteReader } from "@/components/NoteReader";
 
-// Function to format case notes with proper styling
-function formatCaseNotes(content: string, caseNumberInt: number) {
+// Helper function to make words clickable in a line of text
+function makeWordsClickable(
+  text: string,
+  onWordClick: (wordIndex: number) => void,
+  currentWordIndex: number | null,
+  allWords: Array<{ word: string; index: number }>,
+  startWordIndex: number,
+  className: string = ""
+): React.ReactElement[] {
+  const words: React.ReactElement[] = [];
+  const regex = /\S+/g;
+  let match;
+  let wordCount = startWordIndex;
+
+  while ((match = regex.exec(text)) !== null) {
+    const word = match[0];
+    const wordIndex = wordCount++;
+    const isActive = currentWordIndex === wordIndex;
+
+    // Add whitespace before word if any
+    if (match.index > 0) {
+      const whitespace = text.substring(0, match.index);
+      words.push(
+        <span key={`ws-${match.index}`} className="whitespace-pre">
+          {whitespace}
+        </span>
+      );
+    }
+
+    words.push(
+      <span
+        key={`word-${wordIndex}`}
+        onClick={() => onWordClick(wordIndex)}
+        className={`cursor-pointer transition-all duration-200 rounded px-0.5 inline-block ${
+          isActive
+            ? "bg-yellow-300 font-semibold shadow-md"
+            : "hover:bg-yellow-100 hover:shadow-sm"
+        } ${className}`}
+        style={{
+          backgroundColor: isActive ? "#FDE047" : "transparent",
+        }}
+      >
+        {word}
+      </span>
+    );
+  }
+
+  // Add trailing whitespace if any
+  const lastMatch = text.match(/\S+$/);
+  if (lastMatch && lastMatch.index !== undefined) {
+    const trailingWs = text.substring(lastMatch.index + lastMatch[0].length);
+    if (trailingWs) {
+      words.push(
+        <span key={`ws-trailing`} className="whitespace-pre">
+          {trailingWs}
+        </span>
+      );
+    }
+  }
+
+  return words;
+}
+
+// Function to format case notes with proper styling and clickable words
+function formatCaseNotes(
+  content: string,
+  caseNumberInt: number,
+  onWordClick?: (wordIndex: number) => void,
+  currentWordIndex?: number | null,
+  allWords?: Array<{ word: string; index: number }>
+) {
   if (!content) return "";
 
   const lines = content.split("\n");
   const formattedLines: React.ReactElement[] = [];
   let key = 0;
+  let globalWordIndex = 0; // Track word index across all lines
 
   let firstNonEmptyLine = true;
   let isInSection = false;
@@ -265,13 +336,37 @@ function formatCaseNotes(content: string, caseNumberInt: number) {
       );
       return;
     }
-    // Regular content - add bullet point
-    formattedLines.push(
-      <div key={key++} className="mb-2 ml-4 text-gray-900">
-        <span className="mr-2">•</span>
-        <span className="text-sm lg:text-lg">{trimmedLine}</span>
-      </div>
-    );
+    // Regular content - add bullet point with clickable words
+    const lineWords = trimmedLine.split(/\s+/).filter(w => w.length > 0);
+    const startIndex = globalWordIndex;
+    globalWordIndex += lineWords.length;
+    
+    if (onWordClick && currentWordIndex !== undefined) {
+      // Make words clickable
+      const clickableWords = makeWordsClickable(
+        trimmedLine,
+        onWordClick,
+        currentWordIndex,
+        allWords || [],
+        startIndex,
+        "text-sm lg:text-lg"
+      );
+      
+      formattedLines.push(
+        <div key={key++} className="mb-2 ml-4 text-gray-900">
+          <span className="mr-2">•</span>
+          {clickableWords}
+        </div>
+      );
+    } else {
+      // Regular display without clickable words
+      formattedLines.push(
+        <div key={key++} className="mb-2 ml-4 text-gray-900">
+          <span className="mr-2">•</span>
+          <span className="text-sm lg:text-lg">{trimmedLine}</span>
+        </div>
+      );
+    }
   });
 
   return <>{formattedLines}</>;
@@ -291,6 +386,8 @@ export default function CaseNotesPage({
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [caseNumberInt, setCaseNumberInt] = useState<number>(0);
+  const [currentWordIndex, setCurrentWordIndex] = useState<number | null>(null);
+  const [showReader, setShowReader] = useState(false);
 
   // Enable copy protection
   useCopyProtection();
@@ -439,7 +536,7 @@ export default function CaseNotesPage({
                 : 'opacity-100 animate-in fade-in-0'
             }`}
           >
-            <CardContent className="p-8 max-h-[calc(100vh-40px)] overflow-y-auto no-copy">
+            <CardContent className="p-8 max-h-[calc(100vh-40px)] overflow-y-auto no-copy relative">
               {/* Case Header */}
               <div className="mb-6 pb-4 border-b">
                 <div className="flex items-center justify-between mb-2">
@@ -481,6 +578,19 @@ export default function CaseNotesPage({
                     </Button>
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* Voice Reader Button */}
+                    <NoteReader 
+                      text={caseNotes || ""} 
+                      onWordClick={(index) => {
+                        if (index >= 0) {
+                          setCurrentWordIndex(index);
+                        } else {
+                          setCurrentWordIndex(null);
+                        }
+                      }}
+                      currentWordIndex={currentWordIndex}
+                      onShowReaderChange={setShowReader}
+                    />
                     <Button
                       variant="outline"
                       size="sm"
@@ -506,12 +616,26 @@ export default function CaseNotesPage({
               </div>
 
               {/* Case Content */}
-              <div className="prose max-w-none animate-in fade-in-0 slide-in-from-bottom-4 duration-1000">
+              <div className="prose max-w-none animate-in fade-in-0 slide-in-from-bottom-4 duration-1000 relative">
                 <div
-                  className="text-sm lg:text-lg leading-relaxed"
+                  className="text-sm lg:text-lg leading-relaxed relative"
                   style={{ wordBreak: "break-word" }}
                 >
-                  {formatCaseNotes(caseNotes, caseNumberInt)}
+                  {/* Formatted notes display */}
+                  <div className="relative z-0">
+                    {formatCaseNotes(
+                      caseNotes, 
+                      caseNumberInt,
+                      showReader ? (index) => {
+                        if (index >= 0) {
+                          setCurrentWordIndex(index);
+                        }
+                      } : undefined,
+                      showReader ? currentWordIndex : null
+                    )}
+                  </div>
+                  
+
                 </div>
               </div>
 

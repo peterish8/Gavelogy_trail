@@ -472,6 +472,55 @@ export const useAuthStore = create<AuthStoreState>()(
               return;
             }
 
+            // Check for localhost auth first
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.hostname.includes('localhost');
+            
+            if (isLocalhost) {
+              const localhostAuth = localStorage.getItem('gavalogy-localhost-auth');
+              if (localhostAuth) {
+                try {
+                  const mockUser = JSON.parse(localhostAuth);
+                  const user: User = {
+                    id: mockUser.id,
+                    email: mockUser.email,
+                    username: mockUser.email.split("@")[0],
+                    full_name: "Test User",
+                    avatar_url: undefined,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                  };
+                  
+                  const profile: Profile = {
+                    id: mockUser.id,
+                    user_id: mockUser.id,
+                    username: user.username,
+                    full_name: user.full_name,
+                    avatar_url: user.avatar_url,
+                    total_coins: 100,
+                    streak_count: 0,
+                    longest_streak: 0,
+                    dark_mode: false,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at,
+                  };
+                  
+                  console.log('Localhost auth found, setting user as authenticated');
+                  set({
+                    user,
+                    profile,
+                    isAuthenticated: true,
+                    isLoading: false,
+                    error: null,
+                  });
+                  return;
+                } catch (e) {
+                  console.log("Could not parse localhost auth data");
+                }
+              }
+            }
+
             // First check if we have stored auth data
             const storedAuth = localStorage.getItem("gavalogy-auth-storage");
             if (storedAuth) {
