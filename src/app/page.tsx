@@ -380,9 +380,15 @@ function HomeContent() {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-lg px-10 py-6 border-2 border-gray-300 bg-white/80 backdrop-blur-sm hover:bg-white"
+                className="text-lg px-10 py-6 border-2 border-gray-300 bg-white/80 backdrop-blur-sm hover:bg-gradient-to-r hover:from-blue-500 hover:via-purple-500 hover:to-pink-500 hover:border-transparent hover:text-white transition-all duration-500 relative overflow-hidden group"
               >
-                View Contemporary Cases
+                {/* Animated gradient spheres on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-400/60 to-purple-400/60 rounded-full blur-2xl animate-pulse"></div>
+                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br from-pink-400/60 to-rose-400/60 rounded-full blur-2xl animate-pulse delay-150"></div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-purple-400/50 to-blue-400/50 rounded-full blur-xl animate-pulse delay-300"></div>
+                </div>
+                <span className="relative z-10">View Contemporary Cases</span>
               </Button>
             </Link>
           </div>

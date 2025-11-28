@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useThemeStore } from "@/lib/stores/theme";
 import { Button } from "@/components/ui/button";
@@ -18,11 +18,14 @@ const AUTH_NAV_LINKS = [
 ];
 
 export function Header() {
+  const router = useRouter();
   const { user, profile, isAuthenticated, logout } = useAuthStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileSettings, setShowMobileSettings] = useState(false);
+  const [showGetStartedModal, setShowGetStartedModal] = useState(false);
+  const [showLandingMenu, setShowLandingMenu] = useState(false);
   const pathname = usePathname();
 
   // Show landing page navigation on home page, dashboard navigation elsewhere
@@ -32,6 +35,14 @@ export function Header() {
   const handleLogout = async () => {
     await logout();
     setShowUserMenu(false);
+  };
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+      return;
+    }
+    setShowGetStartedModal(true);
   };
 
   const navContainerRef = useRef<HTMLDivElement | null>(null);
@@ -63,6 +74,7 @@ export function Header() {
   }, [pathname, isAuthenticated, isHomePage, isAuthPage]);
 
   return (
+    <>
     <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
@@ -217,14 +229,23 @@ export function Header() {
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button size="sm">Sign Up</Button>
-              </Link>
+              {/* Mobile hamburger for landing links */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setShowLandingMenu(!showLandingMenu)}
+              >
+                {showLandingMenu ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                <span className="sr-only">Toggle landing menu</span>
+              </Button>
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-[#1a1334] via-[#2f1e54] to-[#47307b] text-white shadow-lg hover:shadow-violet-500/30 transition-all"
+                onClick={handleGetStarted}
+              >
+                Get Started
+              </Button>
             </div>
           )}
         </div>
@@ -385,6 +406,76 @@ export function Header() {
           </div>
         </>
       )}
+      {/* Landing mobile menu */}
+      {!isAuthenticated && isHomePage && showLandingMenu && (
+        <div className="md:hidden">
+          <div
+            className="fixed inset-0 bg-black/40 z-[90]"
+            onClick={() => setShowLandingMenu(false)}
+          />
+          <div className="absolute top-16 right-4 z-[91] w-48 rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl border border-gray-200">
+            {[
+              { href: "#features", label: "Features" },
+              { href: "#pricing", label: "Pricing" },
+              { href: "#about", label: "About" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="block px-5 py-3 text-sm text-gray-800 hover:bg-gray-100 rounded-2xl transition"
+                onClick={() => setShowLandingMenu(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </header>
+
+    {/* Get Started Modal */}
+    {showGetStartedModal && (
+      <>
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]"
+          onClick={() => setShowGetStartedModal(false)}
+        />
+        <div className="fixed inset-0 z-[1001] flex items-center justify-center px-4">
+          <div className="relative w-full max-w-md rounded-3xl p-6 bg-gradient-to-br from-[#120c23] via-[#1f1638] to-[#3a2560] text-white shadow-[0_25px_70px_rgba(6,3,20,0.6)] border border-white/10">
+            <button
+              className="absolute top-4 right-4 text-white/70 hover:text-white transition"
+              onClick={() => setShowGetStartedModal(false)}
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Get Started</h2>
+            <p className="text-white/80 mb-6">
+              Create your free account to start your CLAT PG preparation journey.
+            </p>
+            <div className="space-y-3">
+              <Link href="/signup" className="block">
+                <Button
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  onClick={() => setShowGetStartedModal(false)}
+                >
+                  Create Free Account
+                </Button>
+              </Link>
+              <div className="text-center text-sm text-white/70">
+                Already registered?{" "}
+                <Link
+                  href="/login"
+                  className="text-purple-300 hover:text-purple-200 underline"
+                  onClick={() => setShowGetStartedModal(false)}
+                >
+                  Log in here
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+    </>
   );
 }
