@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { Header } from "@/components/header";
 import { DottedBackground } from "@/components/DottedBackground";
@@ -38,20 +38,22 @@ import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading, isAuthenticated } = useAuthStore();
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const allowLanding = searchParams.get("view") === "landing";
 
   // Automatically redirect authenticated users to dashboard
   useEffect(() => {
     // Wait for auth check to complete
-    if (!isLoading) {
+    if (!isLoading && !allowLanding) {
       // If user is authenticated, redirect to dashboard
       if (user || isAuthenticated) {
         router.push("/dashboard");
       }
     }
-  }, [user, isAuthenticated, isLoading, router]);
+  }, [user, isAuthenticated, isLoading, allowLanding, router]);
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -62,8 +64,9 @@ export default function Home() {
     );
   }
 
-  // Don't render home page if user is authenticated (will redirect)
-  if (user || isAuthenticated) {
+  // Don't render home page if user is authenticated (will redirect),
+  // unless they specifically requested to view the landing page
+  if (!allowLanding && (user || isAuthenticated)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner text="Redirecting to dashboard..." />
@@ -73,7 +76,7 @@ export default function Home() {
 
   // Handle login/signup button clicks for authenticated users
   const handleAuthAction = (path: string) => {
-    if (user) {
+    if (user || isAuthenticated) {
       router.push("/dashboard");
     } else {
       router.push(path);
