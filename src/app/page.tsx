@@ -8,6 +8,7 @@ import { DottedBackground } from "@/components/DottedBackground";
 import { ImmersiveFeatures } from "@/components/ImmersiveFeatures";
 import { FAQSection } from "@/components/FAQSection";
 import { WhyGavelogy } from "@/components/WhyGavelogy";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 import { Button } from "@/components/ui/button";
 import StarBorder from "@/components/ui/StarBorder";
@@ -37,9 +38,38 @@ import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function Home() {
   const router = useRouter();
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading, isAuthenticated } = useAuthStore();
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+
+  // Automatically redirect authenticated users to dashboard
+  useEffect(() => {
+    // Wait for auth check to complete
+    if (!isLoading) {
+      // If user is authenticated, redirect to dashboard
+      if (user || isAuthenticated) {
+        router.push("/dashboard");
+      }
+    }
+  }, [user, isAuthenticated, isLoading, router]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner text="Loading..." />
+      </div>
+    );
+  }
+
+  // Don't render home page if user is authenticated (will redirect)
+  if (user || isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner text="Redirecting to dashboard..." />
+      </div>
+    );
+  }
 
   // Handle login/signup button clicks for authenticated users
   const handleAuthAction = (path: string) => {
