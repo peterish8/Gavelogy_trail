@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { Header } from "@/components/header";
@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading, isAuthenticated } = useAuthStore();
@@ -401,5 +401,17 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner text="Loading..." />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
