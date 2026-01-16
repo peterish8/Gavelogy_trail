@@ -3,7 +3,7 @@ description: How to push code changes to the repository
 ---
 
 # Git Push Workflow
-
+# use this ; semicolon for combining multiple gt cmds in single cmd running
 This workflow ensures that all code changes are pushed to the `develop` branch, NOT `main`.
 
 1.  **Check current branch**:

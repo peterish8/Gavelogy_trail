@@ -780,7 +780,7 @@ function CourseViewerContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative z-0 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col relative z-0">
       {/* Background always rendered (z-index handles visibility) */}
       <div className="absolute inset-0 z-0 pointer-events-none">
          <DottedBackground />
@@ -792,21 +792,25 @@ function CourseViewerContent() {
       </div>
       
       <div className={cn(
-          "flex-1 container mx-auto transition-all duration-300",
+          "flex-1 container mx-auto",
           // Base styles
           "flex flex-col",
           
           isFullscreen 
             ? [
-                // DESKTOP: Immersive Fullscreen (Fixed, White, Edge-to-Edge)
-                "md:fixed md:inset-0 md:z-50 md:bg-white md:h-screen md:w-screen md:max-w-none md:m-0 md:p-0 md:overflow-auto",
+                // DESKTOP: Immersive Fullscreen
+                "md:fixed md:inset-0 md:z-50 md:bg-white md:h-screen md:w-screen md:max-w-none md:m-0 md:p-0",
+                // MOBILE: Print Mode (Document Style) - Pure white, full width, no roundness
+                "max-md:fixed max-md:inset-0 max-md:z-50 max-md:bg-white max-md:h-screen max-md:w-screen max-md:max-w-none max-md:m-0 max-md:p-0 max-md:rounded-none max-md:shadow-none max-md:border-none",
               ]
             : [
-                // DESKTOP: Normal Mode (Paper-like, Transparent BG)
+                // DESKTOP: Normal Mode
                 "md:max-w-5xl md:py-8 md:bg-transparent md:px-4",
+                // MOBILE: Card Mode (App UI) - Floating card
+                "max-md:relative max-md:z-10 max-md:max-w-[95%] max-md:mx-auto max-md:bg-white max-md:py-4 max-md:shadow-md max-md:rounded-xl"
             ],
-           // MOBILE: Universal Card Look (Independent of isFullscreen)
-           "max-md:relative max-md:z-10 max-md:max-w-[95%] max-md:mx-auto max-md:bg-white max-md:py-4 max-md:shadow-md max-md:rounded-xl md:flex md:flex-col"
+           // Shared structural
+           "md:flex md:flex-col"
       )}>
          {viewState === "list" ? (
             <div className="animate-fadeIn">
@@ -829,19 +833,32 @@ function CourseViewerContent() {
                )}
             </div>
          ) : (
-            <div className={cn(isFullscreen ? "max-w-7xl mx-auto w-full" : "py-8")}>
-               {/* Navigation Bar */}
-               <div className={cn("sticky z-50 transition-all duration-300", isFullscreen ? "top-[63px] md:top-0" : "top-[63px]")}>
-                  <div className={cn(
-                     "flex items-center justify-between mb-6 shrink-0 bg-white/80 backdrop-blur-md p-2 border-b border-gray-100 shadow-sm overflow-x-auto gap-2 no-scrollbar",
-                     isFullscreen ? "rounded-b-2xl px-4 mx-4 shadow-md bg-white/95" : "px-4 rounded-none md:rounded-xl md:mx-0"
-                  )}>
+            <div className={cn(
+               isFullscreen ? "max-w-7xl mx-auto w-full h-full overflow-y-auto" : ""
+            )}>
+                {/* Navigation Bar - Sticky Toolbar */}
+                <div 
+                  className="sticky z-50 w-full max-w-5xl mx-auto"
+                  style={{ top: 0 }}
+                >
+                   {/* Toolbar Container */}
+                   <div className={cn(
+                      "flex items-center justify-between mb-6 shrink-0 bg-white p-1.5 md:p-2 border-b border-gray-100 shadow-md overflow-x-auto gap-1 no-scrollbar rounded-2xl mx-auto w-full",
+                      isFullscreen 
+                         ? [
+                              // DESKTOP: Floating Card Toolbar
+                              "md:px-4",
+                              // MOBILE: Flat Header (Print Mode)
+                              "max-md:rounded-none max-md:mx-0 max-md:px-4 max-md:py-3 max-md:bg-white max-md:shadow-none max-md:border-b max-md:border-gray-200"
+                           ]
+                         : "px-4" 
+                   )}>
                   <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                     <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={handleBackToList}
-                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3"
+                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-1 sm:px-3"
                     >
                         <ArrowLeft className="w-4 h-4 sm:mr-2" />
                         <span className="hidden sm:inline">Back</span>
@@ -854,7 +871,7 @@ function CourseViewerContent() {
                            size="sm"
                            onClick={() => setShowDownloadMenu(!showDownloadMenu)}
                            disabled={!content}
-                           className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-2 sm:px-3 flex items-center gap-1"
+                           className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-1 sm:px-3 flex items-center gap-0.5"
                         >
                            <Download className="w-4 h-4" />
                            <ChevronDown className="w-3 h-3" />
@@ -897,10 +914,10 @@ function CourseViewerContent() {
                   </div>
                   
                   {/* Divider */}
-                  <div className="h-4 w-px bg-gray-200 mx-2" />
+                  {/* Divider - Hidden on mobile to save space */}{/* <div className="h-4 w-px bg-gray-200 mx-1 hidden sm:block" /> */}
 
                   {/* TTS Controls (Inline) */}
-                  <div className="flex items-center gap-2 animate-fadeIn">
+                  <div className="flex items-center gap-1 animate-fadeIn">
                      {/* Play Button */}
                      <button 
                         onClick={() => {
@@ -1116,7 +1133,18 @@ function CourseViewerContent() {
                
                {/* Content Area - Clean Layout without Container Box */}
                 <div className={cn(
-                  "animate-slideIn w-full max-w-5xl mx-auto pb-20 bg-white! relative z-30 rounded-2xl shadow-xl border border-gray-100 p-4 md:p-12",
+                  "animate-slideIn w-full max-w-5xl mx-auto py-8 pb-20 bg-white! relative z-30",
+                  // Card styling - disabled in full screen on mobile
+                  isFullscreen 
+                    ? "max-md:rounded-none max-md:shadow-none max-md:border-none max-md:p-6" // Print Mode padding
+                    : "rounded-2xl shadow-xl border border-gray-100 p-4 md:p-12", // Card Mode padding
+                  
+                  // Desktop overrides (always keeps card look unless we want desktop to change too, but user said keep desktop unchanged)
+                  // Actually user said "Desktop layout that looks correct and print-like... Desktop layout must remain unchanged"
+                  // So we leave desktop as is. The conditional above mainly targets mobile via max-md vs base.
+                  // Let's refine:
+                  "md:rounded-2xl md:shadow-xl md:border md:border-gray-100 md:p-12",
+
                   isReadingMode ? "reading-mode" : ""
                )}>
                   {loadingContent ? (
@@ -1151,7 +1179,11 @@ function CourseViewerContent() {
                            id="note-content-area"
                            key={`content-${highlightVersion}`}
                            onClick={handleContentClick}
-                           className="prose prose-base md:prose-lg max-w-none font-sans prose-headings:font-bold prose-p:text-[#334155] prose-headings:text-[#0f172a] dark:prose-invert prose-li:text-black prose-li:marker:text-black text-left md:text-justify"
+                           className={cn(
+                              "prose max-w-none font-sans prose-headings:font-bold prose-p:text-[#334155] prose-headings:text-[#0f172a] dark:prose-invert prose-li:text-black prose-li:marker:text-black text-left md:text-justify",
+                              isFullscreen ? "prose-lg leading-relaxed" : "prose-base", // Larger font in print mode
+                              "md:prose-lg" // Always large on desktop
+                           )}
                            dangerouslySetInnerHTML={{ 
                              __html: processedHtml || customToHtml(content)
                            }} 
@@ -1255,8 +1287,7 @@ function CourseViewerContent() {
             </div>
          )}
          
-         {/* Floating Timer - appears when scrolled past main timer (desktop only) */}
-         {viewState === "content" && <FloatingTimer timerContainerId="study-timer-container" />}
+         {/* FloatingTimer removed as per user request */}
       </div>
     </div>
   );
