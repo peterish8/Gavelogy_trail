@@ -94,10 +94,17 @@ function HomeContent() {
     }
   };
 
+  const scrollToFeatures = () => {
+    const element = document.getElementById("features");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <div className="min-h-screen relative">
       {/* Sky-like gradient background with enhanced clouds */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-200 via-blue-100 to-blue-50 -z-10">
+      <div className="fixed inset-0 bg-linear-to-br from-purple-200 via-blue-100 to-blue-50 -z-10">
         {/* Large cloud decorations - MUCH more visible */}
         <div className="absolute top-10 left-0 w-[600px] h-[400px] bg-purple-200/60 rounded-full blur-2xl"></div>
         <div className="absolute top-20 right-10 w-[550px] h-[350px] bg-blue-300/50 rounded-full blur-2xl"></div>
@@ -147,14 +154,14 @@ function HomeContent() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block px-6 py-3 bg-gradient-to-r from-sky-200/80 via-blue-200/80 to-cyan-200/80 backdrop-blur-sm rounded-full border border-blue-300/30 mb-6 shadow-lg relative overflow-hidden group"
+            className="inline-block px-6 py-3 bg-linear-to-r from-sky-200/80 via-blue-200/80 to-cyan-200/80 backdrop-blur-sm rounded-full border border-blue-300/30 mb-6 shadow-lg relative overflow-hidden group"
           >
             {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
             {/* Gradient spheres */}
-            <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-sky-300/60 to-blue-300/60 rounded-full blur-xl"></div>
-            <div className="absolute -bottom-2 -left-2 w-10 h-10 bg-gradient-to-br from-blue-300/60 to-cyan-300/60 rounded-full blur-lg"></div>
+            <div className="absolute -top-2 -right-2 w-12 h-12 bg-linear-to-br from-sky-300/60 to-blue-300/60 rounded-full blur-xl"></div>
+            <div className="absolute -bottom-2 -left-2 w-10 h-10 bg-linear-to-br from-blue-300/60 to-cyan-300/60 rounded-full blur-lg"></div>
 
             <span className="text-sm font-medium text-gray-800 relative z-10">
               ✨ Launch Week: New Features Available
@@ -194,9 +201,10 @@ function HomeContent() {
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            className="mt-16"
+            className="mt-16 cursor-pointer"
+            onClick={scrollToFeatures}
           >
-            <ArrowRight className="h-6 w-6 text-gray-400 rotate-90 mx-auto" />
+            <ArrowRight className="h-6 w-6 text-gray-400 rotate-90 mx-auto hover:text-[#6B9BD2] transition-colors" />
           </motion.div>
         </motion.div>
         
@@ -204,7 +212,9 @@ function HomeContent() {
       </section>
 
       {/* Features Section - Immersive 2-Slide */}
-      <ImmersiveFeatures />
+      <div id="features">
+        <ImmersiveFeatures />
+      </div>
 
       {/* Courses Section */}
       <section
@@ -238,7 +248,7 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               whileHover={{ y: -8 }}
             >
-              <Card className="relative border-0 shadow-xl bg-gradient-to-br from-white to-blue-50/50 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+              <Card className="relative border-0 shadow-xl bg-linear-to-br from-white to-blue-50/50 overflow-hidden group hover:shadow-2xl transition-all duration-300">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#6B9BD2]/10 rounded-full blur-3xl"></div>
                 <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl text-[#2C2C2C] mb-2">
@@ -260,11 +270,12 @@ function HomeContent() {
                     <li>• 20 Full-length Mock Tests</li>
                     <li>• Intelligent Mistake Tracking</li>
                   </ul>
-                  <Link href="/courses" className="block">
-                    <Button className="w-full bg-[#6B9BD2] hover:bg-[#5A8FC7] text-white shadow-lg hover:shadow-xl transition-all">
-                      Buy Now
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="w-full bg-[#6B9BD2] hover:bg-[#5A8FC7] text-white shadow-lg hover:shadow-xl transition-all"
+                    onClick={() => handleAuthAction("/signup")}
+                  >
+                    Buy Now
+                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
@@ -277,7 +288,7 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               whileHover={{ y: -8 }}
             >
-              <Card className="relative border-0 shadow-xl bg-gradient-to-br from-white to-pink-50/50 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+              <Card className="relative border-0 shadow-xl bg-linear-to-br from-white to-pink-50/50 overflow-hidden group hover:shadow-2xl transition-all duration-300">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#F8C9D0]/20 rounded-full blur-3xl"></div>
                 <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl text-[#2C2C2C] mb-2">
@@ -299,11 +310,12 @@ function HomeContent() {
                     <li>• Month-wise Combined Quizzes</li>
                     <li>• Regular Updates</li>
                   </ul>
-                  <Link href="/courses" className="block">
-                    <Button className="w-full bg-[#F8C9D0] hover:bg-[#F5B8C3] text-[#2C2C2C] shadow-lg hover:shadow-xl transition-all">
-                      Buy Now
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="w-full bg-[#F8C9D0] hover:bg-[#F5B8C3] text-[#2C2C2C] shadow-lg hover:shadow-xl transition-all"
+                    onClick={() => handleAuthAction("/signup")}
+                  >
+                    Buy Now
+                  </Button>
                 </CardContent>
               </Card>
             </motion.div>
@@ -317,7 +329,7 @@ function HomeContent() {
             transition={{ duration: 0.6 }}
             className="text-center mt-16"
           >
-            <Card className="inline-block border-0 shadow-xl bg-gradient-to-br from-[#F8E38F]/30 to-[#F7C6A1]/30 backdrop-blur-sm">
+            <Card className="inline-block border-0 shadow-xl bg-linear-to-br from-[#F8E38F]/30 to-[#F7C6A1]/30 backdrop-blur-sm">
               <CardContent className="p-8">
                 <div className="text-2xl font-bold text-[#2C2C2C] mb-2">
                   Bundle Offer (Save ₹500)
@@ -328,14 +340,13 @@ function HomeContent() {
                     ₹3,498
                   </span>
                 </div>
-                <Link href="/courses">
-                  <Button
+                <Button
                     size="lg"
                     className="bg-[#6B9BD2] hover:bg-[#5A8FC7] text-white shadow-lg hover:shadow-xl transition-all"
+                    onClick={() => handleAuthAction("/signup")}
                   >
                     Buy Bundle
                   </Button>
-                </Link>
               </CardContent>
             </Card>
           </motion.div>
@@ -380,13 +391,13 @@ function HomeContent() {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-lg px-10 py-6 border-2 border-gray-300 bg-white/80 backdrop-blur-sm hover:bg-gradient-to-r hover:from-blue-500 hover:via-purple-500 hover:to-pink-500 hover:border-transparent hover:text-white transition-all duration-500 relative overflow-hidden group"
+                className="text-lg px-10 py-6 border-2 border-gray-300 bg-white/80 backdrop-blur-sm hover:bg-linear-to-r hover:from-blue-500 hover:via-purple-500 hover:to-pink-500 hover:border-transparent hover:text-white transition-all duration-500 relative overflow-hidden group"
               >
                 {/* Animated gradient spheres on hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-400/60 to-purple-400/60 rounded-full blur-2xl animate-pulse"></div>
-                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br from-pink-400/60 to-rose-400/60 rounded-full blur-2xl animate-pulse delay-150"></div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-purple-400/50 to-blue-400/50 rounded-full blur-xl animate-pulse delay-300"></div>
+                  <div className="absolute -top-4 -left-4 w-24 h-24 bg-linear-to-br from-blue-400/60 to-purple-400/60 rounded-full blur-2xl animate-pulse"></div>
+                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-linear-to-br from-pink-400/60 to-rose-400/60 rounded-full blur-2xl animate-pulse delay-150"></div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-linear-to-br from-purple-400/50 to-blue-400/50 rounded-full blur-xl animate-pulse delay-300"></div>
                 </div>
                 <span className="relative z-10">View Contemporary Cases</span>
               </Button>

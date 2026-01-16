@@ -5,6 +5,7 @@ export interface MistakeRecord {
   id: string;
   question_id: string;
   subject: string;
+  quiz_type?: string;
   topic?: string;
   question_text: string;
   user_answer: string;
@@ -91,8 +92,12 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       if (error) throw error;
 
       set({ mistakes: data || [], loading: false });
-    } catch (error) {
-      console.error('Error loading mistakes:', error);
+    } catch (error: any) {
+      if (error?.code === '42P01') {
+        console.warn('Mistakes table not found, skipping load.');
+      } else {
+        console.error('Error loading mistakes:', error);
+      }
       set({ loading: false });
     }
   },
@@ -140,7 +145,7 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
             : mistake
         )
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling mastery:', error?.message || error);
     }
   },
@@ -170,7 +175,7 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
         });
 
       if (error) throw error;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding mistake:', error?.message || error);
     }
   },
@@ -191,7 +196,7 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       set(state => ({
         mistakes: state.mistakes.filter(mistake => mistake.question_id !== questionId)
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error clearing mistake:', error?.message || error);
     }
   },

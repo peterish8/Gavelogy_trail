@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useStreakStore } from "@/lib/stores/streaks";
-import { Header } from "@/components/header";
+import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DottedBackground } from "@/components/DottedBackground";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
-import { Trophy, Flame, Target, BookOpen, Award } from "lucide-react";
+import { Trophy, Flame, Target, Award, Zap, Crown } from "lucide-react";
 
 export default function LeaderboardPage() {
   const { isAuthenticated, isLoading, user } = useAuthStore();
-  const { leaderboard, userStreak, loadLeaderboard, loadUserStreak } =
+  const { leaderboard, userStreak, bonuses, loadLeaderboard, loadUserStreak, loadBonuses } =
     useStreakStore();
 
   // Enable copy protection
@@ -30,14 +30,19 @@ export default function LeaderboardPage() {
     if (isAuthenticated) {
       loadLeaderboard();
       loadUserStreak();
+      loadBonuses();
     }
-  }, [isAuthenticated, loadLeaderboard, loadUserStreak]);
+  }, [isAuthenticated, loadLeaderboard, loadUserStreak, loadBonuses]);
+
+  // Find current user's position in leaderboard
+  const currentUserEntry = leaderboard.find(entry => entry.user_id === user?.id);
+  const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
 
   if (isLoading) {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <Header />
+        <AppHeader />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">Loading leaderboard...</div>
         </div>
@@ -52,9 +57,9 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <Header />
+      <AppHeader />
 
-      <div className="container mx-auto px-4 py-8 no-copy">
+      <div className="container mx-auto px-4 py-8 no-copy max-w-4xl">
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center mb-4">
@@ -62,59 +67,102 @@ export default function LeaderboardPage() {
             <h1 className="text-4xl font-bold">Leaderboard</h1>
           </div>
           <p className="text-lg text-muted-foreground">
-            Compete with other CLAT PG aspirants and climb the ranks!
+            {currentMonth} Rankings
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Resets on the 1st of each month
           </p>
         </div>
 
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-grid-slate-200/50 dark:bg-grid-slate-800/20 mask-[linear-gradient(0deg,white,rgba(255,255,255,0.6))] z-0" />
+        <div className="absolute top-0 left-0 right-0 h-96 bg-linear-to-b from-blue-50/50 to-transparent dark:from-blue-950/20 pointer-events-none z-0" />
+
         {/* User's Current Stats */}
-        {userStreak && (
-          <Card className="mb-8 border-blue-200 bg-blue-50/50">
+        {(userStreak || currentUserEntry) && (
+          <Card className="mb-8 border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Target className="h-5 w-5 mr-2 text-blue-600" />
-                Your Current Stats
+                Your Stats
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
+                <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                   <div className="flex items-center justify-center mb-2">
                     <Flame className="h-6 w-6 text-orange-500 mr-1" />
-                    <span className="text-2xl font-bold text-orange-600">
-                      {userStreak.current_streak}
+                    <span className="text-3xl font-bold text-orange-600">
+                      {userStreak?.current_streak || 0}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Current Streak
                   </p>
                 </div>
-                <div className="text-center">
+                <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                   <div className="flex items-center justify-center mb-2">
-                    <Award className="h-6 w-6 text-purple-500 mr-1" />
-                    <span className="text-2xl font-bold text-purple-600">
-                      {userStreak.longest_streak}
+                    <Zap className="h-6 w-6 text-purple-500 mr-1" />
+                    <span className="text-3xl font-bold text-purple-600">
+                      {currentUserEntry?.monthly_points || 0}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">Best Streak</p>
+                  <p className="text-sm text-muted-foreground">Streak Points</p>
                 </div>
-                <div className="text-center">
+                <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                   <div className="flex items-center justify-center mb-2">
-                    <BookOpen className="h-6 w-6 text-green-500 mr-1" />
-                    <span className="text-2xl font-bold text-green-600">
-                      {userStreak.total_quizzes_completed}
+                    <Award className="h-6 w-6 text-green-500 mr-1" />
+                    <span className="text-3xl font-bold text-green-600">
+                      {currentUserEntry?.all_time_points || 0}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">Quizzes Done</p>
+                  <p className="text-sm text-muted-foreground">All-Time</p>
                 </div>
-                <div className="text-center">
+                <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                   <div className="flex items-center justify-center mb-2">
-                    <Target className="h-6 w-6 text-blue-500 mr-1" />
-                    <span className="text-2xl font-bold text-blue-600">
-                      {userStreak.total_score}
+                    <Crown className="h-6 w-6 text-yellow-500 mr-1" />
+                    <span className="text-3xl font-bold text-yellow-600">
+                      #{currentUserEntry?.rank || '-'}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">Total Score</p>
+                  <p className="text-sm text-muted-foreground">Your Rank</p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Bonus Milestones */}
+        {bonuses.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg">
+                <Zap className="h-5 w-5 mr-2 text-yellow-500" />
+                Streak Bonuses
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                {bonuses.map((bonus) => {
+                  const earned = (userStreak?.bonuses_claimed || []).includes(bonus.streak_days);
+                  return (
+                    <div
+                      key={bonus.streak_days}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                        earned 
+                          ? 'bg-green-50 border-green-200 dark:bg-green-950/30' 
+                          : 'bg-gray-50 border-gray-200 dark:bg-gray-800/50'
+                      }`}
+                    >
+                      <span className="text-lg">{bonus.badge_emoji}</span>
+                      <div className="text-sm">
+                        <span className="font-semibold">{bonus.streak_days} days</span>
+                        <span className="text-muted-foreground ml-1">+{bonus.bonus_points}pts</span>
+                      </div>
+                      {earned && <Badge variant="secondary" className="text-xs bg-green-100">✓</Badge>}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -125,83 +173,78 @@ export default function LeaderboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Trophy className="h-6 w-6 mr-2 text-yellow-500" />
-              Top 10 Performers
+              Top 10 - {currentMonth}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {leaderboard.length > 0 ? (
-              <div className="space-y-4">
-                {leaderboard.map((user, index) => {
-                  const isCurrentUser = user.user_id === user?.id;
-                  const rank = index + 1;
+              <div className="space-y-3">
+                {leaderboard.map((entry) => {
+                  const isCurrentUser = entry.user_id === user?.id;
+                  const rank = entry.rank;
 
-                  // Define gradient classes for top 3
-                  const getRankGradient = (rank: number) => {
+                  // Define styles for top 3
+                  const getRankStyle = (rank: number) => {
                     switch (rank) {
                       case 1:
-                        return "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white";
+                        return "bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 text-white shadow-lg";
                       case 2:
                         return "bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-white";
                       case 3:
                         return "bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 text-white";
                       default:
-                        return "bg-gradient-to-r from-blue-100 via-blue-200 to-blue-300 text-gray-800 dark:from-blue-900 dark:via-blue-800 dark:to-blue-700 dark:text-white";
+                        return "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700";
                     }
                   };
 
                   return (
                     <div
-                      key={user.id}
-                      className={`flex items-center justify-between p-4 rounded-lg border ${
-                        isCurrentUser
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 dark:border-gray-700"
-                      } ${getRankGradient(rank)}`}
+                      key={entry.user_id}
+                      className={`flex items-center justify-between p-4 rounded-xl transition-all ${getRankStyle(rank)} ${
+                        isCurrentUser ? "ring-2 ring-blue-500 ring-offset-2" : ""
+                      }`}
                     >
                       <div className="flex items-center space-x-4">
                         <div
                           className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                            rank <= 3
-                              ? "bg-white/20 backdrop-blur-sm"
-                              : "bg-white dark:bg-gray-800"
+                            rank <= 3 ? "bg-white/20" : "bg-gray-100 dark:bg-gray-700"
                           }`}
                         >
                           {rank <= 3 ? (
-                            <span className="text-xl font-bold">
+                            <span className="text-xl">
                               {rank === 1 ? "🥇" : rank === 2 ? "🥈" : "🥉"}
                             </span>
                           ) : (
-                            <span className="text-sm font-bold">{rank}</span>
+                            <span className="text-sm font-bold text-gray-600 dark:text-gray-300">
+                              {rank}
+                            </span>
                           )}
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-lg">
-                              {user.username}
+                            <span className={`font-semibold text-lg ${rank <= 3 ? "" : "text-gray-900 dark:text-white"}`}>
+                              {entry.username}
                             </span>
                             {isCurrentUser && (
-                              <Badge
-                                variant="secondary"
-                                className="text-xs bg-white/20 text-white border-white/30"
-                              >
+                              <Badge variant="secondary" className="text-xs">
                                 You
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center space-x-4 text-sm opacity-90">
+                          <div className={`flex items-center space-x-3 text-sm ${rank <= 3 ? "opacity-90" : "text-muted-foreground"}`}>
                             <span className="flex items-center">
                               <Flame className="h-4 w-4 mr-1" />
-                              {user.current_streak} days
-                            </span>
-                            <span className="flex items-center">
-                              <Target className="h-4 w-4 mr-1" />
-                              {user.total_score} pts
-                            </span>
-                            <span className="flex items-center">
-                              <BookOpen className="h-4 w-4 mr-1" />
-                              {user.total_quizzes_completed} quizzes
+                              {entry.current_streak} day streak
                             </span>
                           </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-2xl font-bold ${rank <= 3 ? "" : "text-purple-600"}`}>
+                          {entry.monthly_points}
+                        </div>
+                        <div className={`text-xs ${rank <= 3 ? "opacity-75" : "text-muted-foreground"}`}>
+                          streak points
                         </div>
                       </div>
                     </div>
@@ -212,11 +255,10 @@ export default function LeaderboardPage() {
               <div className="text-center py-12">
                 <Trophy className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                  No Data Yet
+                  No Rankings Yet
                 </h3>
                 <p className="text-muted-foreground">
-                  Start completing quizzes and studying cases to appear on the
-                  leaderboard!
+                  Be the first to earn streak points this month!
                 </p>
               </div>
             )}

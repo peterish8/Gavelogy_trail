@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
+import { AppHeader } from "@/components/app-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -107,7 +107,7 @@ export default function MistakesPage() {
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: "white" }}>
-        <Header />
+        <AppHeader />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -120,7 +120,7 @@ export default function MistakesPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <Header />
+      <AppHeader />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -149,7 +149,7 @@ export default function MistakesPage() {
               onClick={() => setActiveTab("static-subjects")}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "static-subjects"
-                  ? "bg-gradient-to-r from-pink-200 to-purple-200 text-purple-800 shadow-lg border border-pink-300"
+                  ? "bg-linear-to-r from-pink-200 to-purple-200 text-purple-800 shadow-lg border border-pink-300"
                   : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
               }`}
             >
@@ -160,7 +160,7 @@ export default function MistakesPage() {
               onClick={() => setActiveTab("contemporary-cases")}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "contemporary-cases"
-                  ? "bg-gradient-to-r from-emerald-200 to-teal-200 text-emerald-800 shadow-lg border border-emerald-300"
+                  ? "bg-linear-to-r from-emerald-200 to-teal-200 text-emerald-800 shadow-lg border border-emerald-300"
                   : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
               }`}
             >
@@ -171,7 +171,7 @@ export default function MistakesPage() {
               onClick={() => setActiveTab("pyqs")}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "pyqs"
-                  ? "bg-gradient-to-r from-purple-200 to-pink-200 text-purple-800 shadow-lg border border-purple-300"
+                  ? "bg-linear-to-r from-purple-200 to-pink-200 text-purple-800 shadow-lg border border-purple-300"
                   : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
               }`}
             >
@@ -182,7 +182,7 @@ export default function MistakesPage() {
               onClick={() => setActiveTab("mock")}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "mock"
-                  ? "bg-gradient-to-r from-orange-200 to-red-200 text-orange-800 shadow-lg border border-orange-300"
+                  ? "bg-linear-to-r from-orange-200 to-red-200 text-orange-800 shadow-lg border border-orange-300"
                   : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
               }`}
             >
@@ -334,7 +334,7 @@ export default function MistakesPage() {
                 return (
                   <Card
                     key={year}
-                    className={`overflow-hidden relative border-0 shadow-lg rounded-2xl bg-gradient-to-br ${
+                    className={`overflow-hidden relative border-0 shadow-lg rounded-2xl bg-linear-to-br ${
                       year === "2023"
                         ? "from-blue-100 to-blue-200"
                         : year === "2024"
@@ -355,7 +355,7 @@ export default function MistakesPage() {
                           <div className="text-3xl font-bold text-gray-900 ml-2">
                             {year}
                           </div>
-                          <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="flex items-center gap-3 shrink-0">
                             {yearMistakes.length > 0 ? (
                               <>
                                 <button
@@ -363,7 +363,7 @@ export default function MistakesPage() {
                                     e.stopPropagation();
                                     router.push(`/mistakes/retake/${year}`);
                                   }}
-                                  className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                                  className="w-12 h-12 bg-linear-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                                 >
                                   <span className="text-white font-bold text-lg">
                                     Q
@@ -419,13 +419,13 @@ export default function MistakesPage() {
                             const unsureAnswers = caseMistakes.filter(m => m.user_answer === m.correct_answer.replace(/[()]/g, "").trim());
                             
                             return (
-                              <div key={caseNumber} className={`overflow-hidden relative border shadow-md rounded-xl transition-all duration-300 hover:shadow-lg p-4 ${
-                                year === "2023"
-                                  ? "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200"
-                                  : year === "2024"
-                                  ? "bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200"
-                                  : "bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200"
-                              }`}>
+                                <div key={caseNumber} className={`overflow-hidden relative border shadow-md rounded-xl transition-all duration-300 hover:shadow-lg p-4 ${
+                                  year === "2023"
+                                    ? "bg-linear-to-br from-blue-50 to-blue-100 border-blue-200"
+                                    : year === "2024"
+                                    ? "bg-linear-to-br from-emerald-50 to-emerald-100 border-emerald-200"
+                                    : "bg-linear-to-br from-purple-50 to-purple-100 border-purple-200"
+                                }`}>
                                 <div 
                                   className="flex items-center justify-between mb-4 cursor-pointer"
                                   onClick={() => toggleCase(caseId)}
@@ -454,7 +454,7 @@ export default function MistakesPage() {
                                         const caseQuestionIds = caseMistakes.map(m => m.id).join(',');
                                         router.push(`/quiz/retake?mistakes=${caseQuestionIds}`);
                                       }}
-                                      className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+                                      className="w-8 h-8 bg-linear-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                                     >
                                       <span className="text-white font-bold text-xs">
                                         Q

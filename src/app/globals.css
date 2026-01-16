@@ -1,9 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 
 @plugin "tailwindcss-animate";
 @import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+
+/* ... existing code ... */
+
+/* Prose List Styling as requested */
+.prose { 
+  font-family: "Mondo News", "Newsreader", serif !important; 
+  text-align: justify;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -17,44 +26,44 @@
 }
 
 :root {
-  /* Light mode colors */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Light mode colors - Converted to Hex/HSL for html2canvas compatibility */
+  --background: #ffffff;
+  --foreground: #020617;
+  --card: #ffffff;
+  --card-foreground: #020617;
+  --popover: #ffffff;
+  --popover-foreground: #020617;
+  --primary: #0f172a;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #94a3b8;
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --chart-1: #e76e50;
+  --chart-2: #2a9d8f;
+  --chart-3: #264653;
+  --chart-4: #f4a261;
+  --chart-5: #e9c46a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #d1d5db;
 }
 
 [data-theme="dark"] {
-  /* Dark mode colors - ChatGPT black theme */
+  /* Dark mode colors */
   --background: #000000;
   --foreground: #ffffff;
   --card: #1a1a1a;
@@ -277,37 +286,38 @@ body {
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+  --primary: #f8fafc;
+  --primary-foreground: #020617;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f8fafc;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #94a3b8;
+  --chart-1: #22d3ee;
+  --chart-2: #2dd4bf;
+  --chart-3: #a78bfa;
+  --chart-4: #fb7185;
+  --chart-5: #fbbf24;
+  --sidebar: #020617;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #1e293b;
 }
 
 @layer base {
@@ -317,4 +327,259 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* === Layout freeze for PDF capture === */
+.render-snapshot,
+.render-snapshot * {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Remove highlight backgrounds during PDF capture — but NOT user-highlights */
+.render-snapshot mark:not(.user-highlight),
+.render-snapshot .highlight:not(.user-highlight),
+.render-snapshot .highlight-inner:not(.user-highlight) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* === PAGE-BY-PAGE MODE: Strip container styling, just clean text === */
+.pdf-page-mode .note-box,
+.pdf-page-mode .card,
+.pdf-page-mode .highlight-card,
+.pdf-page-mode .prose-section {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0.5rem 0 !important;
+  margin: 0.75rem 0 !important;
+}
+
+/* Prevent sentences from breaking across pages */
+.pdf-page-mode p,
+.pdf-page-mode li,
+.pdf-page-mode h1,
+.pdf-page-mode h2,
+.pdf-page-mode h3,
+.pdf-page-mode h4,
+.pdf-page-mode h5,
+.pdf-page-mode h6,
+.pdf-page-mode .prose li {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* === PDF-safe base for note content === */
+#note-content-area {
+  font-family: "Open Sans", "Helvetica", Arial, sans-serif;
+  line-height: 1.55;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Page-break helper applied in batch by JS === */
+.page-break-before {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Ensure note-boxes are block-level and not flex/grid that breaks pagination */
+.note-box, .card, .highlight-card, .prose-section {
+  display: block;
+  width: calc(100% - 1rem); /* Account for horizontal margins */
+  max-width: 100%;
+  box-sizing: border-box;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  -webkit-region-break-inside: avoid;
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1.25rem 0.5rem; /* Equal left/right margins */
+  border-width: 2px;
+  border-style: solid;
+}
+
+/* Keep box colors from before */
+.note-box.note-blue {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+.note-box.note-green {
+  background: #f0fdf4;
+  border-color: #22c55e;
+}
+.note-box.note-red {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+.note-box.note-amber {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+.note-box.note-purple {
+  background: #faf5ff;
+  border-color: #a855f7;
+}
+
+/* Make sure previous simple color classes also work if used without note-box */
+.note-blue { background: #eff6ff; border-color: #3b82f6; }
+.note-green { background: #f0fdf4; border-color: #22c55e; }
+.note-red { background: #fef2f2; border-color: #ef4444; }
+.note-amber { background: #fffbeb; border-color: #f59e0b; }
+.note-purple { background: #faf5ff; border-color: #a855f7; }
+
+/* Horizontal Rule (Thick) */
+hr, .content-hr {
+  border: none;
+  height: 2px;
+  background: #cbd5e1; /* hex slate-300 */
+  margin: 1.5rem 0;
+}
+
+/* === Bullets: deterministic non-native markers === */
+/* CSS custom properties make bullet math explicit and DPR-independent */
+.prose {
+  --prose-line-height: 1.55;
+  --bullet-size: 0.35rem;
+  line-height: var(--prose-line-height);
+}
+
+.prose ul {
+  list-style: none;
+  padding-left: 0.5rem;
+  margin: 0;
+}
+
+.prose li {
+  position: relative;
+  margin: 0.6rem 0;
+  padding-left: 1.25em;
+  line-height: var(--prose-line-height);
+  color: #000000 !important;
+  /* Prevent list items from splitting across pages */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.prose li::before {
+  content: "";
+  position: absolute;
+  left: 0.2em;
+  /* Pure vertical center: (line-height - bullet-size) / 2 */
+  /* This aligns bullet with the middle of the first text line */
+  top: calc((var(--prose-line-height) * 1em - var(--bullet-size)) / 2);
+  width: var(--bullet-size);
+  height: var(--bullet-size);
+  border-radius: 50%;
+  background: #0b0b0b;
+  display: block;
+}
+
+/* === Inline highlight === */
+/* Outer wrapper: inline flow, enables box-decoration-break for multiline */
+.highlight {
+  display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Inner span OR mark: inline (NOT inline-block), NO vertical padding */
+/* background-color inherits from inline style or class — not hardcoded */
+mark,
+.highlight-inner {
+  display: inline;
+  padding: 0 0.2em; /* horizontal only — vertical padding causes baseline shift */
+  border-radius: 0.15em;
+  vertical-align: baseline;
+  line-height: inherit;
+  color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  background-clip: padding-box;
+}
+
+/* Fallback for older browsers without box-decoration-break */
+@supports not (box-decoration-break: clone) {
+  mark, .highlight-inner {
+    border-radius: 0;
+  }
+}
+
+/* Headings and paragraph spacing */
+.prose p, .prose h1, .prose h2, .prose h3 {
+  margin-top: 0.45rem;
+  margin-bottom: 0.45rem;
+  line-height: 1.55;
+  text-align: justify;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+/* === User Highlights (localStorage-based) === */
+.user-highlight {
+  cursor: pointer;
+  border-radius: 0.1em;
+  padding: 0;
+  transition: all 0.15s ease;
+  position: relative;
+  /* Ensure inline style background-color is used */
+  background-color: var(--highlight-color, #fef08a);
+}
+
+.user-highlight:hover {
+  filter: brightness(0.92);
+}
+
+/* Make ALL mark elements in content area have hover effect */
+#note-content-area mark {
+  cursor: pointer;
+  position: relative;
+  transition: filter 0.15s ease;
+}
+
+#note-content-area mark:hover {
+  filter: brightness(0.92);
+}
+
+/* Remove extra space at the bottom of content */
+#note-content-area > *:last-child,
+#note-content-area .prose > *:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+#content-card {
+  padding-bottom: 1rem !important;
+}
+
+#content-card > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* TTS Hover Effects (Scoped to Reading Mode) */
+.reading-mode .tts-sentence {
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.reading-mode .tts-sentence:hover {
+  background-color: #fef9c3; /* yellow-100 */
+}
+
+/* Active Sentence Highlighting (Always valid if TTS is playing) */
+.active-sentence {
+  background-color: #fcd34d !important; /* amber-300 */
 }

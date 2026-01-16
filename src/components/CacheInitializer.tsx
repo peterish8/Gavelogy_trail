@@ -1,13 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
-import { initializeCache } from '@/lib/data-loader';
-
+// This component has been deprecated - contemporary cases preloading removed
 export function CacheInitializer() {
-  useEffect(() => {
-    // Initialize cache on app startup
-    initializeCache();
-  }, []);
-
-  return null; // This component doesn't render anything
+  return null;
 }

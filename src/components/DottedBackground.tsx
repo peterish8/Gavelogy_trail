@@ -1,24 +1,16 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
 import { useThemeStore } from "@/lib/stores/theme";
 
 export function DottedBackground() {
   const { isDarkMode } = useThemeStore();
-  const { scrollY } = useScroll();
-
-  // Transform dots position based on scroll - stays static for first 2 page scrolls, then moves upward
-  const y = useTransform(scrollY, [0, 2000, 3000], [0, 0, -200]);
-  const opacity = useTransform(scrollY, [0, 500], [0.7, 0.3]);
 
   return (
-    <motion.div
+    <div
       style={{
-        y,
-        opacity,
         zIndex: -1
       }}
-      className="fixed inset-0 pointer-events-none"
+      className="fixed inset-0 pointer-events-none opacity-70"
     >
       {/* Dynamic gradient background */}
       <div
@@ -67,6 +59,6 @@ export function DottedBackground() {
           backgroundPosition: "10px 10px",
         }}
       />
-    </motion.div>
+    </div>
   );
 }

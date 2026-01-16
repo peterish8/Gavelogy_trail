@@ -179,13 +179,152 @@ export class DataLoader {
       // Silent fail for preloading
     }
   }
-}
+  // Dynamic Course Data Methods
+  
+  // Get all active courses
+  static async getCourses() {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index');
+        
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      return [];
+    }
+  }
 
-// Auto-preload popular content
-export const initializeCache = () => {
-  // Preload 2024 and 2025 cases
-  setTimeout(() => {
-    DataLoader.preloadYearCases('2024').catch(() => null);
-    DataLoader.preloadYearCases('2025').catch(() => null);
-  }, 1000); // Delay to not block initial load
-};
+  // Get hierarchical structure for a course
+  static async getCourseStructure(courseId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('structure_items')
+        .select('*')
+        .eq('course_id', courseId)
+        .eq('is_active', true)
+        .order('order_index');
+
+      if (error) throw error;
+
+      // Build tree
+      const items = data || [];
+      const itemMap = new Map();
+      const rootItems: any[] = [];
+
+      // First pass: Create map and initialize children
+      items.forEach(item => {
+        item.children = [];
+        itemMap.set(item.id, item);
+      });
+
+      // Second pass: Link parents and children
+      items.forEach(item => {
+        if (item.parent_id) {
+          const parent = itemMap.get(item.parent_id);
+          if (parent) {
+            parent.children.push(item);
+          } else {
+            // Orphaned item, maybe treat as root or ignore? 
+            // Treating as root for safety
+            rootItems.push(item);
+          }
+        } else {
+          rootItems.push(item);
+        }
+      });
+
+      return rootItems;
+    } catch (error) {
+      console.error('Error fetching course structure:', error);
+      return [];
+    }
+  }
+
+  // Get content for a specific note item
+  static async getNoteContent(itemId: string) {
+    // Check cache first?
+    // For now, fetch direct
+    try {
+      const { data, error } = await supabase
+        .from('note_contents')
+        .select('content_html')
+        .eq('item_id', itemId)
+        .single();
+        
+      if (error) throw error;
+      return data?.content_html || '';
+    } catch (error) {
+      console.error('Error fetching note content:', error);
+      return null;
+    }
+  }
+
+  // Get user's completed items for a course
+  static async getUserCompletedItems(courseId: string) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('user_completed_items')
+        .select('item_id')
+        .eq('user_id', user.id);
+        // We could filter by course_id if we added it, but item_id is unique enough for now
+        
+      if (error) throw error;
+      return data.map(row => row.item_id); // Return array of item IDs
+    } catch (error) {
+      console.error('Error fetching completed items:', error);
+      return [];
+    }
+  }
+
+  // Toggle item completion status
+  static async toggleItemCompletion(itemId: string, isCompleted: boolean) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      if (isCompleted) {
+        // Remove from completed
+        const { error } = await supabase
+          .from('user_completed_items')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('item_id', itemId);
+          
+        if (error) throw error;
+      } else {
+        // Add to completed
+        const { error } = await supabase
+          .from('user_completed_items')
+          .insert({
+            user_id: user.id,
+            item_id: itemId
+          });
+          
+        if (error) {
+          // Ignore unique violation (already completed)
+          if (error.code === '23505') return true;
+          throw error;
+        }
+      }
+      return true;
+    } catch (error: any) {
+      console.error('Error toggling completion:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+        itemId
+      });
+      return false;
+    }
+  }
+
+
+}

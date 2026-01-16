@@ -5,7 +5,7 @@ import { useAuthStore } from "@/lib/stores/auth";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useQuizStore } from "@/lib/stores/quiz";
 import { useMistakeStore } from "@/lib/stores/mistakes";
-import { Header } from "@/components/header";
+import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const { user, profile, isAuthenticated, isLoading } = useAuthStore();
-  const { getUserCourses: getCourses, purchaseCourse: buyCourse } =
+  const { getUserCourses: getCourses, purchaseCourse: buyCourse, loadUserCourses } =
     usePaymentStore();
 
   const { getRecentAttempts, loadAttempts, loading: quizLoading } = useQuizStore();
@@ -37,8 +37,8 @@ export default function DashboardPage() {
   // Enable copy protection
   useCopyProtection();
 
-  const loadUserCourses = useCallback(async () => {
-    const courses = getCourses();
+  const fetchAndSetCourses = useCallback(async () => {
+    const courses = await getCourses();
     setUserCourses(courses);
   }, [getCourses]);
 
@@ -54,11 +54,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (isAuthenticated && user && profile) {
-      loadUserCourses();
+      loadUserCourses(); // Fetch from DB to update store
+      fetchAndSetCourses(); // Update local state from store
       loadMistakes();
       loadAttempts();
     }
-  }, [isAuthenticated, user, profile, loadUserCourses, loadMistakes, loadAttempts]);
+  }, [isAuthenticated, user, profile, loadUserCourses, fetchAndSetCourses, loadMistakes, loadAttempts]);
 
   // Get recent activity data
   const recentAttempts = getRecentAttempts(12);
@@ -134,7 +135,8 @@ export default function DashboardPage() {
       const result = await buyCourse(courseId);
 
       if (result.success) {
-        loadUserCourses();
+        loadUserCourses(); // Update DB Store
+        fetchAndSetCourses(); // Update local UI
         alert(`Successfully purchased ${courseName}!`);
       } else {
         alert(`Purchase failed: ${result.error}`);
@@ -150,7 +152,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <Header />
+        <AppHeader />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">Loading...</div>
         </div>
@@ -162,7 +164,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <Header />
+        <AppHeader />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <p>Please log in to access the dashboard.</p>
@@ -175,7 +177,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <Header />
+      <AppHeader />
 
       <div className="container mx-auto px-4 py-8 no-copy">
         <div className="mb-8">
@@ -222,7 +224,7 @@ export default function DashboardPage() {
             </nav>
             {/* Moving gradient line */}
             <div 
-              className="absolute bottom-0 h-0.5 bg-gradient-to-r from-primary via-primary to-primary/50 transition-all duration-300 ease-out"
+              className="absolute bottom-0 h-0.5 bg-linear-to-r from-primary via-primary to-primary/50 transition-all duration-300 ease-out"
               style={{
                 width: activeTab === "overview" ? "120px" : activeTab === "analytics" ? "130px" : "115px",
                 left: activeTab === "overview" ? "8px" : activeTab === "analytics" ? "112px" : "229px"
@@ -283,16 +285,16 @@ export default function DashboardPage() {
                   {recentAttempts.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {recentAttempts.map((attempt) => {
-                        const accuracy = Math.round((attempt.score / attempt.totalQuestions) * 100);
-                        const displayTopic = formatTopicName(attempt.subject, attempt.topic);
+                        const accuracy = Math.round((attempt.score / (attempt.totalQuestions || 1)) * 100);
+                        const displayTopic = formatTopicName(attempt.subject || 'Unknown', attempt.topic || 'Unknown');
                         return (
                           <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)}`}>
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-lg">{getQuizTypeIcon(attempt.subject)}</span>
+                                  <span className="text-lg">{getQuizTypeIcon(attempt.subject || '')}</span>
                                   <div className="flex-1">
-                                    <p className="font-medium text-sm">{attempt.subject}</p>
+                                    <p className="font-medium text-sm">{attempt.subject || 'Unknown Subject'}</p>
                                     <p className="text-xs text-muted-foreground line-clamp-2" title={displayTopic}>
                                       {displayTopic}
                                     </p>
@@ -308,7 +310,7 @@ export default function DashboardPage() {
                               <div className="flex items-center justify-between text-xs text-muted-foreground">
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  {formatTimeAgo(attempt.timestamp)}
+                                  {formatTimeAgo(attempt.completedAt)}
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <div className="flex items-center gap-1">
@@ -317,7 +319,7 @@ export default function DashboardPage() {
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <XCircle className="h-3 w-3 text-red-500" />
-                                    {attempt.totalQuestions - attempt.score}
+                                    {(attempt.totalQuestions || 0) - attempt.score}
                                   </div>
                                 </div>
                               </div>

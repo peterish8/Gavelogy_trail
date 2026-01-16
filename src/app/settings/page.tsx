@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DottedBackground } from "@/components/DottedBackground";
-import { ArrowLeft, User, Save, Check } from "lucide-react";
+import { ArrowLeft, User, Save, Check, AlertCircle, CheckCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function SettingsPage() {
@@ -20,6 +20,9 @@ export default function SettingsPage() {
   const [fullName, setFullName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -34,9 +37,79 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
+  // Check username availability when user types
+  useEffect(() => {
+    const checkUsername = async () => {
+      const trimmedUsername = username.trim().toLowerCase();
+      
+      // Reset states
+      setUsernameError("");
+      setUsernameAvailable(null);
+
+      // Validation
+      if (!trimmedUsername) {
+        return;
+      }
+
+      if (trimmedUsername.length < 3) {
+        setUsernameError("Username must be at least 3 characters");
+        return;
+      }
+
+      if (trimmedUsername.length > 20) {
+        setUsernameError("Username must be 20 characters or less");
+        return;
+      }
+
+      if (!/^[a-z0-9_]+$/.test(trimmedUsername)) {
+        setUsernameError("Only lowercase letters, numbers, and underscores allowed");
+        return;
+      }
+
+      // If same as current username, no need to check
+      if (trimmedUsername === profile?.username?.toLowerCase()) {
+        setUsernameAvailable(true);
+        return;
+      }
+
+      // Check if username exists in database
+      setIsCheckingUsername(true);
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("id")
+          .ilike("username", trimmedUsername)
+          .single();
+
+        if (error && error.code === "PGRST116") {
+          // No rows returned = username available
+          setUsernameAvailable(true);
+        } else if (data) {
+          // Username taken
+          setUsernameError("Username is already taken");
+          setUsernameAvailable(false);
+        }
+      } catch (error) {
+        console.warn("Error checking username:", error);
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    };
+
+    // Debounce the check
+    const timer = setTimeout(checkUsername, 500);
+    return () => clearTimeout(timer);
+  }, [username, profile?.username]);
+
   const handleSave = async () => {
-    if (!username.trim()) {
-      alert("Username cannot be empty");
+    const trimmedUsername = username.trim().toLowerCase();
+
+    if (!trimmedUsername) {
+      setUsernameError("Username cannot be empty");
+      return;
+    }
+
+    if (usernameError || usernameAvailable === false) {
       return;
     }
 
@@ -45,7 +118,7 @@ export default function SettingsPage() {
 
     try {
       const result = await updateProfile({
-        username: username.trim(),
+        username: trimmedUsername,
         full_name: fullName.trim(),
       });
 
@@ -53,15 +126,26 @@ export default function SettingsPage() {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
 
-        // Update streak username in Supabase
+        // Update username in streak tables too
         if (user) {
+          // Update user_streaks
           await supabase
             .from("user_streaks")
-            .update({ username: username.trim() })
+            .update({ username: trimmedUsername })
+            .eq("user_id", user.id);
+
+          // Update user_points
+          await supabase
+            .from("user_points")
+            .update({ username: trimmedUsername })
             .eq("user_id", user.id);
         }
       } else {
-        alert(result.error || "Failed to update profile");
+        if (result.error?.includes("duplicate") || result.error?.includes("unique")) {
+          setUsernameError("Username is already taken");
+        } else {
+          alert(result.error || "Failed to update profile");
+        }
       }
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -120,17 +204,42 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
-                maxLength={20}
-              />
-              <p className="text-sm text-muted-foreground">
-                This will be displayed on the leaderboard. Choose a unique
-                username.
-              </p>
+              <div className="relative">
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  placeholder="Enter your username"
+                  maxLength={20}
+                  className={`${
+                    usernameError 
+                      ? "border-red-500 focus:ring-red-500" 
+                      : usernameAvailable 
+                        ? "border-green-500 focus:ring-green-500" 
+                        : ""
+                  }`}
+                />
+                {isCheckingUsername && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                  </div>
+                )}
+                {!isCheckingUsername && usernameAvailable && !usernameError && (
+                  <CheckCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                )}
+                {!isCheckingUsername && usernameError && (
+                  <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                )}
+              </div>
+              {usernameError ? (
+                <p className="text-sm text-red-500">{usernameError}</p>
+              ) : usernameAvailable ? (
+                <p className="text-sm text-green-600">Username is available!</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  This will be displayed on the leaderboard. Lowercase letters, numbers, underscores only.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -143,7 +252,7 @@ export default function SettingsPage() {
                 maxLength={50}
               />
               <p className="text-sm text-muted-foreground">
-                Your display name for the application.
+                Your display name (only visible to you).
               </p>
             </div>
 
@@ -162,8 +271,8 @@ export default function SettingsPage() {
 
             <Button
               onClick={handleSave}
-              disabled={isSaving}
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={isSaving || !!usernameError || usernameAvailable === false}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             >
               {isSaving ? (
                 <>

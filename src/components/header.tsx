@@ -11,10 +11,9 @@ import { Moon, Sun, User, LogOut, Menu, X, Settings } from "lucide-react";
 
 const AUTH_NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/subjects", label: "Content" },
+  { href: "/courses", label: "Courses" },
   { href: "/mistakes", label: "Mistakes" },
   { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/courses", label: "Courses" },
 ];
 
 export function Header() {
@@ -24,7 +23,6 @@ export function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileSettings, setShowMobileSettings] = useState(false);
-  const [showGetStartedModal, setShowGetStartedModal] = useState(false);
   const [showLandingMenu, setShowLandingMenu] = useState(false);
   const pathname = usePathname();
 
@@ -40,9 +38,9 @@ export function Header() {
   const handleGetStarted = () => {
     if (isAuthenticated) {
       router.push("/dashboard");
-      return;
+    } else {
+      router.push("/signup");
     }
-    setShowGetStartedModal(true);
   };
 
   const navContainerRef = useRef<HTMLDivElement | null>(null);
@@ -57,9 +55,15 @@ export function Header() {
       return;
     }
 
-    const activeLink = AUTH_NAV_LINKS.find((link) =>
+    // Find active link - also match /course-viewer to /courses
+    let activeLink = AUTH_NAV_LINKS.find((link) =>
       pathname.startsWith(link.href)
     );
+    
+    // Special case: course-viewer should highlight Courses
+    if (!activeLink && pathname.startsWith('/course-viewer')) {
+      activeLink = AUTH_NAV_LINKS.find(link => link.href === '/courses');
+    }
 
     if (activeLink) {
       const element = linkRefs.current[activeLink.href];
@@ -73,9 +77,26 @@ export function Header() {
     }
   }, [pathname, isAuthenticated, isHomePage, isAuthPage]);
 
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    if (pathname !== "/") {
+      router.push(`/?view=landing#${id}`);
+      return;
+    }
+    
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    
+    // Close menus if open
+    setShowMobileMenu(false);
+    setShowLandingMenu(false);
+  };
+
   return (
     <>
-    <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-100 w-full border-b bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/?view=landing" className="flex items-center space-x-2">
@@ -118,24 +139,27 @@ export function Header() {
             </div>
           ) : (
             <>
-              <Link
+              <a
                 href="#features"
-                className="text-sm font-medium hover:text-primary transition-colors"
+                onClick={(e) => handleSmoothScroll(e, "features")}
+                className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 Features
-              </Link>
-              <Link
+              </a>
+              <a
                 href="#pricing"
-                className="text-sm font-medium hover:text-primary transition-colors"
+                onClick={(e) => handleSmoothScroll(e, "pricing")}
+                className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 Pricing
-              </Link>
-              <Link
+              </a>
+              <a
                 href="#about"
-                className="text-sm font-medium hover:text-primary transition-colors"
+                onClick={(e) => handleSmoothScroll(e, "about")}
+                className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
               >
                 About
-              </Link>
+              </a>
             </>
           )}
         </nav>
@@ -241,7 +265,7 @@ export function Header() {
               </Button>
               <Button
                 size="sm"
-                className="bg-gradient-to-r from-[#1a1334] via-[#2f1e54] to-[#47307b] text-white shadow-lg hover:shadow-violet-500/30 transition-all"
+                className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300"
                 onClick={handleGetStarted}
               >
                 Get Started
@@ -256,7 +280,7 @@ export function Header() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 z-[9998] md:hidden"
+            className="fixed inset-0 bg-black/50 z-9998 md:hidden"
             onClick={() => {
               setShowMobileMenu(false);
               setShowMobileSettings(false);
@@ -265,7 +289,7 @@ export function Header() {
 
           {/* Menu - Slide down from top */}
           <div
-            className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl z-[9999] text-gray-900 dark:text-white"
+            className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-2xl z-9999 text-gray-900 dark:text-white"
             style={{
               animation: "slideInFromTop 0.3s ease-out",
             }}
@@ -410,72 +434,28 @@ export function Header() {
       {!isAuthenticated && isHomePage && showLandingMenu && (
         <div className="md:hidden">
           <div
-            className="fixed inset-0 bg-black/40 z-[90]"
+            className="fixed inset-0 bg-black/40 z-90"
             onClick={() => setShowLandingMenu(false)}
           />
-          <div className="absolute top-16 right-4 z-[91] w-48 rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl border border-gray-200">
+          <div className="absolute top-16 right-4 z-91 w-48 rounded-2xl bg-white/95 backdrop-blur-md shadow-2xl border border-gray-200">
             {[
-              { href: "#features", label: "Features" },
-              { href: "#pricing", label: "Pricing" },
-              { href: "#about", label: "About" },
+              { href: "features", label: "Features" },
+              { href: "pricing", label: "Pricing" },
+              { href: "about", label: "About" },
             ].map((item) => (
-              <Link
+              <a
                 key={item.href}
-                href={item.href}
+                href={`#${item.href}`}
                 className="block px-5 py-3 text-sm text-gray-800 hover:bg-gray-100 rounded-2xl transition"
-                onClick={() => setShowLandingMenu(false)}
+                onClick={(e) => handleSmoothScroll(e, item.href)}
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </div>
         </div>
       )}
     </header>
-
-    {/* Get Started Modal */}
-    {showGetStartedModal && (
-      <>
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000]"
-          onClick={() => setShowGetStartedModal(false)}
-        />
-        <div className="fixed inset-0 z-[1001] flex items-center justify-center px-4">
-          <div className="relative w-full max-w-md rounded-3xl p-6 bg-gradient-to-br from-[#120c23] via-[#1f1638] to-[#3a2560] text-white shadow-[0_25px_70px_rgba(6,3,20,0.6)] border border-white/10">
-            <button
-              className="absolute top-4 right-4 text-white/70 hover:text-white transition"
-              onClick={() => setShowGetStartedModal(false)}
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <h2 className="text-2xl font-bold mb-4">Get Started</h2>
-            <p className="text-white/80 mb-6">
-              Create your free account to start your CLAT PG preparation journey.
-            </p>
-            <div className="space-y-3">
-              <Link href="/signup" className="block">
-                <Button
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                  onClick={() => setShowGetStartedModal(false)}
-                >
-                  Create Free Account
-                </Button>
-              </Link>
-              <div className="text-center text-sm text-white/70">
-                Already registered?{" "}
-                <Link
-                  href="/login"
-                  className="text-purple-300 hover:text-purple-200 underline"
-                  onClick={() => setShowGetStartedModal(false)}
-                >
-                  Log in here
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-    )}
     </>
   );
 }

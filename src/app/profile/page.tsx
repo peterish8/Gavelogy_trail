@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useStreakStore } from "@/lib/stores/streaks";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,18 +12,21 @@ import {
   User,
   Mail,
   Calendar,
-  Coins,
   Trophy,
   Settings,
   Save,
   Edit3,
+  Flame,
+  Zap,
+  Award,
 } from "lucide-react";
-import { Header } from "@/components/header";
+import { AppHeader } from "@/components/app-header";
 import { DottedBackground } from "@/components/DottedBackground";
 import Link from "next/link";
 
 export default function ProfilePage() {
   const { user, profile, updateProfile, isAuthenticated } = useAuthStore();
+  const { userStreak, leaderboard, loadUserStreak, loadLeaderboard } = useStreakStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -40,6 +44,16 @@ export default function ProfilePage() {
       });
     }
   }, [profile, user]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUserStreak();
+      loadLeaderboard();
+    }
+  }, [isAuthenticated, loadUserStreak, loadLeaderboard]);
+
+  // Find current user's position in leaderboard
+  const currentUserEntry = leaderboard.find(entry => entry.user_id === user?.id);
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -74,7 +88,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <Header />
+        <AppHeader />
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center">
             <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
@@ -93,7 +107,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <Header />
+      <AppHeader />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -140,17 +154,15 @@ export default function ProfilePage() {
                     <Avatar className="h-20 w-20">
                       <AvatarImage src={profile?.avatar_url} />
                       <AvatarFallback className="text-lg">
-                        {profile?.full_name?.charAt(0) ||
-                          profile?.username?.charAt(0) ||
-                          "U"}
+                        {profile?.username?.charAt(0)?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <h3 className="text-lg font-semibold">
-                        {profile?.full_name || "User"}
+                        @{profile?.username || "user"}
                       </h3>
                       <p className="text-muted-foreground">
-                        @{profile?.username}
+                        {profile?.full_name || ""}
                       </p>
                     </div>
                   </div>
@@ -168,6 +180,9 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         placeholder="Enter username"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Displayed on leaderboard
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="full_name">Full Name</Label>
@@ -183,6 +198,9 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         placeholder="Enter full name"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Only visible to you
+                      </p>
                     </div>
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="email">Email</Label>
@@ -213,48 +231,58 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Account Stats */}
+              {/* Streak Stats */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5" />
-                    Account Statistics
+                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    Your Streak Stats
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">
-                        {profile?.total_coins || 0}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Total Coins
-                      </p>
-                    </div>
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">
-                        {profile?.streak_count || 0}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-linear-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-xl">
+                      <div className="flex items-center justify-center mb-2">
+                        <Flame className="h-6 w-6 text-orange-500 mr-1" />
+                        <span className="text-2xl font-bold text-orange-600">
+                          {userStreak?.current_streak || 0}
+                        </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Current Streak
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">
-                        {profile?.longest_streak || 0}
+                    <div className="text-center p-4 bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 rounded-xl">
+                      <div className="flex items-center justify-center mb-2">
+                        <Zap className="h-6 w-6 text-purple-500 mr-1" />
+                        <span className="text-2xl font-bold text-purple-600">
+                          {currentUserEntry?.monthly_points || 0}
+                        </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Longest Streak
+                        Monthly Points
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-muted/50 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">
-                        {profile?.created_at
-                          ? new Date(profile.created_at).toLocaleDateString()
-                          : "N/A"}
+                    <div className="text-center p-4 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl">
+                      <div className="flex items-center justify-center mb-2">
+                        <Award className="h-6 w-6 text-green-500 mr-1" />
+                        <span className="text-2xl font-bold text-green-600">
+                          {currentUserEntry?.all_time_points || 0}
+                        </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Member Since
+                        All-Time Points
+                      </p>
+                    </div>
+                    <div className="text-center p-4 bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30 rounded-xl">
+                      <div className="flex items-center justify-center mb-2">
+                        <Trophy className="h-6 w-6 text-yellow-500 mr-1" />
+                        <span className="text-2xl font-bold text-yellow-600">
+                          #{currentUserEntry?.rank || '-'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Leaderboard Rank
                       </p>
                     </div>
                   </div>
@@ -276,16 +304,22 @@ export default function ProfilePage() {
                       Dashboard
                     </Button>
                   </Link>
-                  <Link href="/subjects" className="block">
+                  <Link href="/courses" className="block">
                     <Button variant="outline" className="w-full justify-start">
                       <Settings className="h-4 w-4 mr-2" />
-                      Subjects
+                      Courses
                     </Button>
                   </Link>
-                  <Link href="/mistakes" className="block">
+                  <Link href="/leaderboard" className="block">
                     <Button variant="outline" className="w-full justify-start">
-                      <Coins className="h-4 w-4 mr-2" />
-                      Mistakes
+                      <Trophy className="h-4 w-4 mr-2" />
+                      Leaderboard
+                    </Button>
+                  </Link>
+                  <Link href="/settings" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
                     </Button>
                   </Link>
                 </CardContent>
@@ -303,7 +337,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-2 text-sm">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">Email:</span>
-                    <span className="font-medium">{user?.email}</span>
+                    <span className="font-medium truncate">{user?.email}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -312,13 +346,6 @@ export default function ProfilePage() {
                       {profile?.created_at
                         ? new Date(profile.created_at).toLocaleDateString()
                         : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">User ID:</span>
-                    <span className="font-mono text-xs">
-                      {profile?.id?.slice(0, 8)}...
                     </span>
                   </div>
                 </CardContent>
