@@ -110,7 +110,7 @@ export function StudyTimer({ floating = false }: StudyTimerProps) {
 
   // Mechanical Design
   return (
-    <div className="flex flex-col items-center gap-1 mx-2 select-none" style={{ marginTop: '-4px' }}> {/* Negative margin to accommodate the tall plunger */}
+    <div className="flex flex-col items-center gap-1 mx-2 select-none"> {/* Removed negative margin to avoid touching toolbar top */}
       
       {/* The Mechanical Assembly */}
       <div className="relative flex flex-col items-center">

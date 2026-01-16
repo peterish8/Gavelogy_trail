@@ -18,8 +18,6 @@ interface ContemporaryQuizQuestion {
   id: string;
   case_number: string;
   case_name: string;
-  passage: string;
-  case_question_id: string;
   question: string;
   option_a: string;
   option_b: string;
@@ -46,7 +44,7 @@ export default function ContemporaryQuizPage({
   const { year, caseNumber } = use(params);
   const { addAttempt } = useQuizStore();
   const { addMistake, clearMistakeByQuestionId } = useMistakeStore();
-  const { updateStreak } = useStreakStore();
+
 
   // Enable copy protection
   useCopyProtection();
@@ -123,7 +121,7 @@ export default function ContemporaryQuizPage({
     });
 
     const answer: QuizAnswer = {
-      questionId: currentQuestion.case_question_id,
+      questionId: currentQuestion.id,
       selectedAnswer,
       confidence: "confident", // Default confidence
       isCorrect,
@@ -146,7 +144,7 @@ export default function ContemporaryQuizPage({
       const correctAnswerText = `${cleanCorrectAnswer}. ${options[cleanCorrectAnswer as keyof typeof options]}` || currentQuestion.correct_answer;
       
       addMistake({
-        questionId: currentQuestion.case_question_id,
+        questionId: currentQuestion.id,
         question: currentQuestion.question,
         correctAnswer: currentQuestion.correct_answer,
         userAnswer: selectedAnswer,
@@ -157,7 +155,7 @@ export default function ContemporaryQuizPage({
         topic: currentQuestion.case_name,
       });
     } else {
-      clearMistakeByQuestionId(currentQuestion.case_question_id);
+      clearMistakeByQuestionId(currentQuestion.id);
     }
 
     setShowFeedback(true);
@@ -185,7 +183,7 @@ export default function ContemporaryQuizPage({
         const correctAnswerText = `${currentQuestion.correct_answer.replace(/[()]/g, "").trim()}. ${options[currentQuestion.correct_answer.replace(/[()]/g, "").trim() as keyof typeof options]}` || currentQuestion.correct_answer;
         
         addMistake({
-          questionId: currentQuestion.case_question_id,
+          questionId: currentQuestion.id,
           question: currentQuestion.question,
           correctAnswer: currentQuestion.correct_answer,
           userAnswer: currentAnswer.selectedAnswer,
@@ -226,13 +224,13 @@ export default function ContemporaryQuizPage({
       const attemptId = await addAttempt({
         subject: "Contemporary Cases",
         topic: questions[0]?.case_name || "Contemporary Case",
-        questions: questions.map((q) => q.case_question_id),
+        questions: questions.map((q) => q.id),
         answers: answers.reduce(
           (acc, a) => ({ ...acc, [a.questionId]: a.selectedAnswer }),
           {}
         ),
         correctAnswers: questions.reduce(
-          (acc, q) => ({ ...acc, [q.case_question_id]: q.correct_answer }),
+          (acc, q) => ({ ...acc, [q.id]: q.correct_answer }),
           {}
         ),
         score: correctAnswers,
@@ -246,7 +244,6 @@ export default function ContemporaryQuizPage({
           {}
         ),
         quizId: `contemporary-${caseNumber}`,
-        accuracy,
         detailedAnswers: answers.map((a) => ({
           questionId: a.questionId,
           selectedAnswer: a.selectedAnswer,
@@ -463,7 +460,7 @@ export default function ContemporaryQuizPage({
             onClick={() =>
               router.push(`/subjects?tab=contemporary-cases&year=${year}`)
             }
-            className="p-2 flex-shrink-0"
+            className="p-2 shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -500,14 +497,7 @@ export default function ContemporaryQuizPage({
         <Card className="mb-4">
           <CardContent className="p-6 no-copy">
             {/* Passage */}
-            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--card)' }}>
-              <h3 className="font-semibold mb-2" style={{ color: 'var(--foreground)' }}>
-                Case Passage:
-              </h3>
-              <p className="leading-relaxed" style={{ color: 'var(--foreground)' }}>
-                {currentQuestion.passage}
-              </p>
-            </div>
+
 
             {/* Question */}
             <h2 className="text-xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>
@@ -620,7 +610,7 @@ export default function ContemporaryQuizPage({
 
                 {showConfidence && (
                   <div className="space-y-3">
-                    <h3 className="font-semibold !text-gray-900 dark:!text-white text-center">
+                    <h3 className="font-semibold text-gray-900! dark:text-white! text-center">
                       How confident were you in this answer?
                     </h3>
                     <div className="grid grid-cols-3 gap-3">

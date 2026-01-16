@@ -136,21 +136,27 @@ body {
 }
 
 /* Custom scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--muted);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 4px;
+  background: #cbd5e1; /* slate-300 - lighter/subtle */
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+  background: #94a3b8; /* slate-400 */
 }
 
 /* Focus styles */
@@ -255,7 +261,6 @@ body {
   -khtml-user-drag: none;
   -moz-user-drag: none;
   -o-user-drag: none;
-  user-drag: none;
   pointer-events: none;
 }
 
@@ -264,7 +269,6 @@ body {
   -webkit-context-menu: none;
   -moz-context-menu: none;
   -ms-context-menu: none;
-  context-menu: none;
 }
 
 /* Prevent drag and drop */
@@ -273,7 +277,6 @@ body {
   -khtml-user-drag: none;
   -moz-user-drag: none;
   -o-user-drag: none;
-  user-drag: none;
 }
 
 /* Hide text selection */
@@ -582,4 +585,162 @@ mark,
 /* Active Sentence Highlighting (Always valid if TTS is playing) */
 .active-sentence {
   background-color: #fcd34d !important; /* amber-300 */
+}
+
+/* ============================================= */
+/* === PRINT MODE: Desktop Layout on Mobile === */
+/* ============================================= */
+
+/* 
+ * When data-layout="print", we FORCE desktop document constraints.
+ * This bypasses ALL responsive/mobile breakpoint logic.
+ * The goal: Mobile Fullscreen looks like "Desktop Site" view.
+ */
+
+/* Print Mode container - fullscreen via Tailwind */
+
+/* ============================================= */
+/* === PRINT MODE: NEWSPAPER DENSITY === */
+/* ============================================= */
+
+/* Base Document Column - ULTRA DENSE */
+[data-layout="print"] .prose {
+  font-size: 0.6875rem !important;     /* 11px - ultra dense */
+  line-height: 1.25 !important;        /* Extremely tight */
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+/* Container - minimal padding */
+[data-layout="print"] [class*="max-w-4xl"],
+[data-layout="print"] [class*="max-w-5xl"] {
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0.5rem !important;
+}
+
+/* Toolbar: Ultra compact */
+[data-layout="print"] [class*="sticky"][class*="z-50"] {
+  position: sticky !important;
+  top: 0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0.125rem 0.5rem !important;
+}
+
+/* Paragraphs: Almost no spacing */
+[data-layout="print"] .prose p {
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.125rem !important;
+}
+
+/* Headings: Compact like newspaper */
+[data-layout="print"] .prose h1 {
+  font-size: 0.9375rem !important;     /* 15px */
+  line-height: 1.2 !important;
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.125rem !important;
+  font-weight: 700 !important;
+}
+
+[data-layout="print"] .prose h2 {
+  font-size: 0.8125rem !important;     /* 13px */
+  line-height: 1.25 !important;
+  margin-top: 0.1875rem !important;
+  margin-bottom: 0.0625rem !important;
+  font-weight: 600 !important;
+}
+
+[data-layout="print"] .prose h3 {
+  font-size: 0.75rem !important;       /* 12px */
+  line-height: 1.3 !important;
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.0625rem !important;
+  font-weight: 600 !important;
+}
+
+[data-layout="print"] .prose h4 {
+  font-size: 0.6875rem !important;     /* 11px */
+  margin-top: 0.125rem !important;
+  margin-bottom: 0.0625rem !important;
+  font-weight: 600 !important;
+}
+
+/* Lists: Newspaper tight */
+[data-layout="print"] .prose ul,
+[data-layout="print"] .prose ol {
+  padding-left: 0.875rem !important;
+  margin: 0.0625rem 0 !important;
+}
+
+[data-layout="print"] .prose li {
+  margin: 0 !important;
+  line-height: 1.3 !important;
+}
+
+/* Nested lists */
+[data-layout="print"] .prose li ul,
+[data-layout="print"] .prose li ol {
+  margin: 0 !important;
+}
+
+/* HARD RESET */
+[data-layout="print"] .max-w-4xl,
+[data-layout="print"] .max-w-5xl,
+[data-layout="print"] .max-w-7xl {
+  max-width: none !important;
+}
+
+/* ============================================= */
+/* === PRINT DENSE: Force 11px on ALL elements === */
+/* ============================================= */
+
+#note-content-area.print-dense,
+#note-content-area.print-dense * {
+  font-size: small !important;    /* ~13px */
+  line-height: 1.35 !important;
+}
+
+#note-content-area.print-dense h1 {
+  font-size: 3rem !important;   /* 48px - Super Huge */
+  line-height: 1.1 !important;
+  margin: 0.5rem 0 !important;
+}
+
+#note-content-area.print-dense h2 {
+  font-size: x-large !important;  /* ~24px */
+  line-height: 1.2 !important;
+  margin: 0.4rem 0 !important;
+}
+
+#note-content-area.print-dense h3 {
+  font-size: large !important;    /* ~18px */
+  line-height: 1.2 !important;
+  margin: 0.3rem 0 !important;
+}
+
+#note-content-area.print-dense h4,
+#note-content-area.print-dense h5,
+#note-content-area.print-dense h6 {
+  font-size: medium !important;   /* ~16px */
+  margin: 0.25rem 0 !important;
+}
+
+#note-content-area.print-dense p {
+  margin: 0.2rem 0 !important;
+}
+
+#note-content-area.print-dense ul,
+#note-content-area.print-dense ol {
+  margin: 0.15rem 0 !important;
+  padding-left: 1rem !important;
+}
+
+#note-content-area.print-dense li {
+  margin: 0.05rem 0 !important;
 }

@@ -16,6 +16,7 @@ import {
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DataLoader } from "@/lib/data-loader";
 import { customToHtml } from "@/lib/content-converter";
+import { supabase } from "@/lib/supabase";
 
 export default function CaseNotesPage({
   params,
@@ -257,11 +258,34 @@ export default function CaseNotesPage({
               {/* Take Quiz Button */}
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <Button
-                  onClick={() =>
-                    router.push(
-                      `/contemporary-cases/${year}/${caseNumber}/quiz`
-                    )
-                  }
+                  onClick={async () => {
+                    try {
+                      const { data, error } = await supabase
+                        .from('contemporary_case_quizzes')
+                        .select('id')
+                        .eq('case_number', caseNumber)
+                        .limit(1);
+
+                      if (error) {
+                        console.error('Error checking quiz:', error);
+                        // Fallback to navigation to let the page handle it or show error
+                        router.push(`/contemporary-cases/${year}/${caseNumber}/quiz`);
+                        return;
+                      }
+
+                      if (!data || data.length === 0) {
+                        // Show simple alert provided we don't have a specific toast component handy in this context (or use existing if available)
+                        alert(`No quiz available for case ${caseNumber} yet.`);
+                        return;
+                      }
+
+                      // Quiz exists, navigate
+                      router.push(`/contemporary-cases/${year}/${caseNumber}/quiz`);
+                    } catch (err) {
+                      console.error('Quiz check failed:', err);
+                      router.push(`/contemporary-cases/${year}/${caseNumber}/quiz`);
+                    }
+                  }}
                   className="w-full bg-linear-to-br from-pink-400 via-purple-400 to-blue-400 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-500 ease-in-out animate-in fade-in-0 slide-in-from-bottom-4 duration-1000 delay-300"
                 >
                   Take Quiz

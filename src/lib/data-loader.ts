@@ -117,7 +117,7 @@ export class DataLoader {
         .from('contemporary_case_quizzes')
         .select('*')
         .eq('case_number', quizCaseNumber)
-        .order('case_question_id');
+        .order('created_at');
 
       if (error) {
         console.warn('Quiz questions not found:', quizCaseNumber);
@@ -126,8 +126,6 @@ export class DataLoader {
           id: `placeholder-${quizCaseNumber}`,
           case_number: quizCaseNumber,
           case_name: 'Quiz Coming Soon',
-          passage: 'This quiz will be available soon.',
-          case_question_id: `${quizCaseNumber}-01`,
           question: 'This quiz is being prepared and will be available soon. Please check back later.',
           option_a: 'Coming Soon',
           option_b: 'Coming Soon', 
@@ -170,7 +168,7 @@ export class DataLoader {
       // Preload first 3 cases for instant access
       const firstThreeCases = data.slice(0, 3);
       
-      const preloadPromises = firstThreeCases.map(caseItem => 
+      const preloadPromises = firstThreeCases.map((caseItem: { case_number: string }) => 
         this.preloadCaseData(year, caseItem.case_number).catch(() => null)
       );
 

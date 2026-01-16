@@ -59,6 +59,95 @@
     ]
   },
   {
+    "table_name": "contemporary_case_quizzes",
+    "columns": [
+      {
+        "type": "text",
+        "column": "case_name",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "case_number",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "correct_answer",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "explanation",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "option_a",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "option_b",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "option_c",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "option_d",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "question",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "timezone('utc'::text, now())",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Enable insert for admins only"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Enable read access for all users"
+      }
+    ]
+  },
+  {
     "table_name": "contemporary_mistakes",
     "columns": [
       {
@@ -458,6 +547,22 @@
         "command": "SELECT",
         "permissive": "PERMISSIVE",
         "policy_name": "Admins view all attempts"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can insert their own attempts"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view their own attempts"
       },
       {
         "roles": [
