@@ -165,7 +165,16 @@ cp .env.example .env.local
 
 # Run development server
 npm run dev
+npm run dev
 ```
+
+### Development Workflow
+> **IMPORTANT**: All new features and fixes must be pushed to the `develop` branch. Direct pushes to `main` are restricted to release merges only.
+
+1.  Create a feature branch: `git checkout -b feature/your-feature-name`
+2.  Commit changes
+3.  Push to develop: `git push origin feature/your-feature-name` (then open PR to `develop`)
+
 
 ## 🎓 Educational Philosophy
 
