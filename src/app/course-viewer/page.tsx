@@ -22,7 +22,9 @@ import { processContentForTTS } from "@/lib/tts-processor";
 import { useTTS } from "@/hooks/use-tts";
 import { Play, Pause, RotateCcw, RotateCw } from "lucide-react";
 
-export default function GenericCourseViewer() {
+import { Suspense } from "react";
+
+function CourseViewerContent() {
   const searchParams = useSearchParams();
   const courseId = searchParams?.get("courseId");
   const itemId = searchParams?.get("itemId");
@@ -1248,5 +1250,17 @@ export default function GenericCourseViewer() {
          {viewState === "content" && <FloatingTimer timerContainerId="study-timer-container" />}
       </div>
     </div>
+  );
+}
+
+export default function GenericCourseViewer() {
+  return (
+    <Suspense fallback={
+       <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+       </div>
+    }>
+      <CourseViewerContent />
+    </Suspense>
   );
 }
