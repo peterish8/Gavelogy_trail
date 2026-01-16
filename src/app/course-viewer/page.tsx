@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import { DataLoader } from "@/lib/data-loader";
@@ -57,9 +57,11 @@ function CourseViewerContent() {
   // Scrubber State & Handlers
   const [isScrubbing, setIsScrubbing] = useState(false);
   const [scrubValue, setScrubValue] = useState(0);
+  const wasPlayingRef = useRef(false); // Track play state during scrub
 
   const handleScrubStart = (e: React.PointerEvent) => {
       e.preventDefault();
+      wasPlayingRef.current = tts.isPlaying; // Capture state
       const rect = e.currentTarget.getBoundingClientRect();
       const percent = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
       setIsScrubbing(true);
@@ -81,6 +83,12 @@ function CourseViewerContent() {
       
       setIsScrubbing(false);
       tts.scrub(percent);
+      
+      // If we weren't playing before, pause immediately after seeking
+      if (!wasPlayingRef.current) {
+         setTimeout(() => tts.pause(), 50);
+      }
+      
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
@@ -164,11 +172,12 @@ function CourseViewerContent() {
   const toggleFullscreen = useCallback(() => {
     if (!isFullscreen) {
       setIsFullscreen(true);
-      // Attempt browser fullscreen (optional enhancement)
-      document.documentElement.requestFullscreen().catch((err) => {
-         // Ignore errors (e.g. if user gesture is missing or on mobile)
-         // We still want the UI to switch to "Fullscreen" mode
-      });
+      // Attempt browser fullscreen ONLY on Desktop
+      if (window.innerWidth >= 768) {
+         document.documentElement.requestFullscreen().catch((err) => {
+            // Ignore errors
+         });
+      }
     } else {
       setIsFullscreen(false);
       // Exit browser fullscreen if active

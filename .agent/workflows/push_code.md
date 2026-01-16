@@ -18,8 +18,8 @@ This workflow ensures that all code changes are pushed to the `develop` branch, 
 
 3.  **Stage and Commit**:
     ```bash
-    git add .
-    git commit -m "your commit message"
+    # Use ; for chaining commands in PowerShell.
+    git add .; git commit -m "your commit message"
     ```
 
 4.  **Push to Develop**:
