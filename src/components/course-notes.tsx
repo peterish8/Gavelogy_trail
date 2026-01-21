@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import { Label } from "@/components/ui/label";
 import { Save, StickyNote, X, Highlighter } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -14,10 +14,40 @@ const HIGHLIGHT_COLORS = [
   '#e9d5ff', // Purple
 ];
 
+// Memoized Editor Component to prevent re-renders on parent state changes (like hover)
+interface NoteEditorProps {
+  editorRef: React.RefObject<HTMLDivElement | null>;
+  onInput: (e: React.FormEvent<HTMLDivElement>) => void;
+  onPaste: (e: React.ClipboardEvent) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
+  placeholder: string;
+  style: React.CSSProperties;
+}
+
+const NoteEditor = memo(({ editorRef, onInput, onPaste, onMouseMove, placeholder, style }: NoteEditorProps) => {
+  return (
+    <div
+      ref={editorRef}
+      id="personal-notes-editor"
+      contentEditable
+      onInput={onInput}
+      onPaste={onPaste}
+      onMouseMove={onMouseMove}
+      data-placeholder={placeholder}
+      className="h-40 min-h-[160px] resize-y overflow-y-auto bg-slate-50 border border-slate-200 rounded-md text-slate-700 leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors p-2 md:p-4 empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent"
+      style={style}
+    />
+  );
+});
+NoteEditor.displayName = "NoteEditor";
+
 interface CourseNotesProps {
   courseId: string;
   itemId: string;
 }
+
+// Stable style object defined outside to prevent re-creation
+const EDITOR_STYLE: React.CSSProperties = { whiteSpace: "pre-wrap", wordBreak: "break-word" };
 
 export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
   const [isSaving, setIsSaving] = useState(false);
@@ -28,29 +58,38 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
     text: string;
     rect: DOMRect;
   } | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
   
   const editorRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef(""); // Store content independently of DOM
   const storageKey = `course-notes-${courseId}-${itemId}`;
   const placeholderText = "Write your key takeaways, questions, or thoughts here...";
 
   // Load note from local storage
   useEffect(() => {
+    // Always load content into contentRef first
+    const savedNote = localStorage.getItem(storageKey) || "";
+    contentRef.current = savedNote;
+
+    // If editor is mounted, sync it
     if (editorRef.current) {
-      const savedNote = localStorage.getItem(storageKey);
-      if (savedNote) {
-        editorRef.current.innerHTML = savedNote;
-      } else {
-        editorRef.current.innerHTML = "";
-      }
+      editorRef.current.innerHTML = savedNote;
     }
   }, [courseId, itemId, storageKey]);
 
+  // Sync editor content when visibility changes to true
+  useEffect(() => {
+    if (isVisible && editorRef.current) {
+      // Populate editor from contentRef when showing
+      editorRef.current.innerHTML = contentRef.current;
+    }
+  }, [isVisible]);
+
   // Save content with debounce
   const saveContent = useCallback(() => {
-    if (!editorRef.current) return;
-    
     setIsSaving(true);
-    const content = editorRef.current.innerHTML;
+    // Use contentRef which persists even if DOM is gone
+    const content = contentRef.current;
     
     setTimeout(() => {
       localStorage.setItem(storageKey, content);
@@ -58,10 +97,36 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
     }, 300);
   }, [storageKey]);
 
-  // Handle input changes
-  const handleInput = () => {
+  // Handle input changes - Stable callback
+  const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
+    contentRef.current = e.currentTarget.innerHTML;
     saveContent();
-  };
+  }, [saveContent]);
+
+  // Stable Paste Handler
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+      e.preventDefault();
+      const text = e.clipboardData.getData("text/plain");
+      document.execCommand("insertText", false, text);
+  }, []);
+
+  // Handle hover on highlights - Stable callback
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    
+    // Only trigger if we are hovering a note highlight
+    if (target.tagName === "MARK" && target.classList.contains("personal-note-highlight")) {
+      const rect = target.getBoundingClientRect();
+      setActiveHighlight({
+        element: target,
+        text: target.textContent || "",
+        rect,
+      });
+    } else if (!(e.target as HTMLElement).closest("[data-note-highlight-action]")) {
+      // Clear highlight only if not hovering the action button (and not the mark itself)
+      setActiveHighlight(null);
+    }
+  }, []);
 
   // Check for text selection
   const checkSelection = useCallback(() => {
@@ -160,22 +225,6 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
     saveContent();
   };
 
-  // Handle hover on highlights
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    
-    if (target.tagName === "MARK" && target.classList.contains("personal-note-highlight")) {
-      const rect = target.getBoundingClientRect();
-      setActiveHighlight({
-        element: target,
-        text: target.textContent || "",
-        rect,
-      });
-    } else if (!(e.target as HTMLElement).closest("[data-note-highlight-action]")) {
-      setActiveHighlight(null);
-    }
-  };
-
   // Remove highlight
   const removeHighlight = () => {
     if (!activeHighlight) return;
@@ -201,7 +250,14 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
     setSelectedText("");
   };
 
-  const [isVisible, setIsVisible] = useState(true);
+  // Force save on toggle/unmount
+  const toggleVisibility = () => {
+    if (isVisible) {
+      // Saving before hiding
+      localStorage.setItem(storageKey, contentRef.current);
+    }
+    setIsVisible(!isVisible);
+  };
 
   return (
     <div className="mt-12 pt-8 border-t border-gray-100">
@@ -211,7 +267,7 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
             <h3 className="font-semibold text-lg">Personal Notes</h3>
         </div>
         <button 
-            onClick={() => setIsVisible(!isVisible)}
+            onClick={toggleVisibility}
             className="text-sm text-slate-500 hover:text-slate-800 underline underline-offset-2"
         >
             {isVisible ? "Hide Notes" : "Show Notes"}
@@ -224,20 +280,13 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
           Add personal notes
         </Label>
         <div className="relative">
-          <div
-            ref={editorRef}
-            id="personal-notes-editor"
-            contentEditable
-            onInput={handleInput}
-            onPaste={(e) => {
-              e.preventDefault();
-              const text = e.clipboardData.getData("text/plain");
-              document.execCommand("insertText", false, text);
-            }}
-            onMouseMove={handleMouseMove}
-            data-placeholder={placeholderText}
-            className="h-40 min-h-[160px] resize-y overflow-y-auto bg-slate-50 border border-slate-200 rounded-md text-slate-700 leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors p-2 md:p-4 empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent"
-            style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+          <NoteEditor 
+             editorRef={editorRef}
+             onInput={handleInput}
+             onPaste={handlePaste}
+             onMouseMove={handleMouseMove}
+             placeholder={placeholderText}
+             style={EDITOR_STYLE}
           />
           
           <div className="absolute bottom-3 right-3 flex items-center gap-1.5 text-xs text-slate-400 font-medium bg-white/50 backdrop-blur-sm px-2 py-1 rounded-md pointer-events-none">

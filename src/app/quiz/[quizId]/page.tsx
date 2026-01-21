@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { DottedBackground } from "@/components/DottedBackground";
@@ -236,6 +237,8 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
       
       // Save quiz attempt
       addAttempt({
+        quizId: params.quizId,
+        passed: correct >= questions.length * 0.7,
         subject: "Demo Quiz",
         topic: "Sample Questions",
         questions: questions.map(q => q.id),
@@ -673,9 +676,10 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                   { key: "C", text: currentQ.option_c },
                   { key: "D", text: currentQ.option_d },
                 ].map((option) => (
-                  <button
+                  <motion.button
                     key={option.key}
                     onClick={() => handleAnswerSelect(option.key)}
+                    whileTap={{ scale: 0.98 }}
                     disabled={quizState === "paused"}
                     className={`w-full p-4 text-left border-2 rounded-lg transition-all shadow-lg ${
                       currentAnswer?.selected === option.key
@@ -693,7 +697,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                   >
                     <span className="font-medium mr-3">{option.key}.</span>
                     {option.text}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -705,8 +709,9 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                   How confident are you about this answer?
                 </h3>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button
+                  <motion.button
                     onClick={() => handleConfidenceSelect("confident")}
+                    whileTap={{ scale: 0.95 }}
                     disabled={quizState === "paused"}
                     className={`flex-1 p-3 border rounded-lg transition-colors ${
                       currentAnswer?.confidence === "confident"
@@ -725,9 +730,10 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                         I&apos;m certain this is correct
                       </div>
                     </div>
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     onClick={() => handleConfidenceSelect("guess")}
+                    whileTap={{ scale: 0.95 }}
                     disabled={quizState === "paused"}
                     className={`flex-1 p-3 border rounded-lg transition-colors ${
                       currentAnswer?.confidence === "guess"
@@ -746,9 +752,10 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                         I think this is right
                       </div>
                     </div>
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     onClick={() => handleConfidenceSelect("fluke")}
+                    whileTap={{ scale: 0.95 }}
                     disabled={quizState === "paused"}
                     className={`flex-1 p-3 border rounded-lg transition-colors ${
                       currentAnswer?.confidence === "fluke"
@@ -767,7 +774,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
                         I guessed randomly
                       </div>
                     </div>
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             )}

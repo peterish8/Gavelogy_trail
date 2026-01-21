@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import { DataLoader } from "@/lib/data-loader";
@@ -28,12 +28,26 @@ function CourseViewerContent() {
   const searchParams = useSearchParams();
   const courseId = searchParams?.get("courseId");
   const itemId = searchParams?.get("itemId");
+  const readerQuizId = searchParams?.get("quizId"); // For Reader Mode quiz navigation
   const router = useRouter(); 
   
   const [structure, setStructure] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [content, setContent] = useState<string | null>(null);
+  
+  // Compute selected item from structure
+  const flatten = useCallback((items: any[]): any[] => {
+    return items.reduce((acc, item) => {
+      return [...acc, item, ...(item.children ? flatten(item.children) : [])];
+    }, []);
+  }, []);
+  
+  const selectedItem = useMemo(() => {
+    const flat = flatten(structure);
+    return flat.find(i => i.id === selectedItemId);
+  }, [selectedItemId, structure, flatten]);
+  
   const [loadingContent, setLoadingContent] = useState(false);
   const [viewState, setViewState] = useState<"list" | "content">("list");
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
@@ -41,6 +55,86 @@ function CourseViewerContent() {
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [highlightVersion, setHighlightVersion] = useState(0);
   const [isReadingMode, setIsReadingMode] = useState(false);
+  const [courseName, setCourseName] = useState<string>("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [itemsWithNotes, setItemsWithNotes] = useState<Set<string>>(new Set());
+  const [itemsWithQuizzes, setItemsWithQuizzes] = useState<Set<string>>(new Set());
+
+  // Reader Mode State
+  const [isReaderMode, setIsReaderMode] = useState(false);
+
+  useEffect(() => {
+     if (searchParams?.get("view") === "reader") {
+         setIsReaderMode(true);
+     }
+  }, [searchParams]);
+
+  // Handle explicit reader mode exit
+  const exitReaderMode = () => {
+      setIsReaderMode(false);
+      // Update URL to remove view=reader but keep other params
+      if (courseId && typeof window !== 'undefined') {
+         const params = new URLSearchParams(searchParams?.toString());
+         params.delete("view");
+         router.push(`?${params.toString()}`, { scroll: false });
+      }
+  };
+
+  // 📐 Resizable Sidebar State
+  const SIDEBAR_MIN_WIDTH = 280;
+  const SIDEBAR_MAX_WIDTH = 600;
+  const SIDEBAR_DEFAULT_WIDTH = 400;
+  
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('course-viewer-sidebar-width');
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= SIDEBAR_MIN_WIDTH && parsed <= SIDEBAR_MAX_WIDTH) {
+          return parsed;
+        }
+      }
+    }
+    return SIDEBAR_DEFAULT_WIDTH;
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartXRef = useRef(0);
+  const dragStartWidthRef = useRef(SIDEBAR_DEFAULT_WIDTH);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('course-viewer-sidebar-width', String(sidebarWidth));
+    }
+  }, [sidebarWidth]);
+
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartXRef.current = e.clientX;
+    dragStartWidthRef.current = sidebarWidth;
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - dragStartXRef.current;
+      const newWidth = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, dragStartWidthRef.current + delta));
+      setSidebarWidth(newWidth);
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   // History Hook
   const { addToHistory, undo, redo, canUndo, canRedo } = useHighlightHistory(
@@ -53,6 +147,24 @@ function CourseViewerContent() {
   const [processedHtml, setProcessedHtml] = useState<string>("");
   const [sentences, setSentences] = useState<string[]>([]);
   const tts = useTTS(sentences);
+
+  // Restore TTS Highlighting using data-sentence-index
+  useEffect(() => {
+    // 1. Clear active state from all elements
+    const prevActive = document.querySelectorAll('.tts-active');
+    prevActive.forEach(el => el.classList.remove('tts-active'));
+
+    // 2. Add active state to current sentence elements
+    if (tts.isPlaying || tts.isPaused) {
+      const currentEls = document.querySelectorAll(`[data-sentence-index="${tts.currentSentenceIndex}"]`);
+      currentEls.forEach(el => el.classList.add('tts-active'));
+
+      // 3. Scroll into view if playing
+      if (tts.isPlaying && currentEls.length > 0) {
+        currentEls[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [tts.currentSentenceIndex, tts.isPlaying, tts.isPaused]);
 
   // Scrubber State & Handlers
   const [isScrubbing, setIsScrubbing] = useState(false);
@@ -313,13 +425,38 @@ function CourseViewerContent() {
 
   const loadStructure = async (id: string) => {
     setLoading(true);
-    const [structData, completedData] = await Promise.all([
+    const [structData, completedData, courseData] = await Promise.all([
        DataLoader.getCourseStructure(id),
-       DataLoader.getUserCompletedItems(id)
+       DataLoader.getUserCompletedItems(id),
+       DataLoader.getCourseById(id)
     ]);
     
     setStructure(structData);
     setCompletedItems(new Set(completedData));
+    if (courseData) {
+      setCourseName(courseData.name || "Course Content");
+    }
+    
+    // Load content availability
+    const flattenFiles = (items: any[]): any[] => {
+      return items.reduce((acc, item) => {
+        if (item.item_type === 'file') {
+          return [...acc, item];
+        }
+        if (item.children) {
+          return [...acc, ...flattenFiles(item.children)];
+        }
+        return acc;
+      }, []);
+    };
+    
+    const fileIds = flattenFiles(structData).map(f => f.id);
+    if (fileIds.length > 0) {
+      const { itemsWithNotes: notes, itemsWithQuizzes: quizzes } = await DataLoader.getContentAvailability(fileIds);
+      setItemsWithNotes(notes);
+      setItemsWithQuizzes(quizzes);
+    }
+    
     setLoading(false);
   };
 
@@ -346,6 +483,18 @@ function CourseViewerContent() {
      await DataLoader.toggleItemCompletion(itemId, isCompleted);
   };
 
+  const handleExpand = (itemId: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
+      return next;
+    });
+  };
+
   const handleFileSelect = async (itemId: string, updateUrl = true) => {
     setSelectedItemId(itemId);
     setViewState("content");
@@ -368,7 +517,8 @@ function CourseViewerContent() {
     setContent(null);
     setSelectedItemId(null);
     
-    // Exit fullscreen if active
+    // Exit fullscreen (both UI state and browser state)
+    setIsFullscreen(false);
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
@@ -779,6 +929,8 @@ function CourseViewerContent() {
     );
   }
 
+
+
   return (
     <div className="min-h-screen flex flex-col relative z-0">
       {/* Background always rendered (z-index handles visibility) */}
@@ -787,12 +939,311 @@ function CourseViewerContent() {
       </div>
 
       {/* Header: Visible in Normal Mode OR Mobile Fullscreen Mode */}
+      {/* READER MODE: Hide Header on Desktop too if requested, or keep it? User image shows header. */}
+      {/* User image shows "Gavelogy" header at top. So we KEEP header. */}
       <div className={cn("relative z-20", isFullscreen ? "hidden md:hidden max-md:block" : "block")}>
          <AppHeader />
       </div>
-      
+
+      {/* DESKTOP SPLIT VIEW */}
       <div className={cn(
-          "flex-1 container mx-auto",
+        "hidden lg:flex fixed inset-0 top-[64px] z-40 overflow-hidden",
+        isFullscreen && "hidden"
+      )}>
+        <div className={cn("w-full h-full flex bg-white", isDragging && "cursor-col-resize select-none")}>
+          {/* Left Sidebar - Resizable (HIDDEN IN READER MODE) */}
+          {!isReaderMode && (
+            <>
+              <div 
+                className="h-full flex flex-col border-r border-gray-100 bg-linear-to-br from-purple-200 via-blue-100 to-blue-50 overflow-hidden shrink-0"
+                style={{ width: sidebarWidth }}
+              >
+                {/* Header */}
+                <div className="p-8 pb-4 shrink-0">
+                  <h1 className="text-3xl font-bold mb-2 text-gray-900">{courseName || "Course Content"}</h1>
+                  <p className="text-gray-500 text-sm">
+                    {structure.length > 0 
+                      ? `${structure.length} ${structure.length === 1 ? 'chapter' : 'chapters'} · Select a topic`
+                      : "Pick a topic to start"}
+                  </p>
+                </div>
+
+                {/* List - Scrollable */}
+                <div className="flex-1 overflow-y-auto p-8 pt-4 custom-scrollbar">
+                  <CourseStructureList 
+                    items={structure} 
+                    onFileSelect={handleFileSelect} 
+                    completedItems={completedItems}
+                    onToggleComplete={handleToggleComplete}
+                    expandedIds={expandedIds}
+                    onExpand={handleExpand}
+                    itemsWithNotes={itemsWithNotes}
+                    itemsWithQuizzes={itemsWithQuizzes}
+                    onQuizSelect={(itemId) => {
+                      const courseIdQuery = courseId ? `?courseId=${courseId}` : '';
+                      router.push(`/course-quiz/${itemId}${courseIdQuery}`);
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Resize Handle */}
+              <div 
+                className="w-1 h-full bg-gray-200 hover:bg-blue-400 cursor-col-resize shrink-0 transition-colors group relative"
+                onMouseDown={handleDragStart}
+              >
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-1 h-6 bg-blue-500 rounded-full" />
+                </div>
+              </div>
+            </>
+          )}
+          
+          {/* Right Content Area */}
+          {/* If Reader Mode, center content with max-width like the mobile view but full height */}
+          <div className={cn(
+              "flex-1 h-full bg-white overflow-hidden", 
+              isReaderMode && "flex justify-center bg-gray-50/30" // Subtle background for reader
+          )}>
+            {selectedItemId ? (
+              <div className={cn(
+                  "h-full overflow-y-auto custom-scrollbar relative w-full",
+                  isReaderMode && "max-w-5xl mx-auto border-x border-gray-100/50 bg-white shadow-sm" // Centered paper like feel
+              )}>
+                {/* Dynamic Island Toolbar - Full Featured */}
+                <div className="sticky top-0 z-50 flex justify-center pt-4 pb-2 pointer-events-none">
+                  <div className="pointer-events-auto bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-full px-4 py-2.5 shadow-xl flex items-center gap-2 transition-all hover:shadow-2xl max-w-4xl">
+                    {/* Back Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                          if (isReaderMode) {
+                              exitReaderMode();
+                          } else {
+                              setSelectedItemId(null);
+                          }
+                      }}
+                      className="rounded-full h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                      <span className="hidden sm:inline">Back</span>
+                    </Button>
+                    
+                    <div className="w-px h-5 bg-gray-300" />
+                    
+                    {/* Note Title */}
+                    <span className="text-sm font-medium text-gray-800 max-w-[300px] truncate px-2">
+                      {selectedItem?.title || "Notes"}
+                    </span>
+                    
+                    <div className="w-px h-5 bg-gray-300" />
+                    
+                    {/* Download Button */}
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                        disabled={!content}
+                        className="rounded-full h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </Button>
+                      
+                      {showDownloadMenu && typeof document !== 'undefined' && createPortal(
+                        <div 
+                          data-download-dropdown
+                          className="fixed bg-white rounded-xl shadow-2xl border border-gray-200 py-2 min-w-[200px] z-9999"
+                          style={{ 
+                            top: '100px', 
+                            left: '50%',
+                            transform: 'translateX(-50%)'
+                          }}
+                        >
+                          <button
+                            onClick={() => { setShowDownloadMenu(false); /* handleDownload() */ }}
+                            className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+                          >
+                            <ScrollText className="w-4 h-4 text-blue-600" />
+                            <div>
+                              <div className="font-medium">Continuous Flow</div>
+                              <div className="text-xs text-gray-500">Single long page</div>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => { setShowDownloadMenu(false); /* handlePageByPageDownload() */ }}
+                            className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+                          >
+                            <FileStack className="w-4 h-4 text-green-600" />
+                            <div>
+                              <div className="font-medium">Page by Page</div>
+                              <div className="text-xs text-gray-500">A4 sheets, clean text</div>
+                            </div>
+                          </button>
+                        </div>,
+                        document.body
+                      )}
+                    </div>
+                    
+                    {/* TTS Controls */}
+                    {sentences.length > 0 && (
+                      <>
+                        <div className="w-px h-5 bg-gray-300" />
+                        
+                        {/* Speed Button */}
+                        <button
+                           onClick={(e) => {
+                               e.stopPropagation();
+                               const rect = e.currentTarget.getBoundingClientRect();
+                               setSpeedMenuPos({ top: rect.bottom + 8, left: rect.left });
+                               setShowSpeedMenu(!showSpeedMenu);
+                           }}
+                           className="text-gray-600 hover:text-blue-600 transition-colors focus:outline-none p-1.5 rounded-full hover:bg-gray-100/80"
+                           title="Playback Speed"
+                        >
+                           <span className="text-xs font-bold w-6 text-center block">{tts.rate}x</span>
+                        </button>
+                        
+                        {/* Play/Pause */}
+                        <button 
+                           onClick={() => {
+                              if (tts.isPlaying) {
+                                 tts.pause();
+                                 setIsReadingMode(false);
+                              } else {
+                                 setIsReadingMode(true);
+                                 tts.play();
+                              }
+                           }}
+                           className="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none p-1.5 rounded-full hover:bg-gray-100/80"
+                           title={tts.isPlaying ? "Pause Reading" : "Read Aloud"}
+                        >
+                           {tts.isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+                        </button>
+                        
+                        {/* Mini Scrubber */}
+                        <div className="w-24 flex items-center gap-2">
+                           <div 
+                              className="relative flex-1 h-1.5 flex items-center cursor-pointer group select-none touch-none"
+                              onPointerDown={handleScrubStart}
+                              onPointerMove={handleScrubMove}
+                              onPointerUp={handleScrubEnd}
+                              onPointerCancel={handleScrubEnd}
+                           >
+                              {/* Track */}
+                              <div className="absolute left-0 right-0 h-1 bg-gray-200 rounded-full" />
+                              {/* Progress */}
+                              <div 
+                                 className={cn("absolute left-0 h-1 bg-blue-500 rounded-full", !isScrubbing && "transition-all duration-300 ease-out")}
+                                 style={{ width: `${displayProgress}%` }}
+                              />
+                           </div>
+                        </div>
+
+                        {/* Speed Menu Portal */}
+                        {showSpeedMenu && typeof document !== 'undefined' && createPortal(
+                           <>
+                               <div className="fixed inset-0 z-9999" onClick={() => setShowSpeedMenu(false)} />
+                               <div 
+                                   className="fixed z-10000 bg-white rounded-lg shadow-xl border border-gray-100 py-1 min-w-[140px] animate-in fade-in zoom-in-95 duration-100"
+                                   style={{ 
+                                       top: `${speedMenuPos.top}px`, 
+                                       left: `${speedMenuPos.left}px` 
+                                   }}
+                               >
+                                   {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
+                                       <button
+                                           key={rate}
+                                           onClick={() => {
+                                               tts.setRate(rate);
+                                               setShowSpeedMenu(false);
+                                           }}
+                                           className={cn(
+                                               "w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center justify-between",
+                                               tts.rate === rate ? "text-blue-600 font-medium bg-blue-50" : "text-gray-700"
+                                           )}
+                                       >
+                                           <span>{rate}x Speed</span>
+                                           {tts.rate === rate && <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
+                                       </button>
+                                   ))}
+                               </div>
+                           </>,
+                           document.body
+                        )}
+                      </>
+                    )}
+
+                    <div className="w-px h-5 bg-gray-300" />
+                    
+                    {/* Focus Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className="rounded-full h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 mr-1.5" />
+                      Focus
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="px-12 pb-20">
+                  {loadingContent ? (
+                    <div className="space-y-4 animate-pulse pt-8">
+                      <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: processedHtml }}
+                        className="prose prose-lg max-w-none"
+                      />
+                      
+                      {/* Take Quiz Button - Only in Reader Mode with quizId */}
+                      {isReaderMode && readerQuizId && (
+                        <div className="mt-12 pt-8 border-t border-gray-200">
+                          <div className="flex flex-col items-center gap-4 py-8 px-6 bg-linear-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100/50">
+                            <div className="text-center">
+                              <h3 className="text-lg font-semibold text-gray-800 mb-1">Ready to Test Your Knowledge?</h3>
+                              <p className="text-sm text-gray-500">Complete the spaced repetition quiz for this topic</p>
+                            </div>
+                            <Button 
+                              onClick={() => router.push(`/course-quiz/${readerQuizId}?mode=spaced-repetition`)}
+                              className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+                            >
+                              🎯 Take Quiz
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium text-gray-600">Select a topic</h3>
+                  <p className="text-sm mt-2">Pick a folder from the left to view notes</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* MOBILE/ORIGINAL LAYOUT - shown on mobile or when in fullscreen */}
+      <div className={cn(
+        // Hide on desktop when split pane is showing, UNLESS in fullscreen mode
+        !isFullscreen && "lg:hidden", 
+        "flex-1 container mx-auto",
           // Base styles
           "flex flex-col",
           
@@ -841,9 +1292,9 @@ function CourseViewerContent() {
                   className="sticky z-50 w-full max-w-5xl mx-auto"
                   style={{ top: 0 }}
                 >
-                   {/* Toolbar Container */}
+                   {/* Toolbar Container relative for centering */}
                    <div className={cn(
-                      "flex items-center justify-between mb-6 shrink-0 bg-white p-1.5 md:p-2 border-b border-gray-100 shadow-md overflow-x-auto gap-1 no-scrollbar rounded-2xl mx-auto w-full",
+                      "relative flex items-center justify-between mb-6 shrink-0 bg-white p-1.5 md:p-2 border-b border-gray-100 shadow-md overflow-x-auto gap-1 no-scrollbar rounded-2xl mx-auto w-full",
                       isFullscreen 
                          ? [
                               // DESKTOP: Floating Card Toolbar
@@ -1028,8 +1479,30 @@ function CourseViewerContent() {
                                )}
                            </div>
                            
-                           {/* Undo / Redo Controls */}
-                           <div className="flex items-center gap-1 border-l border-gray-200 pl-1 ml-1">
+                        </>
+                     )}
+                  </div>
+                  
+                  {/* Center Timer - Absolute Positioned */}
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:block">
+                     <div id="study-timer-container">
+                        <StudyTimer />
+                     </div>
+                  </div>
+                  
+                  {/* Spacer to push Right Section to end */}
+                  <div className="flex-1" />
+
+
+
+
+
+                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                     {/* Top Next/Prev - Hidden on mobile, visible on desktop */}
+                     <div className="hidden md:flex items-center gap-1 sm:gap-2">
+                         
+                         {/* Undo / Redo Controls (Moved here) */}
+                         <div className="flex items-center gap-1 mr-2 border-r border-gray-200 pr-2">
                               <button
                                 onClick={undo}
                                 disabled={!canUndo}
@@ -1046,25 +1519,8 @@ function CourseViewerContent() {
                               >
                                 <RotateCw className="w-4 h-4" />
                               </button>
-                           </div>
-                        </>
-                     )}
-                  </div>
-                  
-                  {/* Spacer to push Right Section to end */}
-                  <div className="flex-1" />
-
-
-
-
-
-                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                     {/* Top Next/Prev - Hidden on mobile, visible on desktop */}
-                     <div className="hidden md:flex items-center gap-1 sm:gap-2">
-                         {/* Timer moved here */}
-                         <div id="study-timer-container">
-                            <StudyTimer />
                          </div>
+
                          <div className="h-4 w-px bg-gray-300 mx-1" />
                          
                          <Button 

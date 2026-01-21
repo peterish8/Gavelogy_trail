@@ -1,20 +1,24 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useThemeStore } from "@/lib/stores/theme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Moon, Sun, User, LogOut, Menu, X, Settings } from "lucide-react";
+import { Moon, Sun, User, LogOut, Menu, X, Settings, Search } from "lucide-react";
 
 const APP_NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/courses", label: "Courses" },
   { href: "/mistakes", label: "Mistakes" },
+  { href: "/arena", label: "GameArena" },
   { href: "/leaderboard", label: "Leaderboard" },
 ];
+
+import { SearchCommandMenu } from "@/components/search-command-menu";
 
 export function AppHeader() {
   const router = useRouter();
@@ -22,6 +26,7 @@ export function AppHeader() {
   const { isDarkMode, toggleTheme } = useThemeStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const pathname = usePathname();
 
   const handleLogout = async () => {
@@ -29,36 +34,12 @@ export function AppHeader() {
     router.push("/login"); // Force redirect to login
   };
 
-  // Active link indicator logic
-  const navContainerRef = useRef<HTMLDivElement | null>(null);
-  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
-  const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, left: 0 });
-
-  useEffect(() => {
-    let activeLink = APP_NAV_LINKS.find((link) =>
-      pathname.startsWith(link.href)
-    );
-    
-    // Special case: course-viewer should highlight Courses
-    if (!activeLink && pathname.startsWith('/course-viewer')) {
-      activeLink = APP_NAV_LINKS.find(link => link.href === '/courses');
-    }
-
-    if (activeLink) {
-      const element = linkRefs.current[activeLink.href];
-      if (element && navContainerRef.current) {
-        setIndicatorStyle({ 
-            width: element.offsetWidth, 
-            left: element.offsetLeft 
-        });
-      }
-    } else {
-      setIndicatorStyle({ width: 0, left: 0 });
-    }
-  }, [pathname]);
+  // No longer using ref-based indicator
+  const activeLink = APP_NAV_LINKS.find((link) => pathname?.startsWith(link.href)) || 
+    (pathname?.startsWith('/course-viewer') ? APP_NAV_LINKS.find(link => link.href === '/courses') : null);
 
   return (
-    <header className="sticky top-0 z-100 w-full border-b bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center space-x-2">
@@ -69,39 +50,70 @@ export function AppHeader() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <div
-            className="relative flex items-center space-x-6 border-b border-transparent pb-1"
-            ref={navContainerRef}
-          >
-            {APP_NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                ref={(el) => {
-                  linkRefs.current[link.href] = el;
-                }}
-                className={`text-sm font-semibold transition-colors ${
-                  pathname.startsWith(link.href)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-primary/80"
-                }`}
-              >
-                {link.label}
+        <nav className="hidden md:flex items-center space-x-1">
+          {APP_NAV_LINKS.map((link) => {
+            const isActive = activeLink?.href === link.href;
+            
+            return (
+              <Link key={link.href} href={link.href} className="relative px-4 py-2 text-sm font-semibold transition-colors">
+                  <motion.div
+                    className="relative z-10"
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <span 
+                        className={isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"}
+                    >
+                        {link.label}
+                    </span>
+                  </motion.div>
+                  
+                  {/* Active/Hover Background */}
+                  {isActive ? (
+                    <motion.div
+                      className="absolute inset-0 bg-black dark:bg-white rounded-md z-0"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
+                    />
+                  ) : (
+                    <motion.div
+                      className="absolute inset-0 bg-transparent hover:bg-black/5 dark:hover:bg-white/10 rounded-md z-0"
+                      initial={false}
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
               </Link>
-            ))}
-            <span
-              className="absolute -bottom-0.5 h-0.5 bg-primary transition-all duration-300 ease-out"
-              style={{
-                width: `${indicatorStyle.width}px`,
-                left: `${indicatorStyle.left}px`,
-              }}
-            />
-          </div>
+            );
+          })}
         </nav>
 
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
+          {/* Search Trigger */}
+          <motion.div whileTap={{ scale: 0.95 }}>
+          <Button
+            variant="outline"
+            className="hidden md:flex items-center gap-2 h-9 w-64 justify-start text-muted-foreground bg-muted/50 hover:bg-muted relative"
+            onClick={() => setIsSearchOpen(true)}
+          >
+            <Search className="h-4 w-4" />
+            <span className="text-sm">Search...</span>
+            <kbd className="pointer-events-none absolute right-2 top-2 h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 flex">
+              <span className="text-xs">Ctrl</span>K
+            </kbd>
+          </Button>
+          </motion.div>
+
+          {/* Mobile Search Trigger */}
+          <Button
+             variant="ghost"
+             size="icon"
+             className="md:hidden h-9 w-9"
+             onClick={() => setIsSearchOpen(true)}
+          >
+             <Search className="h-5 w-5" />
+          </Button>
+
           {/* Theme Toggle */}
           <Button
             variant="ghost"
@@ -168,7 +180,7 @@ export function AppHeader() {
 
       {/* Mobile Menu Drawer */}
       {showMobileMenu && (
-        <div className="fixed inset-0 z-200 md:hidden">
+        <div className="fixed inset-0 z-300 md:hidden">
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -176,7 +188,7 @@ export function AppHeader() {
             />
             
             {/* Drawer */}
-            <div className="absolute right-0 top-0 bottom-0 w-3/4 max-w-sm bg-background border-l shadow-2xl p-6 transition-transform duration-300 ease-in-out">
+            <div className="absolute right-0 top-0 bottom-0 w-3/4 max-w-sm bg-white dark:bg-zinc-950 border-l shadow-2xl p-6 transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
                 <div className="flex items-center justify-between mb-8">
                     <span className="font-bold text-xl">Menu</span>
                     <Button variant="ghost" size="icon" onClick={() => setShowMobileMenu(false)}>
@@ -192,7 +204,7 @@ export function AppHeader() {
                                 href={link.href}
                                 onClick={() => setShowMobileMenu(false)}
                                 className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                                    pathname.startsWith(link.href) 
+                                    pathname?.startsWith(link.href) 
                                     ? "bg-primary/10 text-primary" 
                                     : "hover:bg-accent text-muted-foreground"
                                 }`}
@@ -237,6 +249,7 @@ export function AppHeader() {
             </div>
         </div>
       )}
+      <SearchCommandMenu open={isSearchOpen} setOpen={setIsSearchOpen} />
     </header>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useStreakStore } from "@/lib/stores/streaks";
@@ -12,6 +13,21 @@ import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { Trophy, Flame, Target, Award, Zap, Crown } from "lucide-react";
 
 export default function LeaderboardPage() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   const { isAuthenticated, isLoading, user } = useAuthStore();
   const { leaderboard, userStreak, bonuses, loadLeaderboard, loadUserStreak, loadBonuses } =
     useStreakStore();
@@ -59,9 +75,14 @@ export default function LeaderboardPage() {
       <DottedBackground />
       <AppHeader />
 
-      <div className="container mx-auto px-4 py-8 no-copy max-w-4xl">
+      <motion.div 
+        className="container mx-auto px-4 py-8 no-copy max-w-4xl"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
         {/* Header */}
-        <div className="mb-8 text-center">
+        <motion.div className="mb-8 text-center" variants={item}>
           <div className="flex items-center justify-center mb-4">
             <Trophy className="h-12 w-12 text-yellow-500 mr-3" />
             <h1 className="text-4xl font-bold">Leaderboard</h1>
@@ -72,7 +93,7 @@ export default function LeaderboardPage() {
           <p className="text-sm text-muted-foreground mt-1">
             Resets on the 1st of each month
           </p>
-        </div>
+        </motion.div>
 
         {/* Background Elements */}
         <div className="absolute inset-0 bg-grid-slate-200/50 dark:bg-grid-slate-800/20 mask-[linear-gradient(0deg,white,rgba(255,255,255,0.6))] z-0" />
@@ -80,7 +101,8 @@ export default function LeaderboardPage() {
 
         {/* User's Current Stats */}
         {(userStreak || currentUserEntry) && (
-          <Card className="mb-8 border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
+          <motion.div variants={item} className="mb-8">
+          <Card className="border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Target className="h-5 w-5 mr-2 text-blue-600" />
@@ -130,11 +152,13 @@ export default function LeaderboardPage() {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         )}
 
         {/* Bonus Milestones */}
         {bonuses.length > 0 && (
-          <Card className="mb-8">
+          <motion.div variants={item} className="mb-8">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
                 <Zap className="h-5 w-5 mr-2 text-yellow-500" />
@@ -166,9 +190,11 @@ export default function LeaderboardPage() {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         )}
 
         {/* Leaderboard */}
+        <motion.div variants={item}>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -264,7 +290,8 @@ export default function LeaderboardPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 
 @plugin "tailwindcss-animate";
@@ -8,10 +8,24 @@
 
 /* ... existing code ... */
 
-/* Prose List Styling as requested */
-.prose { 
-  font-family: "Mondo News", "Newsreader", serif !important; 
+/* Prose List Styling as requested - MATCHING SCREENSHOT PROPERTIES */
+/* Using Times New Roman serif font for clean notes style */
+.prose, .prose * { 
+  font-family: "Times New Roman", Times, serif !important;
+  color: #334155; /* Slate-700 matching prose-p */
   text-align: justify;
+}
+
+/* Also apply to personal notes for consistency */
+#personal-notes-editor {
+  font-family: "Times New Roman", Times, serif !important;
+  color: #334155;
+}
+
+/* Note content area should use serif font */
+#note-content-area,
+#note-content-area * {
+  font-family: "Times New Roman", Times, serif !important;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -411,33 +425,45 @@ body {
 }
 
 /* Keep box colors from before */
-.note-box.note-blue {
-  background: #eff6ff;
-  border-color: #3b82f6;
-}
-.note-box.note-green {
-  background: #f0fdf4;
-  border-color: #22c55e;
-}
-.note-box.note-red {
-  background: #fef2f2;
-  border-color: #ef4444;
-}
-.note-box.note-amber {
-  background: #fffbeb;
-  border-color: #f59e0b;
-}
-.note-box.note-purple {
-  background: #faf5ff;
-  border-color: #a855f7;
+/* Note Box Styles (Admin Panel 2D Theme) */
+.note-box {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  border: 2px solid;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Make sure previous simple color classes also work if used without note-box */
-.note-blue { background: #eff6ff; border-color: #3b82f6; }
-.note-green { background: #f0fdf4; border-color: #22c55e; }
-.note-red { background: #fef2f2; border-color: #ef4444; }
-.note-amber { background: #fffbeb; border-color: #f59e0b; }
-.note-purple { background: #faf5ff; border-color: #a855f7; }
+.note-box.note-blue, .note-blue {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-color: #3B82F6 !important;
+  color: #1e293b;
+}
+
+.note-box.note-green, .note-green {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: #22C55E !important;
+  color: #1e293b;
+}
+
+.note-box.note-red, .note-red {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: #EF4444 !important;
+  color: #1e293b;
+}
+
+.note-box.note-amber, .note-amber, .note-box.note-yellow, .note-yellow {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: #F59E0B !important;
+  color: #1e293b;
+}
+
+.note-box.note-purple, .note-purple {
+  background: rgba(168, 85, 247, 0.1) !important;
+  border-color: #A855F7 !important;
+  color: #1e293b;
+}
 
 /* Horizontal Rule (Thick) */
 hr, .content-hr {
@@ -524,11 +550,80 @@ mark,
   text-align: justify;
 }
 
+/* Explicit heading font-sizes for notes content */
+#note-content-area h1,
+.prose h1 {
+  font-size: 2rem !important;     /* 32px */
+  font-weight: 700 !important;
+  line-height: 1.2;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+#note-content-area h2,
+.prose h2 {
+  font-size: 1.5rem !important;   /* 24px */
+  font-weight: 600 !important;
+  line-height: 1.3;
+  margin-top: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+#note-content-area h3,
+.prose h3 {
+  font-size: 1.25rem !important;  /* 20px */
+  font-weight: 600 !important;
+  line-height: 1.4;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
 .prose ol {
   list-style-type: decimal;
   padding-left: 1.5rem;
   margin: 0.5rem 0;
 }
+
+/* === CRITICAL: Preserve inline font-size styles from [size:X] tags === */
+/* 
+ * Problem: Tailwind Typography's prose-base/prose-lg sets font-size on p, li, etc.
+ * These rules can override inline styles from [size:X] tags.
+ * Solution: Use data-fontsize attribute with CSS !important to force the size.
+ * The attr() function doesn't support font-size yet, so we handle common sizes.
+ */
+
+/* NUCLEAR OPTION: Explicitly handle all font-sizes with !important via CSS variables */
+/* We read the data attribute and set font-size via a custom property */
+span[data-fontsize] {
+  --custom-font-size: attr(data-fontsize);
+}
+
+/* Common font sizes with !important override */
+span[data-fontsize="12px"] { font-size: 12px !important; }
+span[data-fontsize="14px"] { font-size: 14px !important; }
+span[data-fontsize="16px"] { font-size: 16px !important; }
+span[data-fontsize="18px"] { font-size: 18px !important; }
+span[data-fontsize="20px"] { font-size: 20px !important; }
+span[data-fontsize="22px"] { font-size: 22px !important; }
+span[data-fontsize="24px"] { font-size: 24px !important; }
+span[data-fontsize="26px"] { font-size: 26px !important; }
+span[data-fontsize="28px"] { font-size: 28px !important; }
+span[data-fontsize="30px"] { font-size: 30px !important; }
+span[data-fontsize="32px"] { font-size: 32px !important; }
+span[data-fontsize="36px"] { font-size: 36px !important; }
+span[data-fontsize="40px"] { font-size: 40px !important; }
+span[data-fontsize="48px"] { font-size: 48px !important; }
+span[data-fontsize="56px"] { font-size: 56px !important; }
+span[data-fontsize="64px"] { font-size: 64px !important; }
+span[data-fontsize="72px"] { font-size: 72px !important; }
+
+/* Rem sizes */
+span[data-fontsize="1rem"] { font-size: 1rem !important; }
+span[data-fontsize="1.25rem"] { font-size: 1.25rem !important; }
+span[data-fontsize="1.5rem"] { font-size: 1.5rem !important; }
+span[data-fontsize="2rem"] { font-size: 2rem !important; }
+span[data-fontsize="2.5rem"] { font-size: 2.5rem !important; }
+span[data-fontsize="3rem"] { font-size: 3rem !important; }
 
 /* === User Highlights (localStorage-based) === */
 .user-highlight {
@@ -604,7 +699,8 @@ mark,
 /* ============================================= */
 
 /* Base Document Column - ULTRA DENSE */
-[data-layout="print"] .prose {
+[data-layout="print"] .prose,
+[data-layout="print"] .prose *:not([style*="font-size"]) {
   font-size: 0.6875rem !important;     /* 11px - ultra dense */
   line-height: 1.25 !important;        /* Extremely tight */
   max-width: 100% !important;
@@ -701,7 +797,7 @@ mark,
 /* ============================================= */
 
 #note-content-area.print-dense,
-#note-content-area.print-dense * {
+#note-content-area.print-dense *:not([style*="font-size"]) {
   font-size: small !important;    /* ~13px */
   line-height: 1.35 !important;
 }
@@ -744,3 +840,12 @@ mark,
 #note-content-area.print-dense li {
   margin: 0.05rem 0 !important;
 }
+
+
+.pattern-grid-lg {
+  background-image: linear-gradient(currentColor 1px, transparent 1px),
+      linear-gradient(to right, currentColor 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.tts-active { background-color: #fef08a; transition: background-color 0.2s; } .dark .tts-active { background-color: #422006; }

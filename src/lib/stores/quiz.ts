@@ -143,7 +143,7 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
         passed: item.passed || false,
         subject: item.subject,
         topic: item.topic,
-        totalQuestions: item.total_questions || 0,
+        totalQuestions: item.total_questions || (item.answers ? Object.keys(item.answers).length : 0),
         answers: item.answers || {},
         completedAt: new Date(item.completed_at).getTime()
       }));

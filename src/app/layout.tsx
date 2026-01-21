@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { CacheInitializer } from "@/components/CacheInitializer";
 import { AuthProvider } from "@/lib/auth-context";
+import { SessionManager } from "@/components/session/session-manager";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -44,6 +45,7 @@ export default function RootLayout({
         <AuthProvider>
           <Providers>
             <CacheInitializer />
+            <SessionManager />
             {children}
           </Providers>
         </AuthProvider>

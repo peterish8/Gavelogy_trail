@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,21 @@ import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DottedBackground } from "@/components/DottedBackground";
 
 export default function MistakesPage() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   const router = useRouter();
   const { mistakes, loading, loadMistakes, markAsMastered } = useMistakeStore();
   const [activeTab, setActiveTab] = useState("static-subjects");
@@ -122,9 +138,14 @@ export default function MistakesPage() {
       <DottedBackground />
       <AppHeader />
       
-      <div className="container mx-auto px-4 py-8">
+      <motion.div 
+        className="container mx-auto px-4 py-8"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
         {/* Header */}
-        <div className="mb-8">
+        <motion.div className="mb-8" variants={item}>
           <div className="flex items-center mb-4">
             <Button 
               variant="ghost" 
@@ -139,14 +160,16 @@ export default function MistakesPage() {
           <p className="text-muted-foreground ml-11">
             Review and retake your mistakes by subject and case
           </p>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
+        <motion.div variants={item}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-12">
           {/* Tab Pills */}
           <div className="grid grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
-            <button
+            <motion.button
               onClick={() => setActiveTab("static-subjects")}
+              whileTap={{ scale: 0.95 }}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "static-subjects"
                   ? "bg-linear-to-r from-pink-200 to-purple-200 text-purple-800 shadow-lg border border-pink-300"
@@ -154,10 +177,11 @@ export default function MistakesPage() {
               }`}
             >
               <span className="relative z-10">Static Subjects</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={() => setActiveTab("contemporary-cases")}
+              whileTap={{ scale: 0.95 }}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "contemporary-cases"
                   ? "bg-linear-to-r from-emerald-200 to-teal-200 text-emerald-800 shadow-lg border border-emerald-300"
@@ -165,10 +189,11 @@ export default function MistakesPage() {
               }`}
             >
               <span className="relative z-10">Contemporary Cases</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={() => setActiveTab("pyqs")}
+              whileTap={{ scale: 0.95 }}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "pyqs"
                   ? "bg-linear-to-r from-purple-200 to-pink-200 text-purple-800 shadow-lg border border-purple-300"
@@ -176,7 +201,7 @@ export default function MistakesPage() {
               }`}
             >
               <span className="relative z-10">PYQ's</span>
-            </button>
+            </motion.button>
 
             <button
               onClick={() => setActiveTab("mock")}
@@ -574,7 +599,8 @@ export default function MistakesPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

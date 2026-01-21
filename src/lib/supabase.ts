@@ -331,102 +331,7 @@ export interface Database {
           completed_at?: string;
         };
       };
-      contemporary_cases: {
-        Row: {
-          id: string;
-          title: string;
-          description: string;
-          year: number;
-          month: number;
-          subject: string;
-          case_summary: string;
-        };
-        Insert: {
-          id?: string;
-          title: string;
-          description: string;
-          year: number;
-          month: number;
-          subject: string;
-          case_summary: string;
-        };
-        Update: {
-          id?: string;
-          title?: string;
-          description?: string;
-          year?: number;
-          month?: number;
-          subject?: string;
-          case_summary?: string;
-        };
-      };
-      contemprory_case_notes: {
-        Row: {
-          id: string;
-          case_number: string;
-          overall_content: string;
-        };
-        Insert: {
-          id?: string;
-          case_number: string;
-          overall_content: string;
-        };
-        Update: {
-          id?: string;
-          case_number?: string;
-          overall_content?: string;
-        };
-      };
-      contemporary_case_quizzes: {
-        Row: {
-          id: string;
-          case_number: string;
-          case_name: string;
-          passage: string;
-          case_question_id: string;
-          question: string;
-          option_a: string;
-          option_b: string;
-          option_c: string;
-          option_d: string;
-          correct_answer: string;
-          explanation: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          case_number: string;
-          case_name: string;
-          passage: string;
-          case_question_id: string;
-          question: string;
-          option_a: string;
-          option_b: string;
-          option_c: string;
-          option_d: string;
-          correct_answer: string;
-          explanation: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          case_number?: string;
-          case_name?: string;
-          passage?: string;
-          case_question_id?: string;
-          question?: string;
-          option_a?: string;
-          option_b?: string;
-          option_c?: string;
-          option_d?: string;
-          correct_answer?: string;
-          explanation?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
+
       coin_transactions: {
         Row: {
           id: string;
@@ -796,6 +701,422 @@ export interface Database {
           is_correct?: boolean;
           time_spent?: number | null;
           subject?: string | null;
+        };
+      };
+      attached_quizzes: {
+        Row: {
+          id: string;
+          title: string | null;
+          passing_score: number | null;
+          note_item_id: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title?: string | null;
+          passing_score?: number | null;
+          note_item_id?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string | null;
+          passing_score?: number | null;
+          note_item_id?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      draft_content_cache: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          original_content_id: string;
+          draft_data: any | null; // jsonb
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          original_content_id: string;
+          draft_data?: any | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          original_content_id?: string;
+          draft_data?: any | null;
+          updated_at?: string | null;
+        };
+      };
+      game_answers: {
+        Row: {
+          id: string;
+          lobby_id: string;
+          player_id: string;
+          question_id: string;
+          answer: string | null;
+          is_correct: boolean;
+          points_earned: number | null;
+          time_taken_ms: number;
+          round: number;
+          question_order: number;
+          answered_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          lobby_id: string;
+          player_id: string;
+          question_id: string;
+          answer?: string | null;
+          is_correct: boolean;
+          points_earned?: number | null;
+          time_taken_ms: number;
+          round: number;
+          question_order: number;
+          answered_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          lobby_id?: string;
+          player_id?: string;
+          question_id?: string;
+          answer?: string | null;
+          is_correct?: boolean;
+          points_earned?: number | null;
+          time_taken_ms?: number;
+          round?: number;
+          question_order?: number;
+          answered_at?: string | null;
+        };
+      };
+      game_events: {
+        Row: {
+          id: string;
+          lobby_id: string;
+          event_type: string;
+          payload: any; // jsonb
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          lobby_id: string;
+          event_type: string;
+          payload: any;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          lobby_id?: string;
+          event_type?: string;
+          payload?: any;
+          created_at?: string | null;
+        };
+      };
+      game_lobbies: {
+        Row: {
+          id: string;
+          status: string;
+          mode: string;
+          current_round: number | null;
+          max_rounds: number | null;
+          question_ids: any; // jsonb
+          started_at: string | null;
+          finished_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          status?: string;
+          mode: string;
+          current_round?: number | null;
+          max_rounds?: number | null;
+          question_ids: any;
+          started_at?: string | null;
+          finished_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          status?: string;
+          mode?: string;
+          current_round?: number | null;
+          max_rounds?: number | null;
+          question_ids?: any;
+          started_at?: string | null;
+          finished_at?: string | null;
+          created_at?: string | null;
+        };
+      };
+      game_players: {
+        Row: {
+          id: string;
+          lobby_id: string;
+          user_id: string | null;
+          display_name: string;
+          avatar_url: string | null;
+          score: number | null;
+          current_question: number | null;
+          is_bot: boolean | null;
+          eliminated_round: number | null;
+          final_rank: number | null;
+          joined_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          lobby_id: string;
+          user_id?: string | null;
+          display_name: string;
+          avatar_url?: string | null;
+          score?: number | null;
+          current_question?: number | null;
+          is_bot?: boolean | null;
+          eliminated_round?: number | null;
+          final_rank?: number | null;
+          joined_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          lobby_id?: string;
+          user_id?: string | null;
+          display_name?: string;
+          avatar_url?: string | null;
+          score?: number | null;
+          current_question?: number | null;
+          is_bot?: boolean | null;
+          eliminated_round?: number | null;
+          final_rank?: number | null;
+          joined_at?: string | null;
+        };
+      };
+      note_contents: {
+        Row: {
+          id: string;
+          item_id: string | null;
+          content_html: string | null;
+          search_vector: string | null; // tsvector
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          item_id?: string | null;
+          content_html?: string | null;
+          search_vector?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          item_id?: string | null;
+          content_html?: string | null;
+          search_vector?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      quiz_answer_confidence: {
+        Row: {
+          id: string;
+          user_id: string;
+          quiz_id: string | null;
+          question_id: string | null;
+          confidence_level: string;
+          answer_was_correct: boolean;
+          is_initial_attempt: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          quiz_id?: string | null;
+          question_id?: string | null;
+          confidence_level: string;
+          answer_was_correct: boolean;
+          is_initial_attempt?: boolean | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          quiz_id?: string | null;
+          question_id?: string | null;
+          confidence_level?: string;
+          answer_was_correct?: boolean;
+          is_initial_attempt?: boolean | null;
+          created_at?: string | null;
+        };
+      };
+      streak_bonuses: {
+        Row: {
+          id: string;
+          streak_days: number;
+          bonus_points: number;
+          badge_name: string | null;
+          badge_emoji: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          streak_days: number;
+          bonus_points: number;
+          badge_name?: string | null;
+          badge_emoji?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          streak_days?: number;
+          bonus_points?: number;
+          badge_name?: string | null;
+          badge_emoji?: string | null;
+          created_at?: string | null;
+        };
+      };
+      structure_items: {
+        Row: {
+          id: string;
+          course_id: string | null;
+          parent_id: string | null;
+          title: string;
+          description: string | null;
+          item_type: string;
+          order_index: number | null;
+          icon: string | null;
+          is_active: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          course_id?: string | null;
+          parent_id?: string | null;
+          title: string;
+          description?: string | null;
+          item_type: string;
+          order_index?: number | null;
+          icon?: string | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          course_id?: string | null;
+          parent_id?: string | null;
+          title?: string;
+          description?: string | null;
+          item_type?: string;
+          order_index?: number | null;
+          icon?: string | null;
+          is_active?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      user_completed_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          item_id: string;
+          course_id: string | null;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          item_id: string;
+          course_id?: string | null;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          item_id?: string;
+          course_id?: string | null;
+          completed_at?: string | null;
+        };
+      };
+      user_points: {
+        Row: {
+          id: string;
+          user_id: string;
+          username: string;
+          all_time_points: number | null;
+          monthly_points: number | null;
+          month: string; // date
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          username: string;
+          all_time_points?: number | null;
+          monthly_points?: number | null;
+          month: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          username?: string;
+          all_time_points?: number | null;
+          monthly_points?: number | null;
+          month?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      user_streaks: {
+        Row: {
+          id: string;
+          user_id: string;
+          username: string;
+          current_streak: number | null;
+          longest_streak: number | null;
+          last_activity_date: string | null; // date
+          total_score: number | null;
+          total_quizzes_completed: number | null;
+          total_cases_studied: number | null;
+          total_pyq_attempted: number | null;
+          bonuses_claimed: number[] | null; // ARRAY
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          username: string;
+          current_streak?: number | null;
+          longest_streak?: number | null;
+          last_activity_date?: string | null;
+          total_score?: number | null;
+          total_quizzes_completed?: number | null;
+          total_cases_studied?: number | null;
+          total_pyq_attempted?: number | null;
+          bonuses_claimed?: number[] | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          username?: string;
+          current_streak?: number | null;
+          longest_streak?: number | null;
+          last_activity_date?: string | null;
+          total_score?: number | null;
+          total_quizzes_completed?: number | null;
+          total_cases_studied?: number | null;
+          total_pyq_attempted?: number | null;
+          bonuses_claimed?: number[] | null;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
       };
     };

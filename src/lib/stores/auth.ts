@@ -10,7 +10,31 @@ import {
 import { supabase } from "@/lib/supabase";
 import type { User, Profile, AuthState } from "@/types";
 
+// Helper to get or create device ID
+const getDeviceId = () => {
+  if (typeof window === 'undefined') return 'server';
+  let deviceId = localStorage.getItem('gavalogy-device-id');
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem('gavalogy-device-id', deviceId);
+  }
+  return deviceId;
+};
+
+// Helper to get device info
+const getDeviceInfo = () => {
+  if (typeof window === 'undefined') return {};
+  return {
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    language: navigator.language,
+    screenParams: window.screen ? `${window.screen.width}x${window.screen.height}` : 'unknown'
+  };
+};
+
 interface AuthStoreState extends AuthState {
+  sessionId: string | null;
+  deviceId: string | null;
   login: (
     email: string,
     password: string
@@ -41,6 +65,8 @@ export const useAuthStore = create<AuthStoreState>()(
     (set, get) => ({
       user: null,
       profile: null,
+      sessionId: null,
+      deviceId: null,
       isAuthenticated: false,
       isLoading: true, // Start with loading true
       error: null,
@@ -169,16 +195,53 @@ export const useAuthStore = create<AuthStoreState>()(
               updated_at: data.user.updated_at || data.user.created_at,
             };
 
-            set({
-              user,
-              profile,
-              isAuthenticated: true,
-              isLoading: false,
-              error: null,
-            });
+            // Start Session
+            try {
+              const deviceId = getDeviceId();
+              const deviceInfo = getDeviceInfo();
+              
+              console.log("Starting session for device:", deviceId);
+              
+              const { data: sessionId, error: sessionError } = await supabase.rpc('start_session', {
+                p_device_id: deviceId,
+                p_device_info: deviceInfo
+              });
 
-            console.log("Login completed successfully");
-            return { success: true };
+              if (sessionError) {
+                console.error("Session start error:", sessionError);
+                // If device limit reached, logout immediately
+                if (sessionError.message.includes('DEVICE_LIMIT_REACHED') || sessionError.message.includes('Maximum 3 devices')) {
+                   await supabase.auth.signOut();
+                   set({ isLoading: false, error: "Device limit reached. You can only use up to 3 devices." });
+                   return { success: false, error: "Device limit reached. Please log out from another device." };
+                }
+                // Other errors, we might allow (soft fail) or block. Let's block to be safe.
+                 await supabase.auth.signOut();
+                 set({ isLoading: false, error: "Failed to start session: " + sessionError.message });
+                 return { success: false, error: sessionError.message };
+              }
+              
+              console.log("Session started:", sessionId);
+              
+              set({
+                user,
+                profile,
+                sessionId,
+                deviceId,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+
+              console.log("Login completed successfully");
+              return { success: true };
+
+            } catch (sessionEx) {
+               console.error("Session exception:", sessionEx);
+               await supabase.auth.signOut();
+               set({ isLoading: false, error: "Session creation failed" });
+               return { success: false, error: "Session creation failed" };
+            }
           }
 
           set({ isLoading: false, error: "No user data received" });
@@ -372,19 +435,29 @@ export const useAuthStore = create<AuthStoreState>()(
 
           // Clear all localStorage stores including auth
           try {
-            localStorage.removeItem("gavalogy-auth-storage");
-            localStorage.removeItem("gavalogy-payment-storage");
-            localStorage.removeItem("gavalogy-gamification-storage");
-            localStorage.removeItem("gavalogy-quiz-storage");
-            localStorage.removeItem("gavalogy-mistakes-storage");
+            // Nuke everything to be safe
+            localStorage.clear();
+            // Re-set the flag to prevent auto-login loops if any logic depends on it
             localStorage.setItem("gavalogy-manual-logout", "true");
           } catch (error) {
             console.log("Could not clear storage");
           }
 
+          // Call logout_session RPC if we have a session ID
+          const currentSessionId = get().sessionId;
+          if (currentSessionId) {
+             try {
+                await supabase.rpc('logout_session', { p_session_id: currentSessionId });
+             } catch (e) {
+                console.warn("Failed to close session on server", e);
+             }
+          }
+
           set({
             user: null,
             profile: null,
+            sessionId: null,
+            deviceId: null,
             isAuthenticated: false,
             isLoading: false,
             error: null,
@@ -522,25 +595,10 @@ export const useAuthStore = create<AuthStoreState>()(
             }
 
             // First check if we have stored auth data
-            const storedAuth = localStorage.getItem("gavalogy-auth-storage");
-            if (storedAuth) {
-              try {
-                const parsedAuth = JSON.parse(storedAuth);
-                if (parsedAuth.state?.user && parsedAuth.state?.isAuthenticated) {
-                  console.log('Found stored auth data, setting user as authenticated');
-                  set({
-                    user: parsedAuth.state.user,
-                    profile: parsedAuth.state.profile,
-                    isAuthenticated: true,
-                    isLoading: false,
-                    error: null,
-                  });
-                  return;
-                }
-              } catch (e) {
-                console.log("Could not parse stored auth data");
-              }
-            }
+            // REMOVED: Premature return based on stored auth.
+            // We MUST verify with Supabase to ensure RLS tokens are valid.
+            // The previous block here caused 'zombie sessions' where UI was logged in but RLS failed.
+
           }
 
           // Check Supabase session
@@ -634,6 +692,8 @@ export const useAuthStore = create<AuthStoreState>()(
       partialize: (state) => ({
         user: state.user,
         profile: state.profile,
+        sessionId: state.sessionId,
+        deviceId: state.deviceId,
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {

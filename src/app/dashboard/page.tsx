@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useQuizStore } from "@/lib/stores/quiz";
@@ -21,8 +22,24 @@ import {
   usePaymentStore,
 } from "@/lib/payment";
 import { useRouter } from "next/navigation";
+import { SpacedRepetitionCalendar } from "@/components/spaced-repetition/calendar-view";
 
 export default function DashboardPage() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   const { user, profile, isAuthenticated, isLoading } = useAuthStore();
   const { getUserCourses: getCourses, purchaseCourse: buyCourse, loadUserCourses } =
     usePaymentStore();
@@ -179,11 +196,16 @@ export default function DashboardPage() {
       <DottedBackground />
       <AppHeader />
 
-      <div className="container mx-auto px-4 py-8 no-copy">
-        <div className="mb-8">
+      <motion.div 
+        className="container mx-auto px-4 py-4 no-copy"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div className="mb-4" variants={item}>
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-2">
+              <h1 className="text-4xl font-bold mb-1">
                 Hi 👋 {profile?.full_name || "Student"}, ready to improve today?
               </h1>
               <p className="text-lg text-muted-foreground">
@@ -191,13 +213,14 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="space-y-6"
-        >
+        <motion.div variants={item}>
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
           <div className="border-b border-border mb-6 relative">
             <nav className="flex space-x-8">
               {[
@@ -207,9 +230,10 @@ export default function DashboardPage() {
               ].map((tab, index) => {
                 const Icon = tab.icon;
                 return (
-                  <button
+                  <motion.button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
+                    whileTap={{ scale: 0.95 }}
                     className={`flex items-center gap-2 py-3 px-1 font-medium text-sm transition-colors duration-300 ${
                       activeTab === tab.id
                         ? "text-primary"
@@ -218,7 +242,7 @@ export default function DashboardPage() {
                   >
                     <Icon className="h-4 w-4" />
                     {tab.label}
-                  </button>
+                  </motion.button>
                 );
               })}
             </nav>
@@ -233,45 +257,11 @@ export default function DashboardPage() {
           </div>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-3 gap-3 mb-8 mt-2">
-              <Card>
-                <CardContent className="p-3">
-                  <div className="text-center">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Total Quizzes</p>
-                    <div className="flex items-center justify-center gap-1">
-                      <BookOpen className="h-4 w-4 text-primary" />
-                      <p className="text-lg font-bold">{allAttempts.length}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3">
-                  <div className="text-center">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Mistakes</p>
-                    <div className="flex items-center justify-center gap-1">
-                      <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-                      <p className="text-lg font-bold">{totalMistakes}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3">
-                  <div className="text-center">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Unsure</p>
-                    <div className="flex items-center justify-center gap-1">
-                      <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                      <p className="text-lg font-bold">{totalUnsures}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="mb-8">
+                 <SpacedRepetitionCalendar />
             </div>
 
-
-
-            <Card>
+            <Card className="mt-8">
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -285,7 +275,17 @@ export default function DashboardPage() {
                   {recentAttempts.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {recentAttempts.map((attempt) => {
-                        const accuracy = Math.round((attempt.score / (attempt.totalQuestions || 1)) * 100);
+                        // The 'score' field is stored as a percentage (0-100) in the DB
+                        const accuracy = attempt.score; 
+                        const totalQs = attempt.totalQuestions || 0;
+                        const correctCount = totalQs > 0 ? Math.round((accuracy / 100) * totalQs) : Math.round(accuracy/10); // Fallback estimate? Or just show accuracy.
+                        // Actually, if totalQs is 0 (legacy data), we can't know the count. 
+                        // But let's assume if totalQs is missing, we just show dashes or hide.
+                        // However, to fix the 'negative' wrong count, we use derived numbers.
+                        
+                        const displayCorrect = totalQs > 0 ? correctCount : '-'; 
+                        const displayWrong = totalQs > 0 ? totalQs - correctCount : '-';
+
                         const displayTopic = formatTopicName(attempt.subject || 'Unknown', attempt.topic || 'Unknown');
                         return (
                           <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)}`}>
@@ -315,11 +315,11 @@ export default function DashboardPage() {
                                 <div className="flex items-center gap-2">
                                   <div className="flex items-center gap-1">
                                     <CheckCircle className="h-3 w-3 text-green-500" />
-                                    {attempt.score}
+                                    {displayCorrect}
                                   </div>
                                   <div className="flex items-center gap-1">
                                     <XCircle className="h-3 w-3 text-red-500" />
-                                    {(attempt.totalQuestions || 0) - attempt.score}
+                                    {displayWrong}
                                   </div>
                                 </div>
                               </div>
@@ -454,8 +454,9 @@ export default function DashboardPage() {
               </Card>
             )}
           </TabsContent>
-        </Tabs>
-      </div>
+          </Tabs>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
