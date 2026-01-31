@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setUser(mockUser as User);
               setLoading(false);
               return;
-            } catch (e) {
+            } catch {
               // Invalid localhost auth, continue to Supabase check
             }
           }
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -85,14 +85,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Login failed' };
     }
   };
 
   const signUp = async (email: string, password: string, username: string, fullName: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Signup failed' };
     }
   };

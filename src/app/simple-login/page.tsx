@@ -24,7 +24,7 @@ export default function SimpleLogin() {
       }
 
       if (loginError?.message.includes('Invalid login credentials')) {
-        const { data: signupData, error: signupError } = await supabase.auth.signUp({
+        const { data: signupData } = await supabase.auth.signUp({
           email,
           password,
         });

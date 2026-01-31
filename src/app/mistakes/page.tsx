@@ -1,22 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { AppHeader } from "@/components/app-header";
+// AppHeader import removed
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Check, Clock, BookOpen } from "lucide-react";
+import { ArrowLeft, Check, BookOpen } from "lucide-react";
 import { useMistakeStore } from "@/lib/stores/mistakes";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DottedBackground } from "@/components/DottedBackground";
 
 export default function MistakesPage() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   const router = useRouter();
   const { mistakes, loading, loadMistakes, markAsMastered } = useMistakeStore();
   const [activeTab, setActiveTab] = useState("static-subjects");
   const [expandedSubjects, setExpandedSubjects] = useState<Set<string>>(new Set());
-  const [expanded2025Subjects, setExpanded2025Subjects] = useState<Set<string>>(new Set());
   const [expandedCases, setExpandedCases] = useState<Set<string>>(new Set());
   const [selectedMistakes, setSelectedMistakes] = useState<Set<string>>(new Set());
 
@@ -38,17 +53,7 @@ export default function MistakesPage() {
     });
   };
 
-  const toggle2025Subject = (subjectId: string) => {
-    setExpanded2025Subjects((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(subjectId)) {
-        newSet.delete(subjectId);
-      } else {
-        newSet.add(subjectId);
-      }
-      return newSet;
-    });
-  };
+
 
   const toggleCase = (caseId: string) => {
     setExpandedCases((prev) => {
@@ -94,20 +99,14 @@ export default function MistakesPage() {
     "2025": mistakesByType["contemporary-cases"].filter(m => m.question_id.includes('-25-'))
   };
 
-  // Group 2025 cases by subject
-  const mistakes2025BySubject = contemporaryMistakesByYear["2025"].reduce((acc, mistake) => {
-    const subject = mistake.subject || "Other";
-    if (!acc[subject]) acc[subject] = [];
-    acc[subject].push(mistake);
-    return acc;
-  }, {} as Record<string, any[]>);
+
 
 
 
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: "white" }}>
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -120,11 +119,16 @@ export default function MistakesPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
       
-      <div className="container mx-auto px-4 py-8">
+      <motion.div 
+        className="container mx-auto px-4 py-8"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
         {/* Header */}
-        <div className="mb-8">
+        <motion.div className="mb-8" variants={item}>
           <div className="flex items-center mb-4">
             <Button 
               variant="ghost" 
@@ -139,14 +143,16 @@ export default function MistakesPage() {
           <p className="text-muted-foreground ml-11">
             Review and retake your mistakes by subject and case
           </p>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
+        <motion.div variants={item}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-12">
           {/* Tab Pills */}
           <div className="grid grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
-            <button
+            <motion.button
               onClick={() => setActiveTab("static-subjects")}
+              whileTap={{ scale: 0.95 }}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "static-subjects"
                   ? "bg-linear-to-r from-pink-200 to-purple-200 text-purple-800 shadow-lg border border-pink-300"
@@ -154,10 +160,11 @@ export default function MistakesPage() {
               }`}
             >
               <span className="relative z-10">Static Subjects</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={() => setActiveTab("contemporary-cases")}
+              whileTap={{ scale: 0.95 }}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "contemporary-cases"
                   ? "bg-linear-to-r from-emerald-200 to-teal-200 text-emerald-800 shadow-lg border border-emerald-300"
@@ -165,18 +172,19 @@ export default function MistakesPage() {
               }`}
             >
               <span className="relative z-10">Contemporary Cases</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={() => setActiveTab("pyqs")}
+              whileTap={{ scale: 0.95 }}
               className={`relative overflow-hidden rounded-full transition-all duration-300 px-4 py-3 text-xs font-medium hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap ${
                 activeTab === "pyqs"
                   ? "bg-linear-to-r from-purple-200 to-pink-200 text-purple-800 shadow-lg border border-purple-300"
                   : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
               }`}
             >
-              <span className="relative z-10">PYQ's</span>
-            </button>
+              <span className="relative z-10">PYQ&apos;s</span>
+            </motion.button>
 
             <button
               onClick={() => setActiveTab("mock")}
@@ -210,7 +218,7 @@ export default function MistakesPage() {
                       if (!acc[subject]) acc[subject] = [];
                       acc[subject].push(mistake);
                       return acc;
-                    }, {} as Record<string, any[]>)
+                    }, {} as Record<string, typeof mistakes>)
                   ).map(([subject, subjectMistakes]) => {
                     const isExpanded = expandedSubjects.has(subject);
                     const selectedCount = subjectMistakes.filter(m => selectedMistakes.has(m.id)).length;
@@ -409,7 +417,7 @@ export default function MistakesPage() {
                               if (!acc[caseNumber]) acc[caseNumber] = [];
                               acc[caseNumber].push(mistake);
                               return acc;
-                            }, {} as Record<string, any[]>)
+                            }, {} as Record<string, typeof mistakes>)
                           )
                           .sort(([a], [b]) => parseInt(a) - parseInt(b))
                           .map(([caseNumber, caseMistakes]) => {
@@ -574,7 +582,8 @@ export default function MistakesPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

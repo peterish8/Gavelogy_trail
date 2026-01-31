@@ -22,7 +22,11 @@ export default function RetakeQuizPage({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<{
+    questionId: string;
+    isCorrect: boolean;
+    selectedAnswer: string | null;
+  }[]>([]);
 
   // Filter mistakes for this year
   const yearMistakes = mistakes.filter(m => 

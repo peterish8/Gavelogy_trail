@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { supabase } from "./supabase";
+import { supabase, Database } from "./supabase";
 import { useAuthStore } from "./stores/auth";
 import { DataLoader } from "./data-loader";
+import { User } from "@/types";
 
 export interface Course {
   id: string;
@@ -56,12 +57,11 @@ export const usePaymentStore = create<PaymentState>()(
           set({ isLoading: true });
           const courses = await DataLoader.getCourses();
           // Transform if necessary to match Course interface
-           const mappedCourses: Course[] = courses.map((c: any) => ({
+           const mappedCourses: Course[] = courses.map((c: Database['public']['Tables']['courses']['Row']) => ({
               id: c.id,
               name: c.name,
               description: c.description,
               price: c.price,
-              icon: c.icon,
               is_active: c.is_active
            }));
           set({ availableCourses: mappedCourses, isLoading: false });
@@ -71,10 +71,14 @@ export const usePaymentStore = create<PaymentState>()(
         set({ isLoading: true });
 
         try {
-          // Get current user
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
+          // Get current user - Try Store first (Client-side source of truth for session), then Supabase
+          let user = useAuthStore.getState().user;
+          
+          if (!user) {
+             const { data } = await supabase.auth.getUser();
+             user = data.user as unknown as User;
+          }
+
           if (!user) {
             set({ isLoading: false });
             return { success: false, error: "User not authenticated" };
@@ -94,15 +98,8 @@ export const usePaymentStore = create<PaymentState>()(
           const targetCourse = get().availableCourses.find((c) => c.id === courseId)!;
 
 
-          // Check if user already has this course (using user_courses table logic, assuming it's created or we are mocking)
-          // Since user said "ignore previous table definitions", I'll stick to what we know or simulate.
-          // BUT the prompt said "Fetch from courses table", presumably for listing.
-          // For tracking purchases, I'll rely on the existing logic in payment.ts which simulated it or tried user_courses.
-          // I will assume user_courses exists or I should mock it.
-          // The previous payment.ts tried to insert into `user_courses`.
-          
-           // Check if user already has this course
-          const { data: existingCourse } = await supabase
+          // Check if user already has this course
+          const { data: existingCourse, error: selectError } = await supabase
             .from("user_courses")
             .select("id")
             .eq("user_id", user.id)
@@ -110,13 +107,17 @@ export const usePaymentStore = create<PaymentState>()(
             .eq("status", "active")
             .single();
 
+          if (selectError && selectError.code !== 'PGRST116') { // PGRST116 is 'not found' which is expected
+             console.error("Error checking existing course:", selectError);
+          }
+
           if (existingCourse) {
             set({ isLoading: false });
             return { success: false, error: "Course already purchased" };
           }
 
-          // Simulate payment processing
-          await new Promise((resolve) => setTimeout(resolve, 2000));
+          // Simulate payment processing (5 seconds as requested)
+          await new Promise((resolve) => setTimeout(resolve, 5000));
 
           // Generate mock order ID
           const orderId = `ORDER_${Date.now()}_${Math.random()
@@ -127,16 +128,17 @@ export const usePaymentStore = create<PaymentState>()(
           const { error } = await supabase.from("user_courses").insert({
             user_id: user.id,
             course_id: targetCourse.id,
-            // course_name: targetCourse.name, // normalize: don't duplicate data if possible, but existing code did
             status: "active",
             purchase_date: new Date().toISOString()
           });
 
-          // Fallback if insert fails (e.g. table missing), effectively mocking it for the user session
+          // Fallback if insert fails (e.g. table missing)
           if (error) {
-             console.warn("Purchase insert failed (table missing?), falling back to local state");
-             // set({ isLoading: false });
-             // return { success: false, error: "Failed to save purchase" };
+             console.error("Purchase insert failed FULL:", error);
+             console.error("Message:", error.message);
+             console.error("Details:", error.details);
+             console.error("Hint:", error.hint);
+             // We continue to update local state so user isn't blocked, but log the error
           }
 
           // Update local state
@@ -146,7 +148,7 @@ export const usePaymentStore = create<PaymentState>()(
           }));
 
           return { success: true, orderId };
-        } catch (error) {
+        } catch {
           set({ isLoading: false });
           return { success: false, error: "Payment failed" };
         }
@@ -183,7 +185,7 @@ export const usePaymentStore = create<PaymentState>()(
              }
              return false;
 
-          } catch (e) {
+          } catch {
               return false;
           }
       },
@@ -199,7 +201,7 @@ export const usePaymentStore = create<PaymentState>()(
          } catch(e) { console.error(e) }
       },
 
-      isContentFree: (courseId: string, contentIndex: number) => {
+      isContentFree: () => {
          // Logic for free content could be dynamic too, but keeping simple for now
          return false; 
       },

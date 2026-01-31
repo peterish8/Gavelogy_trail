@@ -1,0 +1,614 @@
+/* ================================================= */
+/* === PREMIUM DARK THEME - PHASE 1: FOUNDATION === */
+/* ================================================= */
+
+:root.dark {
+  /* Core surfaces - NEUTRAL DARK THEME */
+  --bg-app: #0a0a0a;        /* Plain solid neutral black/gray */
+  --bg-panel: #171717;      /* Sidebar/Card neutral gray */
+  --bg-surface: #262626;    /* L2: Inset containers */
+  --bg-card: #171717;       /* Cards match sidebar */
+
+  /* Text hierarchy */
+  --text-primary: #E6E8EB;
+  --text-secondary: #B7BBC4;
+  --text-muted: #8A8F9C;
+
+  /* Accent colors */
+  --accent-green: #22C55E;
+  --accent-blue: #3B82F6;
+  --accent-purple: #8B5CF6;
+
+  /* Shiny line system */
+  --line-highlight: rgba(255,255,255,0.08);
+  --line-shadow: rgba(0,0,0,0.3);
+
+  /* Tailwind/Shadcn token mappings */
+  --background: var(--bg-app);
+  --foreground: var(--text-primary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-card);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent-blue);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-panel);
+  --secondary-foreground: var(--text-secondary);
+  --muted: var(--bg-surface);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bg-surface);
+  --accent-foreground: var(--text-primary);
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f8fafc;
+  --border: var(--line-highlight);
+  --input: var(--bg-surface);
+  --ring: var(--accent-blue);
+  
+  /* Sidebar tokens */
+  --sidebar: var(--bg-panel);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent-blue);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--bg-surface);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--line-highlight);
+  --sidebar-ring: var(--accent-blue);
+  
+  /* Chart colors for dark mode */
+  --chart-1: #22d3ee;
+  --chart-2: #2dd4bf;
+  --chart-3: #a78bfa;
+  --chart-4: #fb7185;
+  --chart-5: #fbbf24;
+}
+
+/* ================================================= */
+/* === PREMIUM STATUS COLORS (Dark Theme Only) === */
+/* ================================================= */
+
+/* Green - Neon Emerald */
+:root.dark .bg-green-500 { background-color: #10b981 !important; border-color: #10b981 !important; }
+:root.dark .text-green-500 { color: #34d399 !important; }
+:root.dark .border-green-500,
+:root.dark .border-l-green-500 { border-color: #10b981 !important; }
+
+/* Yellow - Vibrant Amber/Gold */
+:root.dark .bg-yellow-500 { background-color: #f59e0b !important; border-color: #f59e0b !important; }
+:root.dark .text-yellow-500 { color: #fbbf24 !important; } 
+:root.dark .border-yellow-500,
+:root.dark .border-l-yellow-500 { border-color: #f59e0b !important; }
+
+/* Red - Premium Rose/Coral */
+:root.dark .bg-red-500 { background-color: #f43f5e !important; border-color: #f43f5e !important; }
+:root.dark .text-red-500 { color: #fb7185 !important; }
+:root.dark .border-red-500,
+:root.dark .border-l-red-500 { border-color: #f43f5e !important; }
+
+/* Destructive Badge Override for Red */
+:root.dark .badge-destructive,
+:root.dark [class*="destructive"] {
+  background-color: #9f1239 !important; /* Rose-900 base */
+  color: #fb7185 !important; /* Rose-300 text */
+  border: 1px solid #e11d48 !important; /* Rose-600 border */
+}
+
+/* ================================================= */
+/* === STRICT NO-GRADIENT ENFORCEMENT === */
+/* ================================================= */
+
+/* Remove ALL gradients and background images in dark mode */
+.dark *,
+.dark *::before,
+.dark *::after {
+  background-image: none !important;
+}
+
+/* Specifically target common gradient patterns */
+.dark [style*="linear-gradient"],
+.dark [style*="radial-gradient"],
+.dark [class*="gradient"],
+.dark [class*="bg-gradient"],
+.dark [class*="from-"],
+.dark [class*="to-"],
+.dark [class*="bg-linear"] {
+  background-image: none !important;
+  background: var(--bg-card) !important;
+}
+
+/* EXCEPTION: Allow gradients for specific UI elements that need them (like charts/grids) */
+.dark .allow-gradient-in-dark,
+.dark [class*="allow-gradient-in-dark"] {
+  background-image: inherit !important;
+  background: transparent !important;
+}
+
+/* Force solid backgrounds on course structure cards */
+.dark .year-card,
+.dark .bg-linear-to-br,
+.dark [class*="from-blue"],
+.dark [class*="from-emerald"],
+.dark [class*="from-purple"],
+.dark [class*="from-orange"] {
+  background: var(--bg-card) !important;
+  background-image: none !important;
+}
+
+/* ================================================= */
+/* === YEAR CARD STYLES (LIGHT & DARK) === */
+/* ================================================= */
+
+/* Light mode: Pastel gradients */
+.year-card:nth-child(4n+1) {
+  background: linear-gradient(to bottom right, rgb(219 234 254), rgb(191 219 254));
+}
+
+.year-card:nth-child(4n+2) {
+  background: linear-gradient(to bottom right, rgb(209 250 229), rgb(167 243 208));
+}
+
+.year-card:nth-child(4n+3) {
+  background: linear-gradient(to bottom right, rgb(243 232 255), rgb(221 214 254));
+}
+
+.year-card:nth-child(4n+4) {
+  background: linear-gradient(to bottom right, rgb(254 215 170), rgb(253 186 116));
+}
+
+/* Dark mode: Cards - youlearn.ai inspired clean design */
+.dark .year-card {
+  position: relative;
+  background: rgba(38, 38, 38, 0.5) !important;
+  background-image: none !important;
+  border: 1px solid rgba(250, 250, 250, 0.08);
+  border-radius: 12px;
+  color: #FAFAFA;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: none;
+  
+  /* Reference padding */
+  padding: 16px !important;
+}
+
+/* Subtle top-light removed for cleaner look */
+
+/* Hover state: Green border only, no background change */
+.dark .year-card:hover {
+  border-color: rgba(29, 185, 84, 1);
+  background: rgba(38, 38, 38, 0.5) !important;
+  box-shadow: none;
+}
+
+/* Remove traveling glow for cleaner aesthetic */
+.dark .year-card::after {
+  display: none;
+}
+
+@keyframes glow-trace {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Typography - Reference serif font */
+.dark .year-card h1,
+.dark .year-card h2 {
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: #FAFAFA !important;
+  position: relative;
+  z-index: 2;
+}
+
+.dark .year-card h3,
+.dark .year-card h4,
+.dark .year-card div,
+.dark .year-card span,
+.dark .year-card p {
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgb(250, 250, 250) !important;
+  position: relative;
+  z-index: 2;
+}
+
+.dark .year-card button {
+  font-family: "Times New Roman", Times, Georgia, serif;
+  font-weight: 500;
+  position: relative;
+  z-index: 2;
+}
+
+/* Progress text - subtle */
+.dark .year-card .text-xs,
+.dark .year-card .text-gray-700,
+.dark .year-card .text-gray-600 {
+  font-weight: 400;
+  color: rgba(250, 250, 250, 0.6) !important;
+}
+
+/* Sub-folder container - cleaner spacing */
+.dark .year-card .bg-white\/50 {
+  background: rgba(38, 38, 38, 0.3) !important;
+  border-radius: 8px;
+  padding: 12px !important;
+  margin-top: 16px !important;
+}
+
+/* Leaf items - minimal, clean */
+.dark .year-card .bg-white {
+  position: relative;
+  background: rgba(38, 38, 38, 0.4) !important;
+  border: none !important;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  
+  /* Clean spacing */
+  padding: 12px 16px !important;
+  margin-bottom: 8px !important;
+}
+
+.dark .year-card .bg-white:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Hover: Subtle border only */
+.dark .year-card .bg-white:hover {
+  background: rgba(38, 38, 38, 0.4) !important;
+  border: 1px solid rgba(29, 185, 84, 0.6) !important;
+  box-shadow: none;
+}
+
+/* Traveling glow for child items - hover ONLY */
+.dark .year-card .bg-white::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 50%,
+    rgba(29, 185, 84, 0.8) 70%,
+    rgba(34, 197, 94, 0.8) 75%,
+    rgba(29, 185, 84, 0.4) 85%,
+    transparent 95%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.dark .year-card .bg-white:hover::after {
+  opacity: 1;
+  animation: glow-trace 1.5s linear infinite;
+}
+
+/* Action buttons (Notes/Quiz) - make them VISIBLE */
+.dark .year-card button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  transition: all 0.2s ease;
+}
+
+/* Notes button - Purple glow (always visible) */
+.dark .year-card button:has(svg.lucide-file-text) {
+  background: rgba(168, 85, 247, 0.12) !important;
+  border-color: rgba(168, 85, 247, 0.25) !important;
+  box-shadow: 
+    0 0 0 1px rgba(168, 85, 247, 0.15),
+    0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.dark .year-card button:has(svg.lucide-file-text):hover {
+  background: rgba(168, 85, 247, 0.2) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
+  box-shadow: 
+    0 0 0 1px rgba(168, 85, 247, 0.3),
+    0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+/* Quiz button - Green glow (always visible) */
+.dark .year-card button:not(:has(svg)) {
+  background: rgba(29, 185, 84, 0.12) !important;
+  border-color: rgba(29, 185, 84, 0.25) !important;
+  box-shadow: 
+    0 0 0 1px rgba(29, 185, 84, 0.15),
+    0 0 15px rgba(29, 185, 84, 0.2);
+  color: rgba(29, 185, 84, 1) !important;
+}
+
+.dark .year-card button:not(:has(svg)):hover {
+  background: rgba(29, 185, 84, 0.2) !important;
+  border-color: rgba(29, 185, 84, 0.4) !important;
+  box-shadow: 
+    0 0 0 1px rgba(29, 185, 84, 0.3),
+    0 0 20px rgba(29, 185, 84, 0.3);
+}
+
+.dark .year-card button svg {
+  color: rgba(168, 85, 247, 0.9) !important;
+}
+
+.dark .year-card button:hover svg {
+  color: rgba(168, 85, 247, 1) !important;
+}
+
+
+
+/* Sidebar panel background - EXACT REFERENCE MATCH */
+.dark .bg-gray-50,
+.dark [class*="bg-gray-50"] {
+  background: #1a1a1a !important;
+}
+
+/* Left sidebar typography - System UI font stack */
+.dark .bg-gray-50,
+.dark .bg-gray-50 *,
+.dark [class*="bg-gray-50"],
+.dark [class*="bg-gray-50"] * {
+  font-family: ui-sans-serif, -apple-system, "system-ui", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol" !important;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #FFFFFF;
+}
+
+/* Sidebar headings - maintain hierarchy */
+.dark .bg-gray-50 h1,
+.dark [class*="bg-gray-50"] h1 {
+  font-weight: 600;
+  font-size: 1.875rem;
+}
+
+.dark .bg-gray-50 .text-muted,
+.dark [class*="bg-gray-50"] .text-muted,
+.dark .bg-gray-50 .text-gray-500,
+.dark [class*="bg-gray-50"] .text-gray-500 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ================================================= */
+/* === SHINY EDGE CARD UTILITY === */
+/* ================================================= */
+
+.dark .shiny-card {
+  position: relative;
+  background-color: var(--bg-card) !important;
+  background-image: none !important;
+  border-radius: 12px;
+}
+
+.dark .shiny-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 1px 0 var(--line-highlight),
+    inset 1px 0 0 var(--line-highlight);
+}
+
+.dark .shiny-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 -1px 0 var(--line-shadow),
+    inset -1px 0 0 var(--line-shadow);
+}
+
+/* ================================================= */
+/* === GLASS BLUR UTILITY === */
+/* ================================================= */
+
+.dark .glass-blur {
+  background: rgba(18, 19, 24, 0.75) !important;
+  background-image: none !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Make navbar text visible in dark mode */
+.dark .glass-blur a,
+.dark .glass-blur button,
+.dark .glass-blur span,
+.dark .glass-blur input {
+  color: #ffffff !important;
+}
+
+/* Placeholder text */
+.dark .glass-blur input::placeholder {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+.dark .glass-blur-light {
+  background: rgba(28, 31, 38, 0.95) !important;
+  background-image: none !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ================================================= */
+/* === NOTES SHEET - WHITE GLASS === */
+/* ================================================= */
+
+.dark .notes-sheet,
+.dark #note-content-area {
+  background: rgba(255,255,255,0.98) !important;
+  background-image: none !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 6px 20px rgba(10,10,10,0.15);
+  color: #111827 !important;
+}
+
+.dark .notes-sheet *,
+.dark #note-content-area * {
+  color: #111827;
+}
+
+/* Hide DottedBackground in dark mode */
+.dark .dotted-background {
+  opacity: 0.15;
+}
+
+/* ================================================= */
+/* === NO TEXTURE GUARANTEE === */
+/* ================================================= */
+
+.dark .animate-shimmer,
+.dark .pattern-grid-lg {
+  animation: none !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+/* Force solid backgrounds on common UI elements */
+.dark .card,
+.dark [class*="Card"],
+.dark [class*="card"] {
+  background-image: none !important;
+}
+
+/* ================================================= */
+/* === DARK SCROLLBAR === */
+/* ================================================= */
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-card);
+}
+
+/* ============================================= */
+/* === UNIVERSAL LIQUID DYNAMIC ISLAND TOOLBAR === */
+/* === LIGHT GLASS ON FOG (APPLE-STYLE) ======= */
+/* ============================================= */
+
+/* Ambient fog anchor - THE MISSING LAYER */
+.dynamic-island-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  
+  display: flex;
+  justify-content: center;
+  
+  /* Subtle luminance bridge */
+  background: linear-gradient(
+    to bottom,
+    rgba(240,240,240,0.65),
+    rgba(240,240,240,0.25),
+    rgba(240,240,240,0)
+  );
+  
+  padding: 1rem 0 0.75rem;
+  pointer-events: none;
+}
+
+/* Light liquid glass toolbar */
+.dynamic-island-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  padding: 0.55rem 1.1rem;
+  min-height: 44px;
+  
+  /* LIGHT LIQUID GLASS (same in light & dark) */
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  
+  border-radius: 999px;
+  
+  /* NO outer shadow */
+  box-shadow: none;
+  
+  color: #111827; /* dark text */
+  pointer-events: auto;
+}
+
+/* Liquid highlight (top specular) - THE MAGIC */
+.dynamic-island-toolbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.9),
+    rgba(255,255,255,0.35) 35%,
+    rgba(255,255,255,0.05) 60%,
+    transparent
+  );
+}
+
+/* Edge sealing (bottom density) - THE MAGIC */
+.dynamic-island-toolbar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  
+  box-shadow:
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* Force dark text - NO theme dependency */
+.dynamic-island-toolbar,
+.dynamic-island-toolbar *,
+.dynamic-island-toolbar button,
+.dynamic-island-toolbar span,
+.dynamic-island-toolbar a {
+  position: relative;
+  z-index: 1;
+  color: #111827 !important;
+}
+
+/* Muted text */
+.dynamic-island-toolbar .muted,
+.dynamic-island-toolbar .text-muted {
+  color: #4b5563 !important;
+}
+
+/* Dividers (if needed) */
+.dynamic-island-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(0,0,0,0.15);
+  margin: 0 0.4rem;
+}
+
+
+
+
+

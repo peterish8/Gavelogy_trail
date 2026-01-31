@@ -21,18 +21,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import {
-  BookOpen,
-  Target,
-  Trophy,
-  Users,
-  Zap,
-  Brain,
   ArrowRight,
-  TrendingUp,
-  Clock,
-  Award,
-  BarChart3,
-  FileText,
 } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
@@ -41,7 +30,6 @@ function HomeContent() {
   const searchParams = useSearchParams();
   const { user, isLoading, isAuthenticated } = useAuthStore();
   const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const allowLanding = searchParams.get("view") === "landing";
 
   // Automatically redirect authenticated users to dashboard

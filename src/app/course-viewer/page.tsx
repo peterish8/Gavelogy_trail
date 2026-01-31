@@ -1,39 +1,66 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import { DataLoader } from "@/lib/data-loader";
 import { CourseStructureList } from "@/components/course-structure-list";
 import { DottedBackground } from "@/components/DottedBackground";
-import { AppHeader } from "@/components/app-header";
 import { customToHtml } from "@/lib/content-converter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, Maximize2, Minimize2, ChevronLeft, ChevronRight, Download, ChevronDown, ScrollText, FileStack, Trash2, X, BookOpen, MoreVertical } from "lucide-react";
+import { ArrowLeft, FileText, Maximize2, Minimize2, ChevronLeft, ChevronRight, Download, ChevronDown, ScrollText, FileStack, X, BookOpen, MoreVertical, Moon, Sun, Menu, ChevronsLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { StudyTimer, FloatingTimer } from "@/components/study-timer";
+import { StudyTimer } from "@/components/study-timer";
 import { HighlightToolbar } from "@/components/highlight-toolbar";
 import { applyHighlightsToHtml, removeHighlight, hideText, getHighlights } from "@/lib/highlight-storage";
 import { CourseNotes } from "@/components/course-notes";
 import { useAuthStore } from "@/lib/stores/auth";
-import { useHighlightHistory, HighlightAction } from "@/hooks/use-highlight-history";
+import { useHighlightHistory } from "@/hooks/use-highlight-history";
 import { processContentForTTS } from "@/lib/tts-processor";
 import { useTTS } from "@/hooks/use-tts";
 import { Play, Pause, RotateCcw, RotateCw } from "lucide-react";
+import { TranslateWidget } from "@/components/translate-widget";
+import { useThemeStore } from "@/lib/stores/theme";
+import { SidebarNav } from "@/components/navigation/sidebar-nav";
 
 import { Suspense } from "react";
+
+interface CourseStructureItem {
+  id: string;
+  title: string;
+  item_type: "folder" | "file";
+  children?: CourseStructureItem[];
+  description?: string;
+  is_active: boolean;
+  order_index: number;
+  [key: string]: unknown;
+}
 
 function CourseViewerContent() {
   const searchParams = useSearchParams();
   const courseId = searchParams?.get("courseId");
   const itemId = searchParams?.get("itemId");
+  const readerQuizId = searchParams?.get("quizId"); // For Reader Mode quiz navigation
   const router = useRouter(); 
   
-  const [structure, setStructure] = useState<any[]>([]);
+  const [structure, setStructure] = useState<CourseStructureItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [content, setContent] = useState<string | null>(null);
+  
+  // Compute selected item from structure
+  const flatten = useCallback((items: CourseStructureItem[]): CourseStructureItem[] => {
+    return items.reduce((acc: CourseStructureItem[], item: CourseStructureItem) => {
+      return [...acc, item, ...(item.children ? flatten(item.children) : [])];
+    }, []);
+  }, []);
+  
+  const selectedItem = useMemo(() => {
+    const flat = flatten(structure);
+    return flat.find(i => i.id === selectedItemId);
+  }, [selectedItemId, structure, flatten]);
+  
   const [loadingContent, setLoadingContent] = useState(false);
   const [viewState, setViewState] = useState<"list" | "content">("list");
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
@@ -41,6 +68,114 @@ function CourseViewerContent() {
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [highlightVersion, setHighlightVersion] = useState(0);
   const [isReadingMode, setIsReadingMode] = useState(false);
+  const [courseName, setCourseName] = useState<string>("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [itemsWithNotes, setItemsWithNotes] = useState<Set<string>>(new Set());
+  const [itemsWithQuizzes, setItemsWithQuizzes] = useState<Set<string>>(new Set());
+
+  // Reader Mode State
+  const [isReaderMode, setIsReaderMode] = useState(false);
+  
+  // Sidebar Collapsed State (for course-viewer's left panel)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // Navigation Drawer State (Main App Navigation)
+  const [showNavDrawer, setShowNavDrawer] = useState(false);
+  const [isClosingDrawer, setIsClosingDrawer] = useState(false);
+
+  const handleCloseNav = () => {
+    setIsClosingDrawer(true);
+    setTimeout(() => {
+      setShowNavDrawer(false);
+      setIsClosingDrawer(false);
+    }, 300); // Match animation duration
+  };
+  
+  // Global Dark Mode Detection
+  const { isDarkMode } = useThemeStore();
+  
+  // Sheet Dark Mode Toggle (independent of global dark mode, but only available in global dark mode)
+  const [isSheetDark, setIsSheetDark] = useState(false);
+  
+  // Sync sheet dark mode with global dark mode - when global light mode, always use light sheet
+  useEffect(() => {
+    if (!isDarkMode) {
+      setIsSheetDark(false);
+    }
+  }, [isDarkMode]);
+
+  useEffect(() => {
+     if (searchParams?.get("view") === "reader") {
+         setIsReaderMode(true);
+     }
+  }, [searchParams]);
+
+  // Handle explicit reader mode exit
+  const exitReaderMode = () => {
+      setIsReaderMode(false);
+      // Update URL to remove view=reader but keep other params
+      if (courseId && typeof window !== 'undefined') {
+         const params = new URLSearchParams(searchParams?.toString());
+         params.delete("view");
+         router.push(`?${params.toString()}`, { scroll: false });
+      }
+  };
+
+  // 📐 Resizable Sidebar State
+  const SIDEBAR_MIN_WIDTH = 280;
+  const SIDEBAR_MAX_WIDTH = 600;
+  const SIDEBAR_DEFAULT_WIDTH = 400;
+  
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('course-viewer-sidebar-width');
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= SIDEBAR_MIN_WIDTH && parsed <= SIDEBAR_MAX_WIDTH) {
+          return parsed;
+        }
+      }
+    }
+    return SIDEBAR_DEFAULT_WIDTH;
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartXRef = useRef(0);
+  const dragStartWidthRef = useRef(SIDEBAR_DEFAULT_WIDTH);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('course-viewer-sidebar-width', String(sidebarWidth));
+    }
+  }, [sidebarWidth]);
+
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartXRef.current = e.clientX;
+    dragStartWidthRef.current = sidebarWidth;
+  }, [sidebarWidth]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - dragStartXRef.current;
+      const newWidth = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, dragStartWidthRef.current + delta));
+      setSidebarWidth(newWidth);
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   // History Hook
   const { addToHistory, undo, redo, canUndo, canRedo } = useHighlightHistory(
@@ -53,6 +188,24 @@ function CourseViewerContent() {
   const [processedHtml, setProcessedHtml] = useState<string>("");
   const [sentences, setSentences] = useState<string[]>([]);
   const tts = useTTS(sentences);
+
+  // Restore TTS Highlighting using data-sentence-index
+  useEffect(() => {
+    // 1. Clear active state from all elements
+    const prevActive = document.querySelectorAll('.tts-active');
+    prevActive.forEach(el => el.classList.remove('tts-active'));
+
+    // 2. Add active state to current sentence elements
+    if (tts.isPlaying || tts.isPaused) {
+      const currentEls = document.querySelectorAll(`[data-sentence-index="${tts.currentSentenceIndex}"]`);
+      currentEls.forEach(el => el.classList.add('tts-active'));
+
+      // 3. Scroll into view if playing
+      if (tts.isPlaying && currentEls.length > 0) {
+        currentEls[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [tts.currentSentenceIndex, tts.isPlaying, tts.isPaused]);
 
   // Scrubber State & Handlers
   const [isScrubbing, setIsScrubbing] = useState(false);
@@ -174,7 +327,7 @@ function CourseViewerContent() {
       setIsFullscreen(true);
       // Attempt browser fullscreen ONLY on Desktop
       if (window.innerWidth >= 768) {
-         document.documentElement.requestFullscreen().catch((err) => {
+         document.documentElement.requestFullscreen().catch(() => {
             // Ignore errors
          });
       }
@@ -313,19 +466,44 @@ function CourseViewerContent() {
 
   const loadStructure = async (id: string) => {
     setLoading(true);
-    const [structData, completedData] = await Promise.all([
+    const [structData, completedData, courseData] = await Promise.all([
        DataLoader.getCourseStructure(id),
-       DataLoader.getUserCompletedItems(id)
+       DataLoader.getUserCompletedItems(),
+       DataLoader.getCourseById(id)
     ]);
     
-    setStructure(structData);
+    setStructure(structData as CourseStructureItem[]);
     setCompletedItems(new Set(completedData));
+    if (courseData) {
+      setCourseName(courseData.name || "Course Content");
+    }
+    
+    // Load content availability
+    const flattenFiles = (items: CourseStructureItem[]): CourseStructureItem[] => {
+      return items.reduce((acc: CourseStructureItem[], item: CourseStructureItem) => {
+        if (item.item_type === 'file') {
+          return [...acc, item];
+        }
+        if (item.children) {
+          return [...acc, ...flattenFiles(item.children)];
+        }
+        return acc;
+      }, []);
+    };
+    
+    const fileIds = flattenFiles(structData as CourseStructureItem[]).map(f => f.id);
+    if (fileIds.length > 0) {
+      const { itemsWithNotes: notes, itemsWithQuizzes: quizzes } = await DataLoader.getContentAvailability(fileIds);
+      setItemsWithNotes(notes);
+      setItemsWithQuizzes(quizzes);
+    }
+    
     setLoading(false);
   };
 
-  const flattenFiles = (items: any[]): any[] => {
-    let files: any[] = [];
-    items.forEach(item => {
+  const flattenFiles = (items: CourseStructureItem[]): CourseStructureItem[] => {
+    let files: CourseStructureItem[] = [];
+    items.forEach((item: CourseStructureItem) => {
       if (item.item_type === 'file') {
         files.push(item);
       } else if (item.children) {
@@ -344,6 +522,18 @@ function CourseViewerContent() {
         return next;
      });
      await DataLoader.toggleItemCompletion(itemId, isCompleted);
+  };
+
+  const handleExpand = (itemId: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
+      return next;
+    });
   };
 
   const handleFileSelect = async (itemId: string, updateUrl = true) => {
@@ -368,7 +558,8 @@ function CourseViewerContent() {
     setContent(null);
     setSelectedItemId(null);
     
-    // Exit fullscreen if active
+    // Exit fullscreen (both UI state and browser state)
+    setIsFullscreen(false);
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
@@ -773,11 +964,13 @@ function CourseViewerContent() {
     return (
        <div className="min-h-screen">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-16 text-center">Loading course content...</div>
       </div>
     );
   }
+
+
 
   return (
     <div className="min-h-screen flex flex-col relative z-0">
@@ -787,12 +980,437 @@ function CourseViewerContent() {
       </div>
 
       {/* Header: Visible in Normal Mode OR Mobile Fullscreen Mode */}
+      {/* READER MODE: Hide Header on Desktop too if requested, or keep it? User image shows header. */}
+      {/* User image shows "Gavelogy" header at top. So we KEEP header. */}
+      {/* AppHeader removed - Sidebar handles navigation now */}
       <div className={cn("relative z-20", isFullscreen ? "hidden md:hidden max-md:block" : "block")}>
-         <AppHeader />
+         {/* Replaced by Sidebar */}
+      </div>
+
+      {/* DESKTOP SPLIT VIEW */}
+      <div className={cn(
+        "hidden lg:flex fixed inset-0 z-40 overflow-hidden",
+        isFullscreen && "hidden"
+      )}>
+        <div className={cn("w-full h-full flex bg-gray-50 dark:bg-[#1a1a1a]", isDragging && "cursor-col-resize select-none")}>
+
+          {/* Left Sidebar - Resizable (HIDDEN IN READER MODE) */}
+          {!isReaderMode && (
+            <>
+              {isSidebarCollapsed ? (
+                /* Collapsed Sidebar - Just a slim bar with expand button */
+                <div className="h-full w-[60px] flex flex-col items-center py-4 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] shrink-0">
+                  <button 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"
+                    onClick={() => setShowNavDrawer(true)}
+                    title="Open Navigation"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </button>
+                  {/* Logo */}
+                  <div className="w-10 h-10 mt-3 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md">
+                    G
+                  </div>
+                  
+                  <div className="mt-auto pb-4">
+                     <button 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"
+                        onClick={() => setIsSidebarCollapsed(false)}
+                        title="Expand Course List"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                  </div>
+                </div>
+              ) : (
+                /* Expanded Sidebar */
+                <div 
+                  className="h-full flex flex-col border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] overflow-hidden shrink-0"
+                  style={{ width: sidebarWidth }}
+                >
+                  {/* Header - Navbar Icon, Logo and Course Name - NO TRANSLATE */}
+                  <div className="px-4 py-4 shrink-0 flex items-start gap-3 border-b border-gray-200 dark:border-gray-700 notranslate">
+                    {/* Navbar Icon - Opens Navigation Drawer */}
+                    <button 
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors shrink-0 mt-0.5"
+                      onClick={() => setShowNavDrawer(true)}
+                      title="Open Navigation"
+                    >
+                      <Menu className="w-5 h-5" />
+                    </button>
+                    
+                    {/* Logo & Info */}
+                    <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md shrink-0 mt-0.5">
+                      G
+                    </div>
+                    {/* Course Info - Dynamic height */}
+                    <div className="min-w-0 flex-1">
+                      <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-snug">{courseName || "Course"}</h1>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
+                        {structure.length > 0 
+                          ? `${structure.length} ${structure.length === 1 ? 'chapter' : 'chapters'}`
+                          : "Select a topic"}
+                      </p>
+                    </div>
+
+                    {/* Collapse Button */}
+                    <button 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors shrink-0"
+                      onClick={() => setIsSidebarCollapsed(true)}
+                      title="Collapse Course List"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* List - Scrollable - NO TRANSLATE */}
+                  <div className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar notranslate">
+                  <CourseStructureList 
+                    items={structure} 
+                    onFileSelect={handleFileSelect} 
+                    completedItems={completedItems}
+                    onToggleComplete={handleToggleComplete}
+                    expandedIds={expandedIds}
+                    onExpand={handleExpand}
+                    itemsWithNotes={itemsWithNotes}
+                    itemsWithQuizzes={itemsWithQuizzes}
+                    onQuizSelect={(itemId) => {
+                      const courseIdQuery = courseId ? `?courseId=${courseId}` : '';
+                      router.push(`/course-quiz/${itemId}${courseIdQuery}`);
+                    }}
+                  />
+                </div>
+              </div>
+              )}
+              
+              {/* Resize Handle - only show when sidebar is expanded */}
+              {!isSidebarCollapsed && (
+              <div 
+                className="w-1 h-full bg-gray-200 hover:bg-blue-400 cursor-col-resize shrink-0 transition-colors group relative"
+                onMouseDown={handleDragStart}
+              >
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-1 h-6 bg-blue-500 rounded-full" />
+                </div>
+              </div>
+              )}
+            </>
+          )}
+          
+          {/* Right Content Area */}
+          {/* If Reader Mode, center content with max-width like the mobile view but full height */}
+          <div className={cn(
+              "flex-1 h-full bg-transparent overflow-hidden relative z-10", 
+              isReaderMode && "flex justify-center"
+          )}>
+            {selectedItemId ? (
+              <div className={cn(
+                  "h-full overflow-y-auto custom-scrollbar relative w-full rounded-2xl transition-all duration-300",
+                  isSheetDark 
+                    ? "bg-zinc-900 border border-zinc-800 shadow-sm" 
+                    : "bg-white border border-gray-200 shadow-sm",
+                  isReaderMode && "max-w-5xl mx-auto"
+              )}>
+                {/* Solid Toolbar - NO TRANSLATE */}
+                <div className={cn(
+                  "sticky top-0 z-50 px-4 py-3 mb-4 border-b transition-all duration-300 notranslate",
+                  isSheetDark 
+                    ? "bg-zinc-900 border-zinc-800" 
+                    : "bg-white border-gray-100"
+                )}>
+                  <div className="flex items-center justify-between w-full">
+                    {/* Back Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                          if (isReaderMode) {
+                              exitReaderMode();
+                          } else {
+                              setSelectedItemId(null);
+                          }
+                      }}
+                      className={cn(
+                        "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                        isSheetDark 
+                          ? "text-gray-300 hover:text-white hover:bg-zinc-800" 
+                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-100/80"
+                      )}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                      <span className="hidden sm:inline">Back</span>
+                    </Button>
+                    
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                    
+                    {/* Note Title */}
+                    <span className={cn(
+                      "text-sm font-medium max-w-[300px] truncate px-2",
+                      isSheetDark ? "text-gray-100" : "text-gray-800"
+                    )}>
+                      {selectedItem?.title || "Notes"}
+                    </span>
+                    
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                    
+                    {/* Translate Widget */}
+                    <TranslateWidget resetKey={selectedItemId} />
+                    
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                    
+                    {/* Download Button */}
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                        disabled={!content}
+                        className={cn(
+                          "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                          isSheetDark 
+                            ? "text-gray-300 hover:text-white hover:bg-zinc-800" 
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                        )}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </Button>
+                      
+                      {showDownloadMenu && typeof document !== 'undefined' && createPortal(
+                        <div 
+                          data-download-dropdown
+                          className="fixed bg-white rounded-xl shadow-2xl border border-gray-200 py-2 min-w-[200px] z-9999"
+                          style={{ 
+                            top: '100px', 
+                            left: '50%',
+                            transform: 'translateX(-50%)'
+                          }}
+                        >
+                          <button
+                            onClick={() => { setShowDownloadMenu(false); /* handleDownload() */ }}
+                            className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+                          >
+                            <ScrollText className="w-4 h-4 text-blue-600" />
+                            <div>
+                              <div className="font-medium">Continuous Flow</div>
+                              <div className="text-xs text-gray-500">Single long page</div>
+                            </div>
+                          </button>
+                          <button
+                            onClick={() => { setShowDownloadMenu(false); /* handlePageByPageDownload() */ }}
+                            className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
+                          >
+                            <FileStack className="w-4 h-4 text-green-600" />
+                            <div>
+                              <div className="font-medium">Page by Page</div>
+                              <div className="text-xs text-gray-500">A4 sheets, clean text</div>
+                            </div>
+                          </button>
+                        </div>,
+                        document.body
+                      )}
+                    </div>
+                    
+                    {/* TTS Controls */}
+                    {sentences.length > 0 && (
+                      <>
+                        <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                        
+                        {/* Speed Button */}
+                        <button
+                           onClick={(e) => {
+                               e.stopPropagation();
+                               const rect = e.currentTarget.getBoundingClientRect();
+                               setSpeedMenuPos({ top: rect.bottom + 8, left: rect.left });
+                               setShowSpeedMenu(!showSpeedMenu);
+                           }}
+                           className={cn(
+                             "focus:outline-none p-1.5 rounded-full transition-all duration-300",
+                             isSheetDark 
+                               ? "text-gray-300 hover:text-blue-400 hover:bg-zinc-800" 
+                               : "text-gray-600 hover:text-blue-600 hover:bg-gray-100/80"
+                           )}
+                           title="Playback Speed"
+                        >
+                           <span className="text-xs font-bold w-6 text-center block">{tts.rate}x</span>
+                        </button>
+                        
+                        {/* Play/Pause */}
+                        <button 
+                           onClick={() => {
+                              if (tts.isPlaying) {
+                                 tts.pause();
+                                 setIsReadingMode(false);
+                              } else {
+                                 setIsReadingMode(true);
+                                 tts.play();
+                              }
+                           }}
+                           className={cn(
+                             "focus:outline-none p-1.5 rounded-full transition-all duration-300",
+                             isSheetDark 
+                               ? "text-gray-200 hover:text-blue-400 hover:bg-zinc-800" 
+                               : "text-gray-700 hover:text-blue-600 hover:bg-gray-100/80"
+                           )}
+                           title={tts.isPlaying ? "Pause Reading" : "Read Aloud"}
+                        >
+                           {tts.isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+                        </button>
+                        
+                        {/* Mini Scrubber */}
+                        <div className="w-24 flex items-center gap-2">
+                           <div 
+                              className="relative flex-1 h-1.5 flex items-center cursor-pointer group select-none touch-none"
+                              onPointerDown={handleScrubStart}
+                              onPointerMove={handleScrubMove}
+                              onPointerUp={handleScrubEnd}
+                              onPointerCancel={handleScrubEnd}
+                           >
+                              {/* Track */}
+                              <div className="absolute left-0 right-0 h-1 bg-gray-200 rounded-full" />
+                              {/* Progress */}
+                              <div 
+                                 className={cn("absolute left-0 h-1 bg-blue-500 rounded-full", !isScrubbing && "transition-all duration-300 ease-out")}
+                                 style={{ width: `${displayProgress}%` }}
+                              />
+                           </div>
+                        </div>
+
+                        {/* Speed Menu Portal */}
+                        {showSpeedMenu && typeof document !== 'undefined' && createPortal(
+                           <>
+                               <div className="fixed inset-0 z-9999" onClick={() => setShowSpeedMenu(false)} />
+                               <div 
+                                   className="fixed z-10000 bg-white rounded-lg shadow-xl border border-gray-100 py-1 min-w-[140px] animate-in fade-in zoom-in-95 duration-100"
+                                   style={{ 
+                                       top: `${speedMenuPos.top}px`, 
+                                       left: `${speedMenuPos.left}px` 
+                                   }}
+                               >
+                                   {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
+                                       <button
+                                           key={rate}
+                                           onClick={() => {
+                                               tts.setRate(rate);
+                                               setShowSpeedMenu(false);
+                                           }}
+                                           className={cn(
+                                               "w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center justify-between",
+                                               tts.rate === rate ? "text-blue-600 font-medium bg-blue-50" : "text-gray-700"
+                                           )}
+                                       >
+                                           <span>{rate}x Speed</span>
+                                           {tts.rate === rate && <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
+                                       </button>
+                                   ))}
+                               </div>
+                           </>,
+                           document.body
+                        )}
+                      </>
+                    )}
+
+                    {/* Sheet Dark Mode Toggle - Only visible in global dark mode */}
+                    {isDarkMode && (
+                      <>
+                        <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setIsSheetDark(!isSheetDark)}
+                          className={cn(
+                            "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                            isSheetDark 
+                              ? "text-yellow-400 hover:text-yellow-300 hover:bg-zinc-800" 
+                              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                          )}
+                          title={isSheetDark ? "Switch to Light" : "Switch to Dark"}
+                        >
+                          {isSheetDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                        </Button>
+                      </>
+                    )}
+
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                    
+                    {/* Focus Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className={cn(
+                        "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                        isSheetDark 
+                          ? "text-gray-300 hover:text-white hover:bg-zinc-800" 
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                      )}
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 mr-1.5" />
+                      Focus
+                    </Button>
+                    </div>
+                  </div>
+                
+                {/* Content */}
+                <div className={cn(
+                  "px-12 pb-20",
+                  isSheetDark && "sheet-dark-mode"
+                )}>
+                  {loadingContent ? (
+                    <div className="space-y-4 animate-pulse pt-8">
+                      <div className={cn("h-8 rounded w-1/3", isSheetDark ? "bg-zinc-700" : "bg-gray-200")}></div>
+                      <div className={cn("h-4 rounded w-full", isSheetDark ? "bg-zinc-700" : "bg-gray-200")}></div>
+                      <div className={cn("h-4 rounded w-full", isSheetDark ? "bg-zinc-700" : "bg-gray-200")}></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: processedHtml }}
+                        className={cn(
+                          "prose prose-lg max-w-none",
+                          isSheetDark && "prose-invert sheet-dark-mode"
+                        )}
+                      />
+                      
+                      {/* Take Quiz Button - Only in Reader Mode with quizId */}
+                      {isReaderMode && readerQuizId && (
+                        <div className="mt-12 pt-8 border-t border-gray-200">
+                          <div className="flex flex-col items-center gap-4 py-8 px-6 bg-linear-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100/50">
+                            <div className="text-center">
+                              <h3 className="text-lg font-semibold text-gray-800 mb-1">Ready to Test Your Knowledge?</h3>
+                              <p className="text-sm text-gray-500">Complete the spaced repetition quiz for this topic</p>
+                            </div>
+                            <Button 
+                              onClick={() => router.push(`/course-quiz/${readerQuizId}?mode=spaced-repetition`)}
+                              className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+                            >
+                              🎯 Take Quiz
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium text-gray-600">Select a topic</h3>
+                  <p className="text-sm mt-2">Pick a folder from the left to view notes</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       
+      {/* MOBILE/ORIGINAL LAYOUT - shown on mobile or when in fullscreen */}
       <div className={cn(
-          "flex-1 container mx-auto",
+        // Hide on desktop when split pane is showing, UNLESS in fullscreen mode
+        !isFullscreen && "lg:hidden", 
+        "flex-1 container mx-auto",
           // Base styles
           "flex flex-col",
           
@@ -841,9 +1459,9 @@ function CourseViewerContent() {
                   className="sticky z-50 w-full max-w-5xl mx-auto"
                   style={{ top: 0 }}
                 >
-                   {/* Toolbar Container */}
+                   {/* Toolbar Container relative for centering */}
                    <div className={cn(
-                      "flex items-center justify-between mb-6 shrink-0 bg-white p-1.5 md:p-2 border-b border-gray-100 shadow-md overflow-x-auto gap-1 no-scrollbar rounded-2xl mx-auto w-full",
+                      "relative flex items-center justify-between mb-6 shrink-0 bg-white p-1.5 md:p-2 border-b border-gray-100 shadow-md overflow-x-auto gap-1 no-scrollbar rounded-2xl mx-auto w-full",
                       isFullscreen 
                          ? [
                               // DESKTOP: Floating Card Toolbar
@@ -1028,8 +1646,30 @@ function CourseViewerContent() {
                                )}
                            </div>
                            
-                           {/* Undo / Redo Controls */}
-                           <div className="flex items-center gap-1 border-l border-gray-200 pl-1 ml-1">
+                        </>
+                     )}
+                  </div>
+                  
+                  {/* Center Timer - Absolute Positioned */}
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:block">
+                     <div id="study-timer-container">
+                        <StudyTimer />
+                     </div>
+                  </div>
+                  
+                  {/* Spacer to push Right Section to end */}
+                  <div className="flex-1" />
+
+
+
+
+
+                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                     {/* Top Next/Prev - Hidden on mobile, visible on desktop */}
+                     <div className="hidden md:flex items-center gap-1 sm:gap-2">
+                         
+                         {/* Undo / Redo Controls (Moved here) */}
+                         <div className="flex items-center gap-1 mr-2 border-r border-gray-200 pr-2">
                               <button
                                 onClick={undo}
                                 disabled={!canUndo}
@@ -1046,25 +1686,8 @@ function CourseViewerContent() {
                               >
                                 <RotateCw className="w-4 h-4" />
                               </button>
-                           </div>
-                        </>
-                     )}
-                  </div>
-                  
-                  {/* Spacer to push Right Section to end */}
-                  <div className="flex-1" />
-
-
-
-
-
-                  <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-                     {/* Top Next/Prev - Hidden on mobile, visible on desktop */}
-                     <div className="hidden md:flex items-center gap-1 sm:gap-2">
-                         {/* Timer moved here */}
-                         <div id="study-timer-container">
-                            <StudyTimer />
                          </div>
+
                          <div className="h-4 w-px bg-gray-300 mx-1" />
                          
                          <Button 
@@ -1289,11 +1912,66 @@ function CourseViewerContent() {
          
          {/* FloatingTimer removed as per user request */}
       </div>
+      
+      {/* Navigation Drawer Portal */}
+      {showNavDrawer && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-100 flex">
+           {/* Backdrop */}
+           <div 
+             className={cn(
+               "absolute inset-0 bg-black/20 backdrop-blur-sm",
+               isClosingDrawer ? "animate-out fade-out" : "animate-in fade-in"
+             )}
+             onClick={handleCloseNav}
+           />
+           
+           {/* Drawer */}
+           <div className={cn(
+             "relative w-[280px] h-full bg-sidebar border-r border-sidebar-border shadow-2xl flex flex-col",
+             isClosingDrawer ? "animate-out slide-out-to-left duration-300" : "animate-in slide-in-from-left duration-300"
+           )}>
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+                  <div className="flex items-center gap-2 font-bold text-xl">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm">G</div>
+                    <span>Gavelogy</span>
+                  </div>
+                  <button 
+                    onClick={handleCloseNav}
+                    className="p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                    title="Collapse Navigation"
+                  >
+                    <ChevronsLeft className="w-5 h-5" />
+                  </button>
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto py-4">
+                 <SidebarNav />
+              </div>
+           </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Sheet Dark Mode - Global Override (Only if Sheet is Dark) */}
+      <style jsx global>{`
+        ${isSheetDark ? `
+          /* Scrollbar styling for dark sheet */
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #27272a;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #52525b;
+            border: 3px solid #27272a;
+          }
+        ` : ''}
+      `}</style>
     </div>
   );
 }
 
-export default function GenericCourseViewer() {
+export default function CourseViewerPage() {
   return (
     <Suspense fallback={
        <div className="min-h-screen flex items-center justify-center">

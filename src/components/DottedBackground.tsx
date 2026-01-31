@@ -10,7 +10,7 @@ export function DottedBackground() {
       style={{
         zIndex: -1
       }}
-      className="fixed inset-0 pointer-events-none opacity-70"
+      className="fixed inset-0 pointer-events-none opacity-70 dotted-background"
     >
       {/* Dynamic gradient background */}
       <div

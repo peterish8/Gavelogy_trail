@@ -122,20 +122,26 @@ export function useTTS(sentences: string[]) {
     const play = useCallback(() => {
         if (!state.isSupported) return;
 
-        if (state.isPaused) {
-            window.speechSynthesis.resume();
-            isPlayingRef.current = true;
-            setState(prev => ({ ...prev, isPlaying: true, isPaused: false }));
-        } else {
-            speakSentence(state.currentSentenceIndex);
-        }
-    }, [state.isSupported, state.isPaused, state.currentSentenceIndex, speakSentence]);
+        // If paused, we hard-stopped (cancelled), so we must restart the sentence
+        // This is better than resume() which requires pause() and can be buggy/laggy
+        speakSentence(state.currentSentenceIndex);
+    }, [state.isSupported, state.currentSentenceIndex, speakSentence]);
 
     const pause = useCallback(() => {
         if (!state.isSupported) return;
-        window.speechSynthesis.pause();
+        
+        // Use cancel() instead of pause() for instant response
+        // pause() can be laggy or buggy in some browsers (Chrome)
+        window.speechSynthesis.cancel();
+        
         isPlayingRef.current = false;
-        setState(prev => ({ ...prev, isPlaying: false, isPaused: true }));
+        
+        // Manually update state to reflect "paused" (stopped at index)
+        setState(prev => ({ 
+            ...prev, 
+            isPlaying: false, 
+            isPaused: true 
+        }));
     }, [state.isSupported]);
 
     const jumpToSentence = useCallback((index: number) => {

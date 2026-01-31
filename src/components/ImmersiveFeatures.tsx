@@ -26,7 +26,7 @@ export function ImmersiveFeatures() {
         {/* Background gradient */}
         <motion.div
           style={{ y }}
-          className="absolute inset-0 bg-gradient-to-br from-[#A793E2]/20 via-[#D4E1A3]/20 to-transparent"
+          className="absolute inset-0 bg-linear-to-br from-[#A793E2]/20 via-[#D4E1A3]/20 to-transparent"
         />
 
         {/* Dotted pattern */}
@@ -146,8 +146,8 @@ export function ImmersiveFeatures() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="text-xl font-semibold text-[#6B9BD2] italic"
             >
-              "Every question you solve makes you smarter. Every day you stay
-              consistent brings you closer."
+              &quot;Every question you solve makes you smarter. Every day you stay
+              consistent brings you closer.&quot;
             </motion.p>
           </motion.div>
         </div>
@@ -158,7 +158,7 @@ export function ImmersiveFeatures() {
         {/* Background gradient */}
         <motion.div
           style={{ y }}
-          className="absolute inset-0 bg-gradient-to-br from-[#A793E2]/20 via-[#6B9BD2]/20 to-transparent"
+          className="absolute inset-0 bg-linear-to-br from-[#A793E2]/20 via-[#6B9BD2]/20 to-transparent"
         />
 
         {/* Dotted pattern */}
@@ -190,7 +190,7 @@ export function ImmersiveFeatures() {
                 {/* Timeline Steps */}
                 <div className="space-y-12 relative">
                   {/* Simple vertical line */}
-                  <div className="absolute left-8 top-8 w-1 bg-gradient-to-b from-[#6B9BD2] to-[#F8C9D0]" style={{height: 'calc(100% + 4rem)'}}></div>
+                  <div className="absolute left-8 top-8 w-1 bg-linear-to-b from-[#6B9BD2] to-[#F8C9D0]" style={{height: 'calc(100% + 4rem)'}}></div>
                   {[
                     {
                       emoji: "📘",
@@ -238,7 +238,7 @@ export function ImmersiveFeatures() {
                       className="relative flex items-center gap-6"
                     >
                       {/* Circle with number */}
-                      <div className={`w-16 h-16 ${step.color} rounded-full shadow-xl flex items-center justify-center text-[#2C2C2C] font-bold text-xl flex-shrink-0 relative z-10`}>
+                      <div className={`w-16 h-16 ${step.color} rounded-full shadow-xl flex items-center justify-center text-[#2C2C2C] font-bold text-xl shrink-0 relative z-10`}>
                         {index + 1}
                       </div>
                       
@@ -261,7 +261,7 @@ export function ImmersiveFeatures() {
                     className="relative flex items-center gap-6 mt-12"
                   >
                     {/* Final circle */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full shadow-xl flex items-center justify-center text-[#2C2C2C] font-bold text-xl flex-shrink-0 relative z-10">
+                    <div className="w-16 h-16 bg-linear-to-br from-yellow-400 to-yellow-600 rounded-full shadow-xl flex items-center justify-center text-[#2C2C2C] font-bold text-xl shrink-0 relative z-10">
                       🏆
                     </div>
                     
@@ -269,7 +269,7 @@ export function ImmersiveFeatures() {
                     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6 flex-1">
                       <div className="text-4xl mb-3">🎯</div>
                       <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">CLAT PG Success!</h3>
-                      <p className="text-sm text-[#6C6C6C]">You've mastered all steps and are ready to excel in CLAT PG.</p>
+                      <p className="text-sm text-[#6C6C6C]">You&apos;ve mastered all steps and are ready to excel in CLAT PG.</p>
                     </div>
                   </motion.div>
               </div>
@@ -304,7 +304,7 @@ export function ImmersiveFeatures() {
         {/* Background gradient */}
         <motion.div
           style={{ y }}
-          className="absolute inset-0 bg-gradient-to-br from-[#F8E38F]/20 via-[#F8C9D0]/20 to-transparent"
+          className="absolute inset-0 bg-linear-to-br from-[#F8E38F]/20 via-[#F8C9D0]/20 to-transparent"
         />
 
         {/* Dotted pattern */}
@@ -336,7 +336,7 @@ export function ImmersiveFeatures() {
                 Access the most recent Supreme Court judgments from 2023–2025 —
                 summarized and paired with CLAT-PG-style questions. Join a
                 thriving community of aspirants who learn, compete, and
-                celebrate milestones together. Gavelogy isn't just an app — it's
+                celebrate milestones together. Gavelogy isn&apos;t just an app — it&apos;s
                 your smart legal companion.
               </p>
             </motion.div>
@@ -428,8 +428,8 @@ export function ImmersiveFeatures() {
                   </div>
                 </div>
                 <p className="text-lg font-semibold text-[#6C6C6C] italic text-center">
-                  "Built by law graduates, powered by AI, and trusted by
-                  thousands of CLAT-PG aspirants."
+                  &quot;Built by law graduates, powered by AI, and trusted by
+                  thousands of CLAT-PG aspirants.&quot;
                 </p>
               </motion.div>
 

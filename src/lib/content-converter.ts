@@ -134,9 +134,15 @@ export function customToHtml(text: string): string {
     let html = text
 
     // ========== CONTAINERS ==========
+    
+    // 0. Initial Mappings/Fixes
+    // Match Admin Panel logic: yellow maps to amber
+    html = html.replace(/\[box:yellow\]/g, '[box:amber]')
 
-    // 1. Note Boxes
-    html = html.replace(/\[box:([a-z]+)\]/g, '<div class="note-box note-$1">')
+    // ========== CONTAINERS ==========
+ 
+    // 1. Note Boxes (supports any color slug, mapping yellow to amber above)
+    html = html.replace(/\[box:([a-zA-Z0-9#_-]+)\]/g, '<div class="note-box note-$1">')
     html = html.replace(/\[\/box\]/g, '</div>')
 
     // ========== INLINE ELEMENTS ==========
@@ -157,8 +163,14 @@ export function customToHtml(text: string): string {
     html = html.replace(/\[hl:(#?[a-fA-F0-9]+)\]/g, '<mark style="background-color:$1">')
     html = html.replace(/\[\/hl\]/g, '</mark>')
 
-    // 6. Font Size
-    html = html.replace(/\[size:(\d+px)\]/g, '<span style="font-size:$1">')
+    // 6. Font Size - Use data attribute + inline style (inline !important doesn't work in HTML!)
+    // CSS will target [data-fontsize] with !important to override prose rules
+    html = html.replace(/\[size:(\d+)(px|pt|em|rem)?\]/g, (match, num, unit) => {
+        const finalUnit = unit || 'px' // Default to 'px' if no unit provided
+        const sizeValue = `${num}${finalUnit}`
+        return `<span data-fontsize="${sizeValue}" style="font-size:${sizeValue}">`
+    })
+    
     html = html.replace(/\[\/size\]/g, '</span>')
 
     // ========== BLOCK ELEMENTS ==========

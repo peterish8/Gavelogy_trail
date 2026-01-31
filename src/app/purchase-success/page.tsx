@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { DottedBackground } from "@/components/DottedBackground";
@@ -17,42 +17,15 @@ import { CheckCircle, Download, ArrowRight } from "lucide-react";
 function PurchaseSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [orderDetails, setOrderDetails] = useState<{
-    courseName: string;
-    amount: number;
-    orderId: string;
-  } | null>(null);
-
-  useEffect(() => {
-    const courseName = searchParams.get("course");
-    const amount = searchParams.get("amount");
-    const orderId = searchParams.get("orderId");
-
-    if (courseName && amount && orderId) {
-      setOrderDetails({
-        courseName,
-        amount: parseFloat(amount),
-        orderId,
-      });
-    }
-  }, [searchParams]);
+  
+  // Get order details from URL params
+  const orderId = searchParams.get("orderId") || `ORDER_${Date.now()}`;
+  const courseName = searchParams.get("course") || "Your Course";
+  const amount = searchParams.get("amount") ? parseFloat(searchParams.get("amount")!) : 0;
 
   const handleDownloadReceipt = () => {
-    // Placeholder for receipt download
     alert("Receipt download feature will be implemented in the next phase!");
   };
-
-  if (!orderDetails) {
-    return (
-      <div className="min-h-screen">
-        <DottedBackground />
-        <Header />
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center">Loading...</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -71,20 +44,24 @@ function PurchaseSuccessContent() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Course:</span>
-                <span>{orderDetails.courseName}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Amount:</span>
-                <span className="text-lg font-bold text-primary">
-                  ₹{orderDetails.amount.toLocaleString()}
-                </span>
-              </div>
+              {courseName !== "Your Course" && (
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Course:</span>
+                  <span>{courseName}</span>
+                </div>
+              )}
+              {amount > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Amount:</span>
+                  <span className="text-lg font-bold text-primary">
+                    ₹{amount.toLocaleString()}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center">
                 <span className="font-medium">Order ID:</span>
                 <span className="font-mono text-sm">
-                  {orderDetails.orderId}
+                  {orderId}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -139,3 +116,4 @@ export default function PurchaseSuccessPage() {
     </div>
   );
 }
+

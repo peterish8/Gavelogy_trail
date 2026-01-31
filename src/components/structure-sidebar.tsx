@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown, FileText, Folder } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { customToHtml } from "@/lib/content-converter";
-import { DataLoader } from "@/lib/data-loader";
+
 
 interface StructureItem {
   id: string;

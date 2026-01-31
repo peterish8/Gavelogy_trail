@@ -12,6 +12,8 @@ export interface MistakeRecord {
   correct_answer: string;
   confidence_level: 'confident' | 'educated_guess' | 'fluke';
   explanation?: string;
+  user_answer_text?: string;
+  correct_answer_text?: string;
   option_a?: string;
   option_b?: string;
   option_c?: string;
@@ -81,20 +83,37 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
     try {
       set({ loading: true });
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      if (!user) {
+        console.warn("loadMistakes: No user found");
+        set({ mistakes: [], loading: false });
+        return;
+      }
+      
+      console.log("loadMistakes: Fetching for user", user.id);
 
       const { data, error } = await supabase
-        .from('contemporary_mistakes')
+        .from('mistakes')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+         console.error("loadMistakes: Supabase error", {
+             message: error.message,
+             details: error.details,
+             hint: error.hint,
+             code: error.code
+         });
+         throw error;
+      };
 
+      console.log(`loadMistakes: Fetched ${data?.length || 0} records`);
       set({ mistakes: data || [], loading: false });
-    } catch (error: any) {
-      if (error?.code === '42P01') {
-        console.warn('Mistakes table not found, skipping load.');
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (err?.code === '42P01') {
+        console.warn('Mistakes table not found (42P01), skipping load.');
       } else {
         console.error('Error loading mistakes:', error);
       }
@@ -125,7 +144,7 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       const newMasteredState = !currentMistake?.is_mastered;
 
       const { data, error } = await supabase
-        .from('contemporary_mistakes')
+        .from('mistakes')
         .update({ is_mastered: newMasteredState })
         .eq('id', mistakeId)
         .eq('user_id', user.id)
@@ -145,8 +164,9 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
             : mistake
         )
       }));
-    } catch (error: any) {
-      console.error('Error toggling mastery:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error toggling mastery:', err?.message || error);
     }
   },
 
@@ -156,7 +176,7 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       if (!user) return;
 
       const { error } = await supabase
-        .from('contemporary_mistakes')
+        .from('mistakes')
         .upsert({
           user_id: user.id,
           question_id: mistake.questionId,
@@ -175,8 +195,9 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
         });
 
       if (error) throw error;
-    } catch (error: any) {
-      console.error('Error adding mistake:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error adding mistake:', err?.message || error);
     }
   },
 
@@ -186,7 +207,7 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       if (!user) return;
 
       const { error } = await supabase
-        .from('contemporary_mistakes')
+        .from('mistakes')
         .delete()
         .eq('user_id', user.id)
         .eq('question_id', questionId);
@@ -196,12 +217,13 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       set(state => ({
         mistakes: state.mistakes.filter(mistake => mistake.question_id !== questionId)
       }));
-    } catch (error: any) {
-      console.error('Error clearing mistake:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error clearing mistake:', err?.message || error);
     }
   },
 
-  saveQuizAttempt: async (attempt) => {
+  saveQuizAttempt: async () => {
     // Not implemented for current schema
   },
 }));

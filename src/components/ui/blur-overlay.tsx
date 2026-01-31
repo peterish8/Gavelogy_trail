@@ -9,8 +9,6 @@ interface BlurOverlayProps {
   children: React.ReactNode;
   title: string;
   description: string;
-  courseId: string;
-  courseName: string;
   price: number;
 }
 
@@ -18,8 +16,6 @@ export function BlurOverlay({
   children,
   title,
   description,
-  courseId,
-  courseName,
   price,
 }: BlurOverlayProps) {
   return (

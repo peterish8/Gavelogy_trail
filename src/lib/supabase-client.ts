@@ -18,7 +18,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Handle auth errors globally
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange((event) => {
   if (event === 'TOKEN_REFRESHED') {
     console.log('Token refreshed successfully');
   }

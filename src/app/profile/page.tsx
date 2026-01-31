@@ -20,7 +20,6 @@ import {
   Zap,
   Award,
 } from "lucide-react";
-import { AppHeader } from "@/components/app-header";
 import { DottedBackground } from "@/components/DottedBackground";
 import Link from "next/link";
 
@@ -68,7 +67,7 @@ export default function ProfilePage() {
       } else {
         alert("Failed to update profile: " + result.error);
       }
-    } catch (error) {
+    } catch {
       alert("An error occurred while updating profile");
     } finally {
       setIsLoading(false);
@@ -88,7 +87,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-md mx-auto text-center">
             <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
@@ -107,7 +106,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -241,7 +240,7 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-4 bg-linear-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-xl">
+                    <div className="text-center p-4 rounded-xl bg-orange-100/60 dark:bg-orange-500/10 dark:border dark:border-orange-500/50">
                       <div className="flex items-center justify-center mb-2">
                         <Flame className="h-6 w-6 text-orange-500 mr-1" />
                         <span className="text-2xl font-bold text-orange-600">
@@ -252,7 +251,7 @@ export default function ProfilePage() {
                         Current Streak
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 rounded-xl">
+                    <div className="text-center p-4 rounded-xl bg-purple-100/60 dark:bg-purple-500/10 dark:border dark:border-purple-500/50">
                       <div className="flex items-center justify-center mb-2">
                         <Zap className="h-6 w-6 text-purple-500 mr-1" />
                         <span className="text-2xl font-bold text-purple-600">
@@ -263,7 +262,7 @@ export default function ProfilePage() {
                         Monthly Points
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl">
+                    <div className="text-center p-4 rounded-xl bg-green-100/60 dark:bg-green-500/10 dark:border dark:border-green-500/50">
                       <div className="flex items-center justify-center mb-2">
                         <Award className="h-6 w-6 text-green-500 mr-1" />
                         <span className="text-2xl font-bold text-green-600">
@@ -274,7 +273,7 @@ export default function ProfilePage() {
                         All-Time Points
                       </p>
                     </div>
-                    <div className="text-center p-4 bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30 rounded-xl">
+                    <div className="text-center p-4 rounded-xl bg-yellow-100/60 dark:bg-yellow-500/10 dark:border dark:border-yellow-500/50">
                       <div className="flex items-center justify-center mb-2">
                         <Trophy className="h-6 w-6 text-yellow-500 mr-1" />
                         <span className="text-2xl font-bold text-yellow-600">

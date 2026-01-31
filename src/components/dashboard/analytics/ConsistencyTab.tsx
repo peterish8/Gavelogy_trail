@@ -1,29 +1,16 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, BookOpen, FileText, Clock, Flame } from "lucide-react";
 
 export default function ConsistencyTab() {
   // Mock data
-  const streakData = {
-    currentStreak: 8,
-    longestStreak: 15,
-    milestoneDays: 10,
-  };
-
   const weeklySummary = {
     quizzesCompleted: 12,
     mockTestsAttempted: 2,
     mistakeQuizzes: 5,
     studyTime: "4h 20m",
     activeDays: "6/7",
-  };
-
-  const engagementTrend = {
-    currentWeek: 22,
-    lastWeek: 18,
-    twoWeeksAgo: 15,
-    threeWeeksAgo: 12,
   };
 
   // Generate activity data for the last 30 days

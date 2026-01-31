@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DottedBackground } from "@/components/DottedBackground";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock } from "lucide-react";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { useAuthStore } from "@/lib/stores/auth";
@@ -30,9 +28,9 @@ export default function PYQMockExamPage({
 }: {
   params: Promise<{ year: string }>;
 }) {
+  const { year } = React.use(params);
   const router = useRouter();
-  const { user } = useAuthStore();
-  const { updateStreak } = useStreakStore();
+  const { awardDailyPoint } = useStreakStore();
   const { addAttempt } = useQuizStore();
 
   // Enable copy protection
@@ -60,13 +58,9 @@ export default function PYQMockExamPage({
   const [warningCount, setWarningCount] = useState<number>(0);
   const [isTabFocused, setIsTabFocused] = useState<boolean>(true);
 
-  const resolvedParams = React.use(params);
-  const year = resolvedParams.year;
-
-  // Define currentQuestion early to avoid initialization error
+  // Derived variables
   const currentQuestion = questions[currentQuestionIndex];
   const currentPassage = currentQuestion?.passage;
-
   useEffect(() => {
     fetchQuestions();
 
@@ -252,7 +246,13 @@ export default function PYQMockExamPage({
 
     // Get battery level
     if ("getBattery" in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+      interface BatteryManager extends EventTarget {
+        level: number;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+      }
+      
+      (navigator as unknown as { getBattery: () => Promise<BatteryManager> }).getBattery().then((battery) => {
         setBatteryLevel(Math.round(battery.level * 100));
 
         battery.addEventListener("levelchange", () => {
@@ -373,7 +373,7 @@ export default function PYQMockExamPage({
 
     // Calculate score
     let correct = 0;
-    let total = questions.length;
+    const total = questions.length;
 
     questions.forEach((question) => {
       const userAnswer = answers[question.question_no];
@@ -404,6 +404,8 @@ export default function PYQMockExamPage({
 
     // Save quiz attempt
     await addAttempt({
+      quizId: `pyq-${year}-mock`,
+      passed: (correct / total) >= 0.7,
       subject: "PYQ",
       topic: `${year} Mock Test`,
       questions: questions.map(q => q.id.toString()),
@@ -425,7 +427,7 @@ export default function PYQMockExamPage({
     });
 
     // Update user streak
-    await updateStreak("pyq", correct * 5); // 5 points per correct PYQ answer
+    await awardDailyPoint(); // 5 points per correct PYQ answer (handled by RPC)
 
     // Redirect to results page
     router.push(`/pyq/${year}/results`);
@@ -676,7 +678,7 @@ export default function PYQMockExamPage({
               <div className="max-h-[50vh] overflow-y-auto">
                 <div className="grid grid-cols-5 gap-2">
                   {questions.map((q, index) => {
-                    const questionNo = q.question_no || q.question_number || 0;
+                    const questionNo = q.question_no || 0;
                     const isAnswered = answers[questionNo];
                     const isCurrent = index === currentQuestionIndex;
 
