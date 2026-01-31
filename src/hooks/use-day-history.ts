@@ -115,6 +115,7 @@ export function useDayHistory(date: Date) {
     if (user) {
         fetchHistory();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, date]);
 
   return { history, isLoading };

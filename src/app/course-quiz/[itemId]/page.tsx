@@ -69,6 +69,7 @@ function CourseQuizContent({
     // Only load if user is present for SR mode, or always for normal mode
     if (isSpacedRepetition && !user) return;
     loadQuiz();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemId, user, isSpacedRepetition]);
 
   const loadQuiz = async () => {

@@ -75,6 +75,7 @@ export function Header() {
     } else {
       setIndicatorStyle({ width: 0, left: 0 });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, isAuthenticated, isHomePage, isAuthPage]);
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {

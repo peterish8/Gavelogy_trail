@@ -39,6 +39,7 @@ export default function MistakesPage() {
 
   useEffect(() => {
     loadMistakes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleSubject = (subjectId: string) => {

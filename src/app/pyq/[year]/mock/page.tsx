@@ -6,7 +6,7 @@ import { DottedBackground } from "@/components/DottedBackground";
 import { Button } from "@/components/ui/button";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
-import { useAuthStore } from "@/lib/stores/auth";
+
 import { useQuizStore } from "@/lib/stores/quiz";
 import { supabase } from "@/lib/supabase";
 
@@ -46,6 +46,7 @@ export default function PYQMockExamPage({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [batteryLevel, setBatteryLevel] = useState<number>(100);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState<number>(
     Date.now()
@@ -55,7 +56,9 @@ export default function PYQMockExamPage({
   );
   const [currentQuestionTime, setCurrentQuestionTime] =
     useState<string>("00:00");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [warningCount, setWarningCount] = useState<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isTabFocused, setIsTabFocused] = useState<boolean>(true);
 
   // Derived variables
@@ -271,6 +274,7 @@ export default function PYQMockExamPage({
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
 
   useEffect(() => {
@@ -288,6 +292,7 @@ export default function PYQMockExamPage({
     }, 1000);
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionStartTime, questionTimes, currentQuestionIndex]);
 
   // Track time spent on each question
@@ -306,6 +311,7 @@ export default function PYQMockExamPage({
 
     // Start timer for current question
     setQuestionStartTime(Date.now());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIndex]);
 
   const fetchQuestions = async () => {

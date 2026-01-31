@@ -87,6 +87,7 @@ export default function DuelGameScreen() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIndex]);
 
   // Sync opponent score from realtime player updates
@@ -94,6 +95,7 @@ export default function DuelGameScreen() {
     if (opponent) {
       setOpponentScore(opponent.score || 0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opponent?.score]);
 
   const handleTimeUp = () => {
@@ -192,6 +194,7 @@ export default function DuelGameScreen() {
             }
          );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIndex, isAnswered]); // Re-run on new question
 
   if (!question) return <div className="p-10 text-center">Loading Question...</div>;

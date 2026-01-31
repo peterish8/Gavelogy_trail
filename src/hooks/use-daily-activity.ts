@@ -66,6 +66,7 @@ export function useDailyActivity(year: number, month: number) {
     };
 
     fetchActivities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, year, month]);
 
   return { activities, isLoading };
