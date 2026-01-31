@@ -119,6 +119,7 @@ export function useSpacedRepetition() {
 
   useEffect(() => {
     fetchSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return { schedules, isLoading, refetch: fetchSchedules };

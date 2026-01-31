@@ -23,13 +23,13 @@ import Link from "next/link";
 import {
   ArrowRight,
 } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 
 function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading, isAuthenticated } = useAuthStore();
-  const { scrollYProgress } = useScroll();
+  useScroll();
   const allowLanding = searchParams.get("view") === "landing";
 
   // Automatically redirect authenticated users to dashboard

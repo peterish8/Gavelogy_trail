@@ -58,6 +58,7 @@ export default function CaseNotesPage({
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseNumber]);
 
   const toggleFullscreen = async () => {

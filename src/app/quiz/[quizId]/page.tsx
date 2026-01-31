@@ -146,6 +146,7 @@ export default function QuizPage({ params }: { params: { quizId: string } }) {
     return () => {
       if (interval) clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizState, timeLeft]);
 
   // Start quiz countdown

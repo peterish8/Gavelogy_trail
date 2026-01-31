@@ -7,7 +7,7 @@ import { DottedBackground } from "@/components/DottedBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, CheckCircle, XCircle, Trophy } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+
 import { useQuizStore } from "@/lib/stores/quiz";
 import { useMistakeStore } from "@/lib/stores/mistakes";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
@@ -61,10 +61,11 @@ export default function ContemporaryQuizPage({
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   useEffect(() => {
     loadQuizQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseNumber]);
 
   const loadQuizQuestions = async () => {
@@ -212,7 +213,7 @@ export default function ContemporaryQuizPage({
 
   const completeQuiz = async () => {
     try {
-      setIsSubmitting(true);
+
       // Calculate score and other metrics
       const correctAnswersMap = questions.reduce(
         (acc, q) => ({ ...acc, [q.id]: q.correct_answer }),
@@ -248,8 +249,6 @@ export default function ContemporaryQuizPage({
       setIsCompleted(true);
     } catch (error) {
       console.error("Error completing quiz:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

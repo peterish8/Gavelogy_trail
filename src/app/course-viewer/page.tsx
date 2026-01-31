@@ -7,7 +7,7 @@ import { DataLoader } from "@/lib/data-loader";
 import { CourseStructureList } from "@/components/course-structure-list";
 import { DottedBackground } from "@/components/DottedBackground";
 import { customToHtml } from "@/lib/content-converter";
-import { Card } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, Maximize2, Minimize2, ChevronLeft, ChevronRight, Download, ChevronDown, ScrollText, FileStack, X, BookOpen, MoreVertical, Moon, Sun, Menu, ChevronsLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -375,6 +375,7 @@ function CourseViewerContent() {
      if (itemId && !selectedItemId) {
         handleFileSelect(itemId, false); 
      }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemId]);
 
   // Handle HOVER on highlights to show actions
@@ -701,6 +702,7 @@ function CourseViewerContent() {
      * RULE 3: Small preceding paragraphs merge with containers
      * RULE 4: Large containers start on new page
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const computePageBreaks = (root: HTMLElement): Set<HTMLElement> => {
       // All measurements in CSS pixels (no DPR)
       const pageHeightPx = mmToPx(297 - marginMm * 2); // A4 minus margins

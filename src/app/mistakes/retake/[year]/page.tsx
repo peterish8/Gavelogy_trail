@@ -36,6 +36,7 @@ export default function RetakeQuizPage({
 
   useEffect(() => {
     loadMistakes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const currentMistake = yearMistakes[currentQuestionIndex];
