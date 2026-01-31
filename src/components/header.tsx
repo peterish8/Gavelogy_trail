@@ -18,7 +18,7 @@ const AUTH_NAV_LINKS = [
 
 export function Header() {
   const router = useRouter();
-  const { user, profile, isAuthenticated, logout } = useAuthStore();
+  const { profile, isAuthenticated, logout } = useAuthStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);

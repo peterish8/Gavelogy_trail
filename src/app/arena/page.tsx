@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Swords, Users, Trophy, Zap, Info } from 'lucide-react';
-import { AppHeader } from "@/components/app-header";
+import { Swords, Users, Trophy, Zap } from 'lucide-react';
 import { DottedBackground } from "@/components/DottedBackground";
 
 export default function ArenaPage() {
@@ -29,7 +28,7 @@ export default function ArenaPage() {
   return (
     <div className="min-h-screen relative flex flex-col">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
       
       <main className="container py-10 max-w-5xl mx-auto px-4 grow flex flex-col justify-center">
         {/* Header */}

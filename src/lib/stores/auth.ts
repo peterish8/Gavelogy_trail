@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
-  validateEmail,
-  validatePassword,
   validateUsername,
   validateFullName,
   sanitizeInput,
@@ -132,7 +130,7 @@ export const useAuthStore = create<AuthStoreState>()(
               } else {
                 console.log("No profile found, will create one");
               }
-            } catch (error) {
+            } catch {
               console.log("Users table not found - using default profile");
             }
 
@@ -160,7 +158,7 @@ export const useAuthStore = create<AuthStoreState>()(
                 } else {
                   console.log("Profile created successfully");
                 }
-              } catch (error) {
+              } catch {
                 console.log(
                   "Users table not available - using default profile"
                 );
@@ -347,7 +345,7 @@ export const useAuthStore = create<AuthStoreState>()(
               } else {
                 console.log("Profile created successfully");
               }
-            } catch (error) {
+            } catch {
               console.log("Users table not available - using default profile");
             }
 
@@ -403,7 +401,7 @@ export const useAuthStore = create<AuthStoreState>()(
           set({ isLoading: true, error: null });
 
           // Use Supabase Google OAuth
-          const { data, error } = await supabase.auth.signInWithOAuth({
+          const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
               redirectTo: `${window.location.origin}/auth/callback`,
@@ -439,7 +437,7 @@ export const useAuthStore = create<AuthStoreState>()(
             localStorage.clear();
             // Re-set the flag to prevent auto-login loops if any logic depends on it
             localStorage.setItem("gavalogy-manual-logout", "true");
-          } catch (error) {
+          } catch {
             console.log("Could not clear storage");
           }
 
@@ -588,7 +586,7 @@ export const useAuthStore = create<AuthStoreState>()(
                     error: null,
                   });
                   return;
-                } catch (e) {
+                } catch {
                   console.log("Could not parse localhost auth data");
                 }
               }
@@ -620,7 +618,7 @@ export const useAuthStore = create<AuthStoreState>()(
               if (!profileError) {
                 profileData = profile;
               }
-            } catch (error) {
+            } catch {
               console.log("Users table not found - using default profile");
             }
 

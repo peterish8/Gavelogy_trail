@@ -3,7 +3,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
-import { useGameStore } from '@/lib/stores/game-store';
 
 interface Props {
   children: ReactNode;
@@ -39,7 +38,7 @@ export class GameErrorBoundary extends Component<Props, State> {
           </div>
           <h2 className="mb-2 text-2xl font-bold tracking-tight">Game Application Error</h2>
           <p className="mb-6 max-w-md text-muted-foreground">
-            Something went wrong while running the game. We've logged this issue.
+            Something went wrong while running the game. We&apos;ve logged this issue.
           </p>
           <div className="flex gap-4">
             <Button 

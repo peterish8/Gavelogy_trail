@@ -7,7 +7,7 @@ import { subscribeToLobby, unsubscribeFromLobby } from '@/lib/game/realtime';
 import { GameErrorBoundary } from '@/components/game/error-boundary';
 import DuelGameScreen from '@/components/game/duel-game-screen';
 import GameResults from '@/components/game/results-screen';
-import { AppHeader } from "@/components/app-header";
+// AppHeader import removed
 import { DottedBackground } from "@/components/DottedBackground";
 
 export default function GamePage() {
@@ -34,7 +34,7 @@ export default function GamePage() {
     <GameErrorBoundary>
       <div className="min-h-screen relative flex flex-col">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         
         <main className="container flex grow flex-col py-6 mx-auto">
           {status === 'active' && <DuelGameScreen />}

@@ -21,7 +21,7 @@ export function useDailyActivity(year: number, month: number) {
     if (cached && activities.length === 0) {
         try {
             setActivities(JSON.parse(cached));
-        } catch (e) {
+        } catch {
             console.warn("Failed to parse daily activity cache");
         }
     }

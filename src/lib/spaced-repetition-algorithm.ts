@@ -74,7 +74,7 @@ export async function getWeightedQuestions(
       // Parse options if necessary (similar to QuizLoader)
       let parsedOptions = q.options;
       if (typeof parsedOptions === 'string') {
-        try { parsedOptions = JSON.parse(parsedOptions); } catch (e) {}
+        try { parsedOptions = JSON.parse(parsedOptions); } catch {}
       }
 
       return {

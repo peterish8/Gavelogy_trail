@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import { getWeightedQuestions } from "./spaced-repetition-algorithm";
 
 export interface QuizQuestion {
   id: string;
@@ -71,7 +70,7 @@ export const QuizLoader = {
         if (typeof options === 'string') {
           try {
             options = JSON.parse(options);
-          } catch (e) {
+          } catch {
             options = [];
           }
         }
@@ -125,7 +124,7 @@ export const QuizLoader = {
       });
 
       if (!response.ok) {
-        let errorData: any = {};
+        let errorData: { message?: string, requiresInitialQuiz?: boolean } = {};
         try {
           const textBody = await response.text();
           try {
@@ -310,8 +309,9 @@ export const QuizLoader = {
         throw new Error('Failed to save mistake via API');
       }
       return true;
-    } catch (error: any) {
-      console.error('Error saving mistake:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error saving mistake:', err?.message || error);
       return false;
     }
   },
@@ -334,8 +334,9 @@ export const QuizLoader = {
         throw new Error('Failed to save confidence via API');
       }
       return true;
-    } catch (error: any) {
-      console.error('Error saving confidence rating:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error saving confidence rating:', err?.message || error);
       return false;
     }
   }

@@ -44,10 +44,6 @@ export async function fetchGameQuestions(mode: 'duel' | 'arena'): Promise<Partia
        
      if (quizzes) {
          const noteItemIds = quizzes.map(q => q.note_item_id).filter(Boolean) as string[];
-         const quizToNoteMap = quizzes.reduce((acc, q) => {
-             acc[q.id] = q.note_item_id;
-             return acc;
-         }, {} as Record<string, string>);
          
          // B. Get Title and Content
          if (noteItemIds.length > 0) {
@@ -90,7 +86,7 @@ export async function fetchGameQuestions(mode: 'duel' | 'arena'): Promise<Partia
     if (typeof options === 'string') {
       try {
         options = JSON.parse(options);
-      } catch (e) {
+      } catch {
         options = [];
       }
     }

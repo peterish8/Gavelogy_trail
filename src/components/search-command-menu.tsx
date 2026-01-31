@@ -11,9 +11,7 @@ import {
   AlertCircle, 
   User, 
   Sun,
-  Moon,
   StickyNote,
-  GraduationCap,
   Brain,
   Loader2,
   X
@@ -127,7 +125,7 @@ export function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
             {/* No Results */}
             {query && results.length === 0 && !isIndexLoading && (
               <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
-                No results found for "{query}".
+                No results found for &quot;{query}&quot;.
               </Command.Empty>
             )}
 
@@ -225,7 +223,7 @@ function SearchResultItem({ result, onAction }: SearchResultItemProps) {
       <div className="flex items-center gap-2 shrink-0 opacity-0 group-aria-selected:opacity-100 transition-opacity">
         {result.actions.map((action, idx) => (
           <Button
-            key={idx}
+            key={`${result.id}-${action.actionType}-${idx}`}
             size="sm"
             variant={idx === 0 ? "default" : "outline"}
             className="h-7 text-xs px-2"

@@ -4,16 +4,22 @@
 @plugin "tailwindcss-animate";
 @import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@import "./dark-theme.css";
 
 /* ... existing code ... */
 
 /* Prose List Styling as requested - MATCHING SCREENSHOT PROPERTIES */
 /* Using Times New Roman serif font for clean notes style */
-.prose, .prose * { 
+.prose, .prose p, .prose li, .prose ul, .prose ol { 
   font-family: "Times New Roman", Times, serif !important;
-  color: #334155; /* Slate-700 matching prose-p */
   text-align: justify;
+}
+
+/* Base Light Mode Color - Targeted instead of wildcard to allow overrides */
+.prose, .prose p, .prose li, .prose ul, .prose ol {
+  color: #334155 !important; /* Slate-700 */
 }
 
 /* Also apply to personal notes for consistency */
@@ -26,6 +32,84 @@
 #note-content-area,
 #note-content-area * {
   font-family: "Times New Roman", Times, serif !important;
+}
+
+/* Sheet Dark Mode - Force white text but be smarter about it */
+.sheet-dark-mode .prose,
+.sheet-dark-mode #note-content-area,
+.sheet-dark-mode .prose p,
+.sheet-dark-mode .prose li,
+.sheet-dark-mode .prose ul,
+.sheet-dark-mode .prose ol {
+  color: #e2e8f0 !important; /* slate-200 - slightly softer than pure white */
+}
+
+/* HEADINGS in Dark Mode */
+.sheet-dark-mode .prose h1,
+.sheet-dark-mode .prose h2,
+.sheet-dark-mode .prose h3,
+.sheet-dark-mode .prose h4,
+.sheet-dark-mode .prose strong,
+.sheet-dark-mode .prose b {
+  color: #ffffff !important;
+}
+
+/* Bullets in Dark Mode */
+.sheet-dark-mode .prose li::before {
+  background: #a1a1aa !important; /* zinc-400 */
+}
+
+/* Highlight Text in Dark Mode - typically highlights are light colors, so text should be dark */
+.sheet-dark-mode mark,
+.sheet-dark-mode .user-highlight,
+.sheet-dark-mode .highlight-inner {
+  color: #0f172a !important; /* Force dark text on highlights for contrast */
+}
+
+/* NOTE BOXES - Dark Mode Overrides */
+/* Default/Base Note Box in Dark Mode */
+.sheet-dark-mode .note-box {
+  background-color: rgba(39, 39, 42, 0.5) !important; /* zinc-800/50 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+  color: #e4e4e7 !important; /* zinc-200 */
+}
+
+/* Colored Note Boxes in Dark Mode - Increase opacity and lighten text */
+.sheet-dark-mode .note-box.note-blue, 
+.sheet-dark-mode .note-blue {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  color: #bfdbfe !important; /* blue-200 */
+}
+
+.sheet-dark-mode .note-box.note-green, 
+.sheet-dark-mode .note-green {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.5) !important;
+  color: #bbf7d0 !important; /* green-200 */
+}
+
+.sheet-dark-mode .note-box.note-red, 
+.sheet-dark-mode .note-red {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #fecaca !important; /* red-200 */
+}
+
+.sheet-dark-mode .note-box.note-amber, 
+.sheet-dark-mode .note-amber, 
+.sheet-dark-mode .note-box.note-yellow, 
+.sheet-dark-mode .note-yellow {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  color: #fde68a !important; /* amber-200 */
+}
+
+.sheet-dark-mode .note-box.note-purple, 
+.sheet-dark-mode .note-purple {
+  background: rgba(168, 85, 247, 0.15) !important;
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  color: #e9d5ff !important; /* purple-200 */
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -76,8 +160,9 @@
   --sidebar-ring: #d1d5db;
 }
 
+/* [data-theme="dark"] block removed to prevent conflict with dark-theme.css */
+/* 
 [data-theme="dark"] {
-  /* Dark mode colors */
   --background: #000000;
   --foreground: #ffffff;
   --card: #1a1a1a;
@@ -97,7 +182,8 @@
   --border: #404040;
   --input: #2d2d2d;
   --ring: #10a37f;
-}
+} 
+*/
 
 @theme inline {
   --color-background: var(--background);
@@ -147,6 +233,11 @@
 body {
   font-family: var(--font-sans);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Main content transition for sidebar */
+main {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Custom scrollbar */
@@ -302,6 +393,8 @@ body {
   background: transparent;
 }
 
+/* OLD DARK THEME - DISABLED (replaced by dark-theme.css) */
+/*
 .dark {
   --background: #020617;
   --foreground: #f8fafc;
@@ -336,6 +429,7 @@ body {
   --sidebar-border: #1e293b;
   --sidebar-ring: #1e293b;
 }
+*/
 
 @layer base {
   * {

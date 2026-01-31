@@ -12,6 +12,8 @@ export interface MistakeRecord {
   correct_answer: string;
   confidence_level: 'confident' | 'educated_guess' | 'fluke';
   explanation?: string;
+  user_answer_text?: string;
+  correct_answer_text?: string;
   option_a?: string;
   option_b?: string;
   option_c?: string;
@@ -108,8 +110,9 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
 
       console.log(`loadMistakes: Fetched ${data?.length || 0} records`);
       set({ mistakes: data || [], loading: false });
-    } catch (error: any) {
-      if (error?.code === '42P01') {
+    } catch (error: unknown) {
+      const err = error as { code?: string };
+      if (err?.code === '42P01') {
         console.warn('Mistakes table not found (42P01), skipping load.');
       } else {
         console.error('Error loading mistakes:', error);
@@ -161,8 +164,9 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
             : mistake
         )
       }));
-    } catch (error: any) {
-      console.error('Error toggling mastery:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error toggling mastery:', err?.message || error);
     }
   },
 
@@ -191,8 +195,9 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
         });
 
       if (error) throw error;
-    } catch (error: any) {
-      console.error('Error adding mistake:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error adding mistake:', err?.message || error);
     }
   },
 
@@ -212,12 +217,13 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
       set(state => ({
         mistakes: state.mistakes.filter(mistake => mistake.question_id !== questionId)
       }));
-    } catch (error: any) {
-      console.error('Error clearing mistake:', error?.message || error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error clearing mistake:', err?.message || error);
     }
   },
 
-  saveQuizAttempt: async (attempt) => {
+  saveQuizAttempt: async () => {
     // Not implemented for current schema
   },
 }));

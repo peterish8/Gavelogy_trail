@@ -6,11 +6,10 @@ import { Header } from "@/components/header";
 import { DottedBackground } from "@/components/DottedBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Trophy } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useQuizStore } from "@/lib/stores/quiz";
 import { useMistakeStore } from "@/lib/stores/mistakes";
-import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DataLoader } from "@/lib/data-loader";
 
@@ -88,8 +87,9 @@ export default function ContemporaryQuizPage({
       } else {
         setError('No quiz questions found for this case.');
       }
-    } catch (error: any) {
-      console.error("Error loading quiz questions:", error);
+    } catch (error) {
+      const err = error as Error;
+      console.error("Error loading quiz questions:", err);
       setError('Error loading quiz questions. Please try again.');
     } finally {
       setIsLoading(false);
@@ -213,27 +213,24 @@ export default function ContemporaryQuizPage({
   const completeQuiz = async () => {
     try {
       setIsSubmitting(true);
-
-      const totalQuestions = questions.length;
-      const correctAnswers = answers.filter((a) => a.isCorrect).length;
-      const score = Math.round((correctAnswers / totalQuestions) * 100);
+      // Calculate score and other metrics
+      const correctAnswersMap = questions.reduce(
+        (acc, q) => ({ ...acc, [q.id]: q.correct_answer }),
+        {}
+      );
+      
+      const score = Math.round((answers.filter(a => a.isCorrect).length / questions.length) * 100);
       const timeTaken = Math.floor((Date.now() - quizStartTime) / 1000);
-      const accuracy = score;
+      const totalQuestions = questions.length;
 
-      // Add quiz attempt
-      const attemptId = await addAttempt({
-        subject: "Contemporary Cases",
-        topic: questions[0]?.case_name || "Contemporary Case",
-        questions: questions.map((q) => q.id),
+      await addAttempt({
+        score,
+        passed: score >= 70,
         answers: answers.reduce(
           (acc, a) => ({ ...acc, [a.questionId]: a.selectedAnswer }),
           {}
         ),
-        correctAnswers: questions.reduce(
-          (acc, q) => ({ ...acc, [q.id]: q.correct_answer }),
-          {}
-        ),
-        score: correctAnswers,
+        correctAnswers: correctAnswersMap,
         totalQuestions,
         timeSpent: timeTaken,
         wrongQuestions: answers
@@ -244,13 +241,6 @@ export default function ContemporaryQuizPage({
           {}
         ),
         quizId: `contemporary-${caseNumber}`,
-        detailedAnswers: answers.map((a) => ({
-          questionId: a.questionId,
-          selectedAnswer: a.selectedAnswer,
-          confidence: a.confidence,
-          isCorrect: a.isCorrect,
-          timeSpent: a.timeSpent,
-        })),
       });
 
       // Streak functionality disabled
@@ -521,25 +511,19 @@ export default function ContemporaryQuizPage({
                 let buttonClass =
                   "p-4 text-left rounded-lg border-2 transition-all min-h-[80px] flex items-start h-full shadow-lg ";
 
-                let textColor = "";
                 if (showFeedback) {
                   if (isCorrectAnswer) {
-                    buttonClass += "!border-black";
-                    textColor = "color: white;";
+                    buttonClass += "border-green-500 bg-green-500 dark:bg-green-600";
                   } else if (isWrongAnswer) {
-                    buttonClass += "!border-black";
-                    textColor = "color: white;";
+                    buttonClass += "border-red-500 bg-red-500 dark:bg-red-600";
                   } else {
-                    buttonClass += "border-gray-200 dark:border-gray-600";
-                    textColor = "color: var(--foreground);";
+                    buttonClass += "border-gray-200 dark:border-gray-600 opacity-50";
                   }
                 } else {
                   if (isSelected) {
                     buttonClass += "border-blue-500 bg-blue-500 dark:bg-blue-800";
-                    textColor = "color: white;";
                   } else {
                     buttonClass += "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500";
-                    textColor = "color: var(--foreground);";
                   }
                 }
 

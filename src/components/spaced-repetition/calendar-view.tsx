@@ -4,7 +4,7 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { getCalendarGrid, getDaysInMonth, isSameDay, isToday, formatMonthYear, isPast } from "@/lib/calendar-utils";
+import { getCalendarGrid, isSameDay, isToday, formatMonthYear } from "@/lib/calendar-utils";
 import { useSpacedRepetition, SpacedRepetitionItem } from '@/hooks/use-spaced-repetition';
 import { useDailyActivity } from '@/hooks/use-daily-activity';
 import { useDayHistory } from '@/hooks/use-day-history';
@@ -13,8 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
 
+import { ActivityGraph } from '@/components/dashboard/activity-graph';
+
 export function SpacedRepetitionCalendar() {
-  const { schedules, isLoading } = useSpacedRepetition();
+  const { schedules } = useSpacedRepetition();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date()); // Default to Today
 
@@ -26,7 +28,7 @@ export function SpacedRepetitionCalendar() {
   const { activities: dailyActivities } = useDailyActivity(year, month);
   
   // Fetch History for Selected Day
-  const { history: completedHistory, isLoading: isLoadingHistory } = useDayHistory(selectedDate);
+  const { history: completedHistory } = useDayHistory(selectedDate);
   
   // Create a map for fast lookup: 'YYYY-MM-DD' -> count
   const activityMap = useMemo(() => {
@@ -97,13 +99,34 @@ export function SpacedRepetitionCalendar() {
   const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const handleNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
-  const itemsForSelectedDay = selectedDate ? (schedulesByDate[selectedDate.toDateString()] || []) : [];
+  const itemsForSelectedDay = useMemo(() => {
+    const items = selectedDate ? (schedulesByDate[selectedDate.toDateString()] || []) : [];
+    
+    // Sort: Overdue first, then Pending (non-projected), then Future (projected) last
+    return items.sort((a, b) => {
+      const aIsProjected = a.isProjected;
+      const bIsProjected = b.isProjected;
+      
+      const aIsOverdue = !aIsProjected && new Date(a.next_due_at) < new Date() && !isToday(new Date(a.next_due_at));
+      const bIsOverdue = !bIsProjected && new Date(b.next_due_at) < new Date() && !isToday(new Date(b.next_due_at));
+      
+      // Overdue items first
+      if (aIsOverdue && !bIsOverdue) return -1;
+      if (!aIsOverdue && bIsOverdue) return 1;
+      
+      // Projected/Future items last
+      if (!aIsProjected && bIsProjected) return -1;
+      if (aIsProjected && !bIsProjected) return 1;
+      
+      return 0;
+    });
+  }, [selectedDate, schedulesByDate]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px]">
       
-      {/* 1. LEFT: Todo Container */}
-      <Card className="lg:col-span-1 flex flex-col h-full border-l-4 border-l-primary/20 shadow-sm">
+      {/* 1. LEFT: Todo Container (25% width -> 3/12 cols) */}
+      <Card className="lg:col-span-3 flex flex-col h-full shadow-sm transition-all hover:shadow-md">
         <CardHeader className="pb-3 border-b bg-muted/20">
           <CardTitle className="text-lg flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-primary"/>
@@ -113,20 +136,18 @@ export function SpacedRepetitionCalendar() {
              {selectedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-4 space-y-3">
+        <CardContent className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[500px]">
           {itemsForSelectedDay.length > 0 ? (
             itemsForSelectedDay.map((item, idx) => {
                // Determine real state
-               // @ts-ignore
                const isProjected = item.isProjected;
-               // @ts-ignore
                const stageDisplay = isProjected ? item.projectedStage : item.current_stage_index;
 
                const isItemOverdue = !isProjected && new Date(item.next_due_at) < new Date() && !isToday(new Date(item.next_due_at));
                
                return (
                  <div key={`${item.id}-${idx}`} className={`group flex flex-col gap-2 p-3 rounded-lg border transition-colors ${
-                    isProjected ? 'bg-muted/30 border-dashed border-muted-foreground/30 opacity-70' : 'bg-card hover:border-primary/50'
+                    isProjected ? 'bg-muted/30 border-dashed border-muted-foreground/30 opacity-70' : 'bg-card/50 dark:bg-black/20 hover:bg-accent/50 dark:hover:bg-accent/10 hover:border-primary/50'
                  }`}>
                    <div className="flex justify-between items-start">
                      <span className="font-medium text-sm line-clamp-2">{item.quiz.title}</span>
@@ -183,10 +204,14 @@ export function SpacedRepetitionCalendar() {
             </div>
         )}
       </Card>
+        
+      {/* 2. MIDDLE: Activity Graph Widget (25% width -> 3/12 cols, same as tasks) */}
+      <div className="lg:col-span-3 h-full min-h-[250px] lg:min-h-0">
+         <ActivityGraph />
+      </div>
 
-
-      {/* 2. RIGHT: Calendar Grid */}
-      <Card className="lg:col-span-2 flex flex-col h-full shadow-sm">
+      {/* 3. RIGHT: Calendar Grid (50% width -> 6/12 cols) */}
+      <Card className="lg:col-span-6 flex flex-col h-full shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between py-4 border-b bg-muted/10">
           <div className="flex items-center space-x-2">
              <CalendarIcon className="w-5 h-5 text-muted-foreground"/>
@@ -208,7 +233,7 @@ export function SpacedRepetitionCalendar() {
           {/* Grid */}
           <div className="grid grid-cols-7 gap-2 h-full content-start">
             {calendarGrid.map((date, idx) => {
-              if (!date) return <div key={`empty-${idx}`} className="bg-transparent" />;
+              if (!date) return <div key={`empty-${idx}`} className="bg-transparent aspect-square" />;
 
               const dateKey = date.toDateString(); // Keep this for schedule lookup (if that uses it)
               
@@ -222,7 +247,6 @@ export function SpacedRepetitionCalendar() {
               const isTodayDate = isToday(date);
               const isSelected = isSameDay(date, selectedDate);
               
-              // @ts-ignore
               const projectedCount = items.filter(i => i.isProjected).length;
               const overdueCount = items.filter(i => !i.isProjected && new Date(i.next_due_at) < new Date()).length;
               // Real Pending = Total - Overdue - Projected
@@ -233,24 +257,24 @@ export function SpacedRepetitionCalendar() {
                   key={idx}
                   onClick={() => setSelectedDate(date)}
                   className={`
-                    min-h-[80px] p-2 rounded-lg border transition-all cursor-pointer flex flex-col justify-between relative
+                    aspect-square p-2 rounded-lg border transition-all cursor-pointer flex flex-col justify-between relative
                     hover:shadow-sm
                     ${isSelected 
                        ? 'bg-primary/5 border-primary ring-1 ring-primary' 
                        : isTodayDate 
                           ? 'bg-accent/40 border-accent-foreground/20' 
-                          : 'bg-card border-border/60 hover:border-primary/30'}
+                          : 'bg-card/50 dark:bg-black/40 border-border/60 hover:bg-accent/50 dark:hover:bg-accent/20 hover:border-primary/30'}
                   `}
                 >
                   <div className="flex justify-between items-start w-full relative">
-                     <span className={`text-sm font-medium ${isTodayDate ? 'text-primary' : 'text-foreground/80'}`}>
+                     <span className={`text-xs font-medium ${isTodayDate ? 'text-primary' : 'text-foreground/80'}`}>
                         {date.getDate()}
                      </span>
                      {/* Daily Activity Badge */}
                      {(activityMap[activityKey] || 0) > 0 && (
-                        <div className="absolute top-[-4px] right-[-4px]">
-                            <span className="text-[10px] text-primary-foreground font-bold bg-primary/90 px-1.5 py-0.5 rounded shadow-sm scale-90" title="Quizzes completed today">
-                            Quiz: {activityMap[activityKey]}
+                        <div className="absolute top-[-6px] right-[-6px] z-10">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-background">
+                              {activityMap[activityKey]}
                             </span>
                         </div>
                      )}
@@ -258,21 +282,15 @@ export function SpacedRepetitionCalendar() {
                   
                   {/* Indicators */}
                   {(overdueCount > 0 || pendingCount > 0 || projectedCount > 0) && (
-                     <div className="flex gap-1 flex-wrap mt-1">
+                     <div className="flex gap-1 flex-wrap content-end mt-auto">
                        {overdueCount > 0 && (
-                          <div className="bg-red-100 text-red-600 text-[10px] px-1.5 rounded-full font-bold flex items-center justify-center" title="Overdue">
-                             {overdueCount}
-                          </div>
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500" title={`${overdueCount} Overdue`}/>
                        )}
                        {pendingCount > 0 && (
-                          <div className="bg-blue-100 text-blue-600 text-[10px] px-1.5 rounded-full font-bold flex items-center justify-center" title="Due">
-                             {pendingCount}
-                          </div>
+                          <div className="h-1.5 w-1.5 rounded-full bg-blue-500" title={`${pendingCount} Due`}/>
                        )}
                        {projectedCount > 0 && (
-                          <div className="bg-purple-100 text-purple-600 text-[10px] px-1.5 rounded-full font-bold flex items-center justify-center opacity-70" title="Projected Future">
-                             {projectedCount}
-                          </div>
+                          <div className="h-1.5 w-1.5 rounded-full bg-purple-400 opacity-50" title={`${projectedCount} Future`}/>
                        )}
                      </div>
                   )}

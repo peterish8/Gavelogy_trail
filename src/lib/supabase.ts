@@ -734,21 +734,21 @@ export interface Database {
           id: string;
           user_id: string | null;
           original_content_id: string;
-          draft_data: any | null; // jsonb
+          draft_data: Record<string, unknown> | null; // jsonb
           updated_at: string | null;
         };
         Insert: {
           id?: string;
           user_id?: string | null;
           original_content_id: string;
-          draft_data?: any | null;
+          draft_data?: Record<string, unknown> | null;
           updated_at?: string | null;
         };
         Update: {
           id?: string;
           user_id?: string | null;
           original_content_id?: string;
-          draft_data?: any | null;
+          draft_data?: Record<string, unknown> | null;
           updated_at?: string | null;
         };
       };
@@ -798,21 +798,21 @@ export interface Database {
           id: string;
           lobby_id: string;
           event_type: string;
-          payload: any; // jsonb
+          payload: Record<string, unknown>; // jsonb
           created_at: string | null;
         };
         Insert: {
           id?: string;
           lobby_id: string;
           event_type: string;
-          payload: any;
+          payload: Record<string, unknown>;
           created_at?: string | null;
         };
         Update: {
           id?: string;
           lobby_id?: string;
           event_type?: string;
-          payload?: any;
+          payload?: Record<string, unknown>;
           created_at?: string | null;
         };
       };
@@ -823,7 +823,7 @@ export interface Database {
           mode: string;
           current_round: number | null;
           max_rounds: number | null;
-          question_ids: any; // jsonb
+          question_ids: string[]; // jsonb
           started_at: string | null;
           finished_at: string | null;
           created_at: string | null;
@@ -834,7 +834,7 @@ export interface Database {
           mode: string;
           current_round?: number | null;
           max_rounds?: number | null;
-          question_ids: any;
+          question_ids: string[];
           started_at?: string | null;
           finished_at?: string | null;
           created_at?: string | null;
@@ -845,7 +845,7 @@ export interface Database {
           mode?: string;
           current_round?: number | null;
           max_rounds?: number | null;
-          question_ids?: any;
+          question_ids?: string[];
           started_at?: string | null;
           finished_at?: string | null;
           created_at?: string | null;

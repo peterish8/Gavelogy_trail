@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useStreakStore } from "@/lib/stores/streaks";
-import { AppHeader } from "@/components/app-header";
+// AppHeader import removed
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DottedBackground } from "@/components/DottedBackground";
@@ -58,7 +58,7 @@ export default function LeaderboardPage() {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">Loading leaderboard...</div>
         </div>
@@ -73,7 +73,7 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
 
       <motion.div 
         className="container mx-auto px-4 py-8 no-copy max-w-4xl"

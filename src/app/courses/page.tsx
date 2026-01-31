@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { usePaymentStore } from "@/lib/payment";
-import { AppHeader } from "@/components/app-header";
+// AppHeader import removed
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +31,6 @@ export default function CoursesPage() {
 
   const { isAuthenticated, isLoading } = useAuthStore();
   const { 
-    purchasedCourses, 
     purchaseCourse, 
     checkUserCourseAccess, 
     availableCourses, 
@@ -83,9 +82,7 @@ export default function CoursesPage() {
   }, [isAuthenticated, checkUserCourseAccess, availableCourses]);
 
   const handlePurchase = async (
-    courseId: string,
-    courseName: string,
-    price: number
+    courseId: string
   ) => {
     setPurchasing(courseId);
     const result = await purchaseCourse(courseId);
@@ -120,7 +117,7 @@ export default function CoursesPage() {
     return (
       <div className="min-h-screen relative bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
           <p className="text-muted-foreground animate-pulse">Loading experience...</p>
@@ -132,9 +129,9 @@ export default function CoursesPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen relative bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="min-h-screen relative transition-colors duration-300">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
 
       <motion.div 
         className="container mx-auto px-4 py-12 relative z-10"
@@ -147,10 +144,10 @@ export default function CoursesPage() {
           <Badge variant="outline" className="mb-4 px-4 py-1 text-sm border-primary/20 bg-primary/5 text-primary">
             Academic Excellence
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-foreground">
             Explore Courses
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
+          <p className="text-lg text-muted-foreground">
             Master CLAT PG with our comprehensively designed curriculum and expert-led modules.
           </p>
         </motion.div>
@@ -245,7 +242,7 @@ export default function CoursesPage() {
                                 <>
                                     <Button 
                                         className="w-full shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]" 
-                                        onClick={() => handlePurchase(course.id, course.name, course.price)}
+                                        onClick={() => handlePurchase(course.id)}
                                         disabled={isPurchasing}
                                     >
                                         {isPurchasing ? (

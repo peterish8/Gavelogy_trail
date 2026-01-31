@@ -60,7 +60,7 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
 
       // Prepare data for insertion - mapping to likely DB column names or storing in a flexible column if needed
       // Assuming columns exist for now based on usage patterns
-      const dbPayload: any = {
+      const dbPayload: Record<string, unknown> = {
         user_id: user.id,
         quiz_id: attemptData.quizId,
         score: attemptData.score,
@@ -149,7 +149,7 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
       }));
 
       set({ attempts, loading: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Suppress empty errors
       if (error && typeof error === 'object' && Object.keys(error).length === 0) {
         console.warn('Quiz attempts: empty error, likely no data.');

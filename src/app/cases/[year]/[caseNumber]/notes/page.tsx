@@ -2,7 +2,6 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
 import { DottedBackground } from "@/components/DottedBackground";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +15,6 @@ import {
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DataLoader } from "@/lib/data-loader";
 import { customToHtml } from "@/lib/content-converter";
-import { supabase } from "@/lib/supabase";
 
 export default function CaseNotesPage({
   params,
@@ -33,9 +31,6 @@ export default function CaseNotesPage({
   // Enable copy protection
   useCopyProtection();
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionDirection, setTransitionDirection] = useState<
-    "left" | "right"
-  >("right");
 
   useEffect(() => {
     loadCaseNotes();
@@ -144,7 +139,7 @@ export default function CaseNotesPage({
           `Case notes for ${caseNumber} are not available yet. This case will be added soon.`
         );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading case notes:", error);
       setCaseNotes("Error loading case notes. Please try again.");
     } finally {

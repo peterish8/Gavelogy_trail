@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMistakeStore, ConfidenceStats } from "@/lib/stores/mistakes";
+import { useMistakeStore } from "@/lib/stores/mistakes";
 
 interface ConfidenceChartProps {
   subject?: string;

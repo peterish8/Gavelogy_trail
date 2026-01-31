@@ -55,7 +55,7 @@ export const subscribeToLobby = (lobbyId: string) => {
   return channel;
 };
 
-export const unsubscribeFromLobby = (channel: any) => {
+export const unsubscribeFromLobby = (channel: ReturnType<typeof supabase.channel>) => {
   if (channel) {
     supabase.removeChannel(channel);
   }

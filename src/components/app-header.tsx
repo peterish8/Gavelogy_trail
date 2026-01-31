@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -8,7 +8,7 @@ import { useAuthStore } from "@/lib/stores/auth";
 import { useThemeStore } from "@/lib/stores/theme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Moon, Sun, User, LogOut, Menu, X, Settings, Search } from "lucide-react";
+import { Moon, Sun, User, LogOut, Menu, X, Search } from "lucide-react";
 
 const APP_NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -39,7 +39,7 @@ export function AppHeader() {
     (pathname?.startsWith('/course-viewer') ? APP_NAV_LINKS.find(link => link.href === '/courses') : null);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60 glass-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center space-x-2">

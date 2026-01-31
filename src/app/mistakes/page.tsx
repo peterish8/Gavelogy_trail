@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { AppHeader } from "@/components/app-header";
+// AppHeader import removed
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Check, Clock, BookOpen } from "lucide-react";
+import { ArrowLeft, Check, BookOpen } from "lucide-react";
 import { useMistakeStore } from "@/lib/stores/mistakes";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { DottedBackground } from "@/components/DottedBackground";
@@ -32,7 +32,6 @@ export default function MistakesPage() {
   const { mistakes, loading, loadMistakes, markAsMastered } = useMistakeStore();
   const [activeTab, setActiveTab] = useState("static-subjects");
   const [expandedSubjects, setExpandedSubjects] = useState<Set<string>>(new Set());
-  const [expanded2025Subjects, setExpanded2025Subjects] = useState<Set<string>>(new Set());
   const [expandedCases, setExpandedCases] = useState<Set<string>>(new Set());
   const [selectedMistakes, setSelectedMistakes] = useState<Set<string>>(new Set());
 
@@ -54,17 +53,7 @@ export default function MistakesPage() {
     });
   };
 
-  const toggle2025Subject = (subjectId: string) => {
-    setExpanded2025Subjects((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(subjectId)) {
-        newSet.delete(subjectId);
-      } else {
-        newSet.add(subjectId);
-      }
-      return newSet;
-    });
-  };
+
 
   const toggleCase = (caseId: string) => {
     setExpandedCases((prev) => {
@@ -110,20 +99,14 @@ export default function MistakesPage() {
     "2025": mistakesByType["contemporary-cases"].filter(m => m.question_id.includes('-25-'))
   };
 
-  // Group 2025 cases by subject
-  const mistakes2025BySubject = contemporaryMistakesByYear["2025"].reduce((acc, mistake) => {
-    const subject = mistake.subject || "Other";
-    if (!acc[subject]) acc[subject] = [];
-    acc[subject].push(mistake);
-    return acc;
-  }, {} as Record<string, any[]>);
+
 
 
 
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: "white" }}>
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -136,7 +119,7 @@ export default function MistakesPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
       
       <motion.div 
         className="container mx-auto px-4 py-8"
@@ -200,7 +183,7 @@ export default function MistakesPage() {
                   : "bg-white/60 text-gray-600 hover:bg-white/80 border border-gray-200"
               }`}
             >
-              <span className="relative z-10">PYQ's</span>
+              <span className="relative z-10">PYQ&apos;s</span>
             </motion.button>
 
             <button
@@ -235,7 +218,7 @@ export default function MistakesPage() {
                       if (!acc[subject]) acc[subject] = [];
                       acc[subject].push(mistake);
                       return acc;
-                    }, {} as Record<string, any[]>)
+                    }, {} as Record<string, typeof mistakes>)
                   ).map(([subject, subjectMistakes]) => {
                     const isExpanded = expandedSubjects.has(subject);
                     const selectedCount = subjectMistakes.filter(m => selectedMistakes.has(m.id)).length;
@@ -434,7 +417,7 @@ export default function MistakesPage() {
                               if (!acc[caseNumber]) acc[caseNumber] = [];
                               acc[caseNumber].push(mistake);
                               return acc;
-                            }, {} as Record<string, any[]>)
+                            }, {} as Record<string, typeof mistakes>)
                           )
                           .sort(([a], [b]) => parseInt(a) - parseInt(b))
                           .map(([caseNumber, caseMistakes]) => {

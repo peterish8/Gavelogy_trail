@@ -119,9 +119,7 @@ export function processContentForTTS(htmlString: string): ProcessedContent {
                 // Logic check: When to flush?
                 // If this `part` was the punctuation, we flush.
                 // If the NEXT part is punctuation, we continue.
-                const nextPart = parts[i+1];
                 const isPunctuation = /^[.?!:,]+$/.test(part);
-                const nextIsPunctuation = nextPart && /^[.?!:,]+$/.test(nextPart);
 
                 if (isPunctuation) {
                     // We found punctuation, so the buffer (which includes this punct) is done.

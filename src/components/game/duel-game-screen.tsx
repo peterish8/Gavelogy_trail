@@ -5,10 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/stores/game-store';
 import { submitAnswer, finishGame } from '@/actions/game/gameplay';
 import { simulateSingleBotAnswer, generateBotAccuracy } from '@/lib/game/bot-system';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
-import { Timer, Trophy, Zap, CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth';
 import confetti from 'canvas-confetti';
@@ -180,7 +179,7 @@ export default function DuelGameScreen() {
          
          // Using simulateSingleBotAnswer which sets a timeout
          simulateSingleBotAnswer(
-            { accuracy: botAccuracy }, // Use generated accuracy (60-80% typical)
+            { name: opponent.displayName || 'Bot', accuracy: botAccuracy, avgResponseTime: 20000 }, // Use generated accuracy (60-80% typical)
             question,
             async (ans, time) => {
                 if (lobbyId && question && opponent) {
@@ -204,7 +203,7 @@ export default function DuelGameScreen() {
     const getLabel = (i: number) => String.fromCharCode(65 + i);
     
     if (Array.isArray(question.options)) {
-      return question.options.map((opt: any, i: number) => {
+      return (question.options as Array<{ letter?: string; text: string } | string>).map((opt, i: number) => {
         if (typeof opt === 'object' && opt !== null && 'text' in opt) {
           return { key: opt.letter || getLabel(i), text: opt.text };
         }

@@ -4,22 +4,79 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
-export function TranslateWidget() {
+interface TranslateWidgetProps {
+  resetKey?: string | null; // When this changes, reset translation to English
+}
+
+declare global {
+  interface Window {
+    googleTranslateElementInit: () => void;
+    google: {
+      translate: {
+        TranslateElement: {
+          new (options: unknown, elementId: string): unknown;
+          InlineLayout: {
+            SIMPLE: unknown;
+          };
+        };
+      };
+    };
+  }
+}
+
+export function TranslateWidget({ resetKey }: TranslateWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+
+  // Function to reset Google Translate to English
+  const resetToEnglish = () => {
+    // Method 1: Clear Google Translate cookie
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
+    
+    // Method 2: Try to use Google Translate API to reset
+    const selectElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (selectElement) {
+      selectElement.value = 'en';
+      selectElement.dispatchEvent(new Event('change'));
+    }
+    
+    // Method 3: Reload if translation was active
+    if (document.documentElement.classList.contains('translated-ltr') || 
+        document.documentElement.classList.contains('translated-rtl')) {
+      // Remove translation classes
+      document.documentElement.classList.remove('translated-ltr', 'translated-rtl');
+    }
+    
+    setIsOpen(false);
+  };
+
+  // Reset translation when resetKey changes (different note selected)
+  useEffect(() => {
+    if (resetKey !== undefined) {
+      resetToEnglish();
+    }
+  }, [resetKey]);
+
+  // Reset translation when navigating to different page
+  useEffect(() => {
+    resetToEnglish();
+  }, [pathname]);
 
   // Initialize Google Translate Script
   useEffect(() => {
     if (document.getElementById('google-translate-script')) return;
 
-    (window as any).googleTranslateElementInit = () => {
-      new (window as any).google.translate.TranslateElement(
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
         { 
             pageLanguage: 'en', 
             includedLanguages: 'en,hi,ta,te,kn,ml,bn,mr,gu,pa,ur,fr,es,de,it,ja,ko,zh-CN,ru,ar', 
-            layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false
         },
         'google_translate_element'
@@ -98,7 +155,7 @@ export function TranslateWidget() {
 
 
     // NUCLEAR OBSERVER: Watch for the banner and kill it immediately
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
         const bannerFrame = document.querySelector('.goog-te-banner-frame');
         const containerFrame = document.querySelector('iframe[id*=".container"]');
         const obfuscatedFrame = document.querySelector('.VIpgJd-ZVi9od-ORHb');

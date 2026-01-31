@@ -2,35 +2,39 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle, TrendingDown, Target } from "lucide-react";
-import { useMistakeStore } from "@/lib/stores/mistakes";
+import { useMistakeStore, MistakeRecord } from "@/lib/stores/mistakes";
 
 export default function MistakesTab() {
-  const { getMistakeStats, getActiveMistakes, getClearedMistakes } =
-    useMistakeStore();
-  const stats = getMistakeStats();
+  const { mistakes } = useMistakeStore();
 
-  // Calculate cleared this week
-  const clearedMistakes = getClearedMistakes();
+  // Calculate stats from mistakes data
+  const totalMistakes = mistakes.length;
+  const clearedMistakes = mistakes.filter(m => m.is_mastered);
   const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const clearedThisWeek = clearedMistakes.filter(
-    (m) => m.clearedAt && m.clearedAt > oneWeekAgo
+  const clearedThisWeek = mistakes.filter(
+    (m: MistakeRecord) => m.is_mastered && new Date(m.created_at).getTime() > oneWeekAgo
   ).length;
 
   // Get top weak subjects
-  const topWeakSubjects = Object.entries(stats.mistakesBySubject)
-    .sort(([, a], [, b]) => b - a)
+  const mistakesBySubject: Record<string, number> = {};
+  mistakes.forEach((mistake: MistakeRecord) => {
+    mistakesBySubject[mistake.subject] = (mistakesBySubject[mistake.subject] || 0) + 1;
+  });
+
+  const topWeakSubjects = Object.entries(mistakesBySubject)
+    .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 3)
     .map(([subject]) => subject);
 
   const mistakeData = {
-    activeMistakes: stats.activeMistakes,
+    activeMistakes: totalMistakes - clearedMistakes.length,
     clearedThisWeek: clearedThisWeek,
-    clearanceRate: Math.round(stats.clearanceRate),
+    clearanceRate: totalMistakes > 0 ? Math.round((clearedMistakes.length / totalMistakes) * 100) : 0,
     topWeakSubjects:
       topWeakSubjects.length > 0 ? topWeakSubjects : ["No mistakes yet"],
   };
 
-  const subjectMistakes = Object.entries(stats.mistakesBySubject).map(
+  const subjectMistakes = Object.entries(mistakesBySubject).map(
     ([subject, mistakes]) => ({
       subject,
       mistakes,
@@ -140,7 +144,7 @@ export default function MistakesTab() {
               <div
                 key={index}
                 className={`${getMistakeColor(
-                  subject.mistakes
+                  subject.mistakes as number
                 )} rounded-lg p-3 text-white text-center cursor-pointer hover:opacity-80 transition-opacity`}
                 title={`${subject.subject} — ${subject.mistakes} mistakes (${
                   subject.change > 0 ? "+" : ""
@@ -282,7 +286,7 @@ export default function MistakesTab() {
                 <div className="flex items-center space-x-3">
                   <div
                     className={`w-3 h-3 rounded-full ${getMistakeColor(
-                      subject.mistakes
+                      subject.mistakes as number
                     )}`}
                   />
                   <span className="font-medium">{subject.subject}</span>

@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { calculatePoints } from '@/lib/game/scoring';
-import { awardCoins } from './rewards';
 
 /**
  * Validates answer server-side, calculates points, stores result, and broadcasts.

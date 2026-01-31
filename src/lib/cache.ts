@@ -1,6 +1,6 @@
 // Simple in-memory cache with localStorage persistence
 class CacheManager {
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
   private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
@@ -8,7 +8,7 @@ class CacheManager {
     this.loadFromStorage();
   }
 
-  set(key: string, data: any, ttl: number = this.DEFAULT_TTL) {
+  set(key: string, data: unknown, ttl: number = this.DEFAULT_TTL) {
     const item = {
       data,
       timestamp: Date.now(),
@@ -19,7 +19,7 @@ class CacheManager {
     this.saveToStorage();
   }
 
-  get(key: string) {
+  get(key: string): unknown {
     const item = this.cache.get(key);
     
     if (!item) return null;

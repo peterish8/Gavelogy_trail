@@ -4,8 +4,8 @@ import { useState, useEffect, use, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, XCircle, Trophy, HelpCircle } from "lucide-react";
-import { QuizLoader, AttachedQuiz, QuizQuestion } from "@/lib/quiz-loader";
+import { ArrowLeft, CheckCircle, XCircle, Trophy } from "lucide-react";
+import { QuizLoader, AttachedQuiz } from "@/lib/quiz-loader";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
@@ -98,7 +98,7 @@ function CourseQuizContent({
       }
       
       setQuiz(quizData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error loading quiz:", err);
       setError("Error loading quiz. Please try again.");
     } finally {
@@ -108,7 +108,6 @@ function CourseQuizContent({
 
   const currentQuestion = quiz?.questions[currentQuestionIndex];
   const totalQuestions = quiz?.questions.length || 0;
-  const score = userAnswers.filter(a => a.isCorrect).length;
 
   const handleAnswerSelect = (answer: string) => {
     if (showFeedback) return;

@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -12,11 +13,13 @@ const supabase = createClient(
 
 async function checkMocks() {
   console.log('--- Checking Mocks ---');
-  const { data: mocks, error } = await supabase
+  const { data: mocks } = await supabase
     .from('mock_tests')
     .select('*')
     .ilike('title', '%Delhi Pollution%')
     .limit(1);
+  
+  console.log('Mock data:', mocks);
 
   if (mocks && mocks.length > 0) {
       console.log('✅ Found in mock_tests:', mocks[0]);

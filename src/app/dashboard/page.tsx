@@ -3,21 +3,22 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/lib/stores/auth";
-import { useStreakStore } from "@/lib/stores/streaks";
+
 import { useQuizStore } from "@/lib/stores/quiz";
 import { useMistakeStore } from "@/lib/stores/mistakes";
-import { AppHeader } from "@/components/app-header";
+import { useLoadingStore } from "@/lib/stores/loading-store";
+import { useSidebarState } from "@/hooks/use-sidebar-state";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+// AppHeader import removed
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { DottedBackground } from "@/components/DottedBackground";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
-import { BookOpen, Target, BarChart3, BookOpenCheck, AlertTriangle, Clock, CheckCircle, XCircle } from "lucide-react";
+import { BookOpen, Target, BarChart3, BookOpenCheck, Clock, CheckCircle, XCircle } from "lucide-react";
 import {
-  purchaseCourse,
   COURSES,
-  getUserCourses,
   Course,
   usePaymentStore,
 } from "@/lib/payment";
@@ -25,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { SpacedRepetitionCalendar } from "@/components/spaced-repetition/calendar-view";
 
 export default function DashboardPage() {
+  const { isCollapsed, isMounted } = useSidebarState();
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -41,23 +43,29 @@ export default function DashboardPage() {
   };
 
   const { user, profile, isAuthenticated, isLoading } = useAuthStore();
-  const { getUserCourses: getCourses, purchaseCourse: buyCourse, loadUserCourses } =
+  const { getUserCourses: getCourses, loadUserCourses } =
     usePaymentStore();
 
   const { getRecentAttempts, loadAttempts, loading: quizLoading } = useQuizStore();
-  const { mistakes, loadMistakes } = useMistakeStore();
+  const { loadMistakes } = useMistakeStore();
   const router = useRouter();
   const [userCourses, setUserCourses] = useState<Course[]>([]);
-  const [purchasing, setPurchasing] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
 
   // Enable copy protection
   useCopyProtection();
 
+  const { setLoading } = useLoadingStore();
+
   const fetchAndSetCourses = useCallback(async () => {
     const courses = await getCourses();
     setUserCourses(courses);
   }, [getCourses]);
+
+  useEffect(() => {
+    // Dismiss loader when dashboard mounts
+    setLoading(false);
+  }, [setLoading]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -88,11 +96,7 @@ export default function DashboardPage() {
     allAttempts: allAttempts.length,
     loading: quizLoading
   });
-  // Count all unmastered mistakes (wrong answers)
-  const totalMistakes = mistakes.filter(m => !m.is_mastered && m.user_answer !== m.correct_answer.replace(/[()]/g, "").trim()).length;
-  
-  // Count all unmastered unsure answers (correct but guessed/fluke)
-  const totalUnsures = mistakes.filter(m => !m.is_mastered && (m.confidence_level === 'educated_guess' || m.confidence_level === 'fluke')).length;
+
 
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
@@ -114,11 +118,7 @@ export default function DashboardPage() {
     return '📖';
   };
 
-  const getAccuracyColor = (accuracy: number) => {
-    if (accuracy < 35) return 'destructive';
-    if (accuracy < 76) return 'outline';
-    return 'default';
-  };
+
 
   const getAccuracyBorderColor = (accuracy: number) => {
     if (accuracy < 35) return 'border-l-red-500';
@@ -141,38 +141,13 @@ export default function DashboardPage() {
     return topic;
   };
 
-  const handlePurchase = async (
-    courseId: string,
-    courseName: string,
-    price: number
-  ) => {
-    setPurchasing(courseId);
 
-    try {
-      const result = await buyCourse(courseId);
-
-      if (result.success) {
-        loadUserCourses(); // Update DB Store
-        fetchAndSetCourses(); // Update local UI
-        alert(`Successfully purchased ${courseName}!`);
-      } else {
-        alert(`Purchase failed: ${result.error}`);
-      }
-    } catch (error) {
-      alert("Purchase failed. Please try again.");
-    } finally {
-      setPurchasing(null);
-    }
-  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen flex items-center justify-center">
         <DottedBackground />
-        <AppHeader />
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center">Loading...</div>
-        </div>
+        <LoadingSpinner size="lg" text="Loading Dashboard..." />
       </div>
     );
   }
@@ -181,7 +156,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <p>Please log in to access the dashboard.</p>
@@ -194,16 +169,16 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
 
       <motion.div 
-        className="container mx-auto px-4 py-4 no-copy"
+        className="w-full max-w-[1800px] mx-auto px-6 lg:px-10 py-6 no-copy"
         variants={container}
         initial="hidden"
         animate="show"
       >
         <motion.div className="mb-4" variants={item}>
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center justify-between transition-all duration-300 ${isMounted && isCollapsed ? 'pl-14 lg:pl-14' : ''}`}>
             <div className="flex-1">
               <h1 className="text-4xl font-bold mb-1">
                 Hi 👋 {profile?.full_name || "Student"}, ready to improve today?
@@ -227,7 +202,7 @@ export default function DashboardPage() {
                 { id: "overview", label: "Overview", icon: BookOpen },
                 { id: "analytics", label: "Analytics", icon: BarChart3 },
                 { id: "courses", label: "Courses", icon: BookOpenCheck }
-              ].map((tab, index) => {
+              ].map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <motion.button
@@ -261,7 +236,7 @@ export default function DashboardPage() {
                  <SpacedRepetitionCalendar />
             </div>
 
-            <Card className="mt-8">
+            <Card className="mt-8 shiny-card">
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -288,7 +263,7 @@ export default function DashboardPage() {
 
                         const displayTopic = formatTopicName(attempt.subject || 'Unknown', attempt.topic || 'Unknown');
                         return (
-                          <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)}`}>
+                          <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)} shiny-card transition-colors duration-200 dark:hover:bg-[#262626]! hover:bg-accent/50`}>
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">

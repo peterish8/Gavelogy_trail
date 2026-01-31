@@ -6,23 +6,36 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { DataLoader } from "@/lib/data-loader";
 import { CourseStructureList } from "@/components/course-structure-list";
 import { DottedBackground } from "@/components/DottedBackground";
-import { AppHeader } from "@/components/app-header";
 import { customToHtml } from "@/lib/content-converter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, Maximize2, Minimize2, ChevronLeft, ChevronRight, Download, ChevronDown, ScrollText, FileStack, Trash2, X, BookOpen, MoreVertical } from "lucide-react";
+import { ArrowLeft, FileText, Maximize2, Minimize2, ChevronLeft, ChevronRight, Download, ChevronDown, ScrollText, FileStack, X, BookOpen, MoreVertical, Moon, Sun, Menu, ChevronsLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { StudyTimer, FloatingTimer } from "@/components/study-timer";
+import { StudyTimer } from "@/components/study-timer";
 import { HighlightToolbar } from "@/components/highlight-toolbar";
 import { applyHighlightsToHtml, removeHighlight, hideText, getHighlights } from "@/lib/highlight-storage";
 import { CourseNotes } from "@/components/course-notes";
 import { useAuthStore } from "@/lib/stores/auth";
-import { useHighlightHistory, HighlightAction } from "@/hooks/use-highlight-history";
+import { useHighlightHistory } from "@/hooks/use-highlight-history";
 import { processContentForTTS } from "@/lib/tts-processor";
 import { useTTS } from "@/hooks/use-tts";
 import { Play, Pause, RotateCcw, RotateCw } from "lucide-react";
+import { TranslateWidget } from "@/components/translate-widget";
+import { useThemeStore } from "@/lib/stores/theme";
+import { SidebarNav } from "@/components/navigation/sidebar-nav";
 
 import { Suspense } from "react";
+
+interface CourseStructureItem {
+  id: string;
+  title: string;
+  item_type: "folder" | "file";
+  children?: CourseStructureItem[];
+  description?: string;
+  is_active: boolean;
+  order_index: number;
+  [key: string]: unknown;
+}
 
 function CourseViewerContent() {
   const searchParams = useSearchParams();
@@ -31,14 +44,14 @@ function CourseViewerContent() {
   const readerQuizId = searchParams?.get("quizId"); // For Reader Mode quiz navigation
   const router = useRouter(); 
   
-  const [structure, setStructure] = useState<any[]>([]);
+  const [structure, setStructure] = useState<CourseStructureItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [content, setContent] = useState<string | null>(null);
   
   // Compute selected item from structure
-  const flatten = useCallback((items: any[]): any[] => {
-    return items.reduce((acc, item) => {
+  const flatten = useCallback((items: CourseStructureItem[]): CourseStructureItem[] => {
+    return items.reduce((acc: CourseStructureItem[], item: CourseStructureItem) => {
       return [...acc, item, ...(item.children ? flatten(item.children) : [])];
     }, []);
   }, []);
@@ -62,6 +75,34 @@ function CourseViewerContent() {
 
   // Reader Mode State
   const [isReaderMode, setIsReaderMode] = useState(false);
+  
+  // Sidebar Collapsed State (for course-viewer's left panel)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // Navigation Drawer State (Main App Navigation)
+  const [showNavDrawer, setShowNavDrawer] = useState(false);
+  const [isClosingDrawer, setIsClosingDrawer] = useState(false);
+
+  const handleCloseNav = () => {
+    setIsClosingDrawer(true);
+    setTimeout(() => {
+      setShowNavDrawer(false);
+      setIsClosingDrawer(false);
+    }, 300); // Match animation duration
+  };
+  
+  // Global Dark Mode Detection
+  const { isDarkMode } = useThemeStore();
+  
+  // Sheet Dark Mode Toggle (independent of global dark mode, but only available in global dark mode)
+  const [isSheetDark, setIsSheetDark] = useState(false);
+  
+  // Sync sheet dark mode with global dark mode - when global light mode, always use light sheet
+  useEffect(() => {
+    if (!isDarkMode) {
+      setIsSheetDark(false);
+    }
+  }, [isDarkMode]);
 
   useEffect(() => {
      if (searchParams?.get("view") === "reader") {
@@ -286,7 +327,7 @@ function CourseViewerContent() {
       setIsFullscreen(true);
       // Attempt browser fullscreen ONLY on Desktop
       if (window.innerWidth >= 768) {
-         document.documentElement.requestFullscreen().catch((err) => {
+         document.documentElement.requestFullscreen().catch(() => {
             // Ignore errors
          });
       }
@@ -427,19 +468,19 @@ function CourseViewerContent() {
     setLoading(true);
     const [structData, completedData, courseData] = await Promise.all([
        DataLoader.getCourseStructure(id),
-       DataLoader.getUserCompletedItems(id),
+       DataLoader.getUserCompletedItems(),
        DataLoader.getCourseById(id)
     ]);
     
-    setStructure(structData);
+    setStructure(structData as CourseStructureItem[]);
     setCompletedItems(new Set(completedData));
     if (courseData) {
       setCourseName(courseData.name || "Course Content");
     }
     
     // Load content availability
-    const flattenFiles = (items: any[]): any[] => {
-      return items.reduce((acc, item) => {
+    const flattenFiles = (items: CourseStructureItem[]): CourseStructureItem[] => {
+      return items.reduce((acc: CourseStructureItem[], item: CourseStructureItem) => {
         if (item.item_type === 'file') {
           return [...acc, item];
         }
@@ -450,7 +491,7 @@ function CourseViewerContent() {
       }, []);
     };
     
-    const fileIds = flattenFiles(structData).map(f => f.id);
+    const fileIds = flattenFiles(structData as CourseStructureItem[]).map(f => f.id);
     if (fileIds.length > 0) {
       const { itemsWithNotes: notes, itemsWithQuizzes: quizzes } = await DataLoader.getContentAvailability(fileIds);
       setItemsWithNotes(notes);
@@ -460,9 +501,9 @@ function CourseViewerContent() {
     setLoading(false);
   };
 
-  const flattenFiles = (items: any[]): any[] => {
-    let files: any[] = [];
-    items.forEach(item => {
+  const flattenFiles = (items: CourseStructureItem[]): CourseStructureItem[] => {
+    let files: CourseStructureItem[] = [];
+    items.forEach((item: CourseStructureItem) => {
       if (item.item_type === 'file') {
         files.push(item);
       } else if (item.children) {
@@ -923,7 +964,7 @@ function CourseViewerContent() {
     return (
        <div className="min-h-screen">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <div className="container mx-auto px-4 py-16 text-center">Loading course content...</div>
       </div>
     );
@@ -941,35 +982,89 @@ function CourseViewerContent() {
       {/* Header: Visible in Normal Mode OR Mobile Fullscreen Mode */}
       {/* READER MODE: Hide Header on Desktop too if requested, or keep it? User image shows header. */}
       {/* User image shows "Gavelogy" header at top. So we KEEP header. */}
+      {/* AppHeader removed - Sidebar handles navigation now */}
       <div className={cn("relative z-20", isFullscreen ? "hidden md:hidden max-md:block" : "block")}>
-         <AppHeader />
+         {/* Replaced by Sidebar */}
       </div>
 
       {/* DESKTOP SPLIT VIEW */}
       <div className={cn(
-        "hidden lg:flex fixed inset-0 top-[64px] z-40 overflow-hidden",
+        "hidden lg:flex fixed inset-0 z-40 overflow-hidden",
         isFullscreen && "hidden"
       )}>
-        <div className={cn("w-full h-full flex bg-white", isDragging && "cursor-col-resize select-none")}>
+        <div className={cn("w-full h-full flex bg-gray-50 dark:bg-[#1a1a1a]", isDragging && "cursor-col-resize select-none")}>
+
           {/* Left Sidebar - Resizable (HIDDEN IN READER MODE) */}
           {!isReaderMode && (
             <>
-              <div 
-                className="h-full flex flex-col border-r border-gray-100 bg-linear-to-br from-purple-200 via-blue-100 to-blue-50 overflow-hidden shrink-0"
-                style={{ width: sidebarWidth }}
-              >
-                {/* Header */}
-                <div className="p-8 pb-4 shrink-0">
-                  <h1 className="text-3xl font-bold mb-2 text-gray-900">{courseName || "Course Content"}</h1>
-                  <p className="text-gray-500 text-sm">
-                    {structure.length > 0 
-                      ? `${structure.length} ${structure.length === 1 ? 'chapter' : 'chapters'} · Select a topic`
-                      : "Pick a topic to start"}
-                  </p>
+              {isSidebarCollapsed ? (
+                /* Collapsed Sidebar - Just a slim bar with expand button */
+                <div className="h-full w-[60px] flex flex-col items-center py-4 border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] shrink-0">
+                  <button 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"
+                    onClick={() => setShowNavDrawer(true)}
+                    title="Open Navigation"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </button>
+                  {/* Logo */}
+                  <div className="w-10 h-10 mt-3 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md">
+                    G
+                  </div>
+                  
+                  <div className="mt-auto pb-4">
+                     <button 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"
+                        onClick={() => setIsSidebarCollapsed(false)}
+                        title="Expand Course List"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                  </div>
                 </div>
+              ) : (
+                /* Expanded Sidebar */
+                <div 
+                  className="h-full flex flex-col border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] overflow-hidden shrink-0"
+                  style={{ width: sidebarWidth }}
+                >
+                  {/* Header - Navbar Icon, Logo and Course Name - NO TRANSLATE */}
+                  <div className="px-4 py-4 shrink-0 flex items-start gap-3 border-b border-gray-200 dark:border-gray-700 notranslate">
+                    {/* Navbar Icon - Opens Navigation Drawer */}
+                    <button 
+                      className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors shrink-0 mt-0.5"
+                      onClick={() => setShowNavDrawer(true)}
+                      title="Open Navigation"
+                    >
+                      <Menu className="w-5 h-5" />
+                    </button>
+                    
+                    {/* Logo & Info */}
+                    <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md shrink-0 mt-0.5">
+                      G
+                    </div>
+                    {/* Course Info - Dynamic height */}
+                    <div className="min-w-0 flex-1">
+                      <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-snug">{courseName || "Course"}</h1>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
+                        {structure.length > 0 
+                          ? `${structure.length} ${structure.length === 1 ? 'chapter' : 'chapters'}`
+                          : "Select a topic"}
+                      </p>
+                    </div>
 
-                {/* List - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-8 pt-4 custom-scrollbar">
+                    {/* Collapse Button */}
+                    <button 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors shrink-0"
+                      onClick={() => setIsSidebarCollapsed(true)}
+                      title="Collapse Course List"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* List - Scrollable - NO TRANSLATE */}
+                  <div className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar notranslate">
                   <CourseStructureList 
                     items={structure} 
                     onFileSelect={handleFileSelect} 
@@ -986,8 +1081,10 @@ function CourseViewerContent() {
                   />
                 </div>
               </div>
+              )}
               
-              {/* Resize Handle */}
+              {/* Resize Handle - only show when sidebar is expanded */}
+              {!isSidebarCollapsed && (
               <div 
                 className="w-1 h-full bg-gray-200 hover:bg-blue-400 cursor-col-resize shrink-0 transition-colors group relative"
                 onMouseDown={handleDragStart}
@@ -996,23 +1093,32 @@ function CourseViewerContent() {
                   <div className="w-1 h-6 bg-blue-500 rounded-full" />
                 </div>
               </div>
+              )}
             </>
           )}
           
           {/* Right Content Area */}
           {/* If Reader Mode, center content with max-width like the mobile view but full height */}
           <div className={cn(
-              "flex-1 h-full bg-white overflow-hidden", 
-              isReaderMode && "flex justify-center bg-gray-50/30" // Subtle background for reader
+              "flex-1 h-full bg-transparent overflow-hidden relative z-10", 
+              isReaderMode && "flex justify-center"
           )}>
             {selectedItemId ? (
               <div className={cn(
-                  "h-full overflow-y-auto custom-scrollbar relative w-full",
-                  isReaderMode && "max-w-5xl mx-auto border-x border-gray-100/50 bg-white shadow-sm" // Centered paper like feel
+                  "h-full overflow-y-auto custom-scrollbar relative w-full rounded-2xl transition-all duration-300",
+                  isSheetDark 
+                    ? "bg-zinc-900 border border-zinc-800 shadow-sm" 
+                    : "bg-white border border-gray-200 shadow-sm",
+                  isReaderMode && "max-w-5xl mx-auto"
               )}>
-                {/* Dynamic Island Toolbar - Full Featured */}
-                <div className="sticky top-0 z-50 flex justify-center pt-4 pb-2 pointer-events-none">
-                  <div className="pointer-events-auto bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-full px-4 py-2.5 shadow-xl flex items-center gap-2 transition-all hover:shadow-2xl max-w-4xl">
+                {/* Solid Toolbar - NO TRANSLATE */}
+                <div className={cn(
+                  "sticky top-0 z-50 px-4 py-3 mb-4 border-b transition-all duration-300 notranslate",
+                  isSheetDark 
+                    ? "bg-zinc-900 border-zinc-800" 
+                    : "bg-white border-gray-100"
+                )}>
+                  <div className="flex items-center justify-between w-full">
                     {/* Back Button */}
                     <Button 
                       variant="ghost" 
@@ -1024,20 +1130,33 @@ function CourseViewerContent() {
                               setSelectedItemId(null);
                           }
                       }}
-                      className="rounded-full h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                      className={cn(
+                        "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                        isSheetDark 
+                          ? "text-gray-300 hover:text-white hover:bg-zinc-800" 
+                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-100/80"
+                      )}
                     >
                       <ArrowLeft className="w-3.5 h-3.5 mr-1" />
                       <span className="hidden sm:inline">Back</span>
                     </Button>
                     
-                    <div className="w-px h-5 bg-gray-300" />
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
                     
                     {/* Note Title */}
-                    <span className="text-sm font-medium text-gray-800 max-w-[300px] truncate px-2">
+                    <span className={cn(
+                      "text-sm font-medium max-w-[300px] truncate px-2",
+                      isSheetDark ? "text-gray-100" : "text-gray-800"
+                    )}>
                       {selectedItem?.title || "Notes"}
                     </span>
                     
-                    <div className="w-px h-5 bg-gray-300" />
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                    
+                    {/* Translate Widget */}
+                    <TranslateWidget resetKey={selectedItemId} />
+                    
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
                     
                     {/* Download Button */}
                     <div className="relative">
@@ -1046,7 +1165,12 @@ function CourseViewerContent() {
                         size="sm"
                         onClick={() => setShowDownloadMenu(!showDownloadMenu)}
                         disabled={!content}
-                        className="rounded-full h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                        className={cn(
+                          "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                          isSheetDark 
+                            ? "text-gray-300 hover:text-white hover:bg-zinc-800" 
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                        )}
                       >
                         <Download className="w-3.5 h-3.5" />
                       </Button>
@@ -1089,7 +1213,7 @@ function CourseViewerContent() {
                     {/* TTS Controls */}
                     {sentences.length > 0 && (
                       <>
-                        <div className="w-px h-5 bg-gray-300" />
+                        <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
                         
                         {/* Speed Button */}
                         <button
@@ -1099,7 +1223,12 @@ function CourseViewerContent() {
                                setSpeedMenuPos({ top: rect.bottom + 8, left: rect.left });
                                setShowSpeedMenu(!showSpeedMenu);
                            }}
-                           className="text-gray-600 hover:text-blue-600 transition-colors focus:outline-none p-1.5 rounded-full hover:bg-gray-100/80"
+                           className={cn(
+                             "focus:outline-none p-1.5 rounded-full transition-all duration-300",
+                             isSheetDark 
+                               ? "text-gray-300 hover:text-blue-400 hover:bg-zinc-800" 
+                               : "text-gray-600 hover:text-blue-600 hover:bg-gray-100/80"
+                           )}
                            title="Playback Speed"
                         >
                            <span className="text-xs font-bold w-6 text-center block">{tts.rate}x</span>
@@ -1116,7 +1245,12 @@ function CourseViewerContent() {
                                  tts.play();
                               }
                            }}
-                           className="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none p-1.5 rounded-full hover:bg-gray-100/80"
+                           className={cn(
+                             "focus:outline-none p-1.5 rounded-full transition-all duration-300",
+                             isSheetDark 
+                               ? "text-gray-200 hover:text-blue-400 hover:bg-zinc-800" 
+                               : "text-gray-700 hover:text-blue-600 hover:bg-gray-100/80"
+                           )}
                            title={tts.isPlaying ? "Pause Reading" : "Read Aloud"}
                         >
                            {tts.isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
@@ -1175,34 +1309,67 @@ function CourseViewerContent() {
                       </>
                     )}
 
-                    <div className="w-px h-5 bg-gray-300" />
+                    {/* Sheet Dark Mode Toggle - Only visible in global dark mode */}
+                    {isDarkMode && (
+                      <>
+                        <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setIsSheetDark(!isSheetDark)}
+                          className={cn(
+                            "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                            isSheetDark 
+                              ? "text-yellow-400 hover:text-yellow-300 hover:bg-zinc-800" 
+                              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                          )}
+                          title={isSheetDark ? "Switch to Light" : "Switch to Dark"}
+                        >
+                          {isSheetDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                        </Button>
+                      </>
+                    )}
+
+                    <div className={cn("w-px h-5", isSheetDark ? "bg-zinc-700" : "bg-gray-300")} />
                     
                     {/* Focus Button */}
                     <Button 
                       variant="ghost" 
                       size="sm" 
                       onClick={() => setIsFullscreen(!isFullscreen)}
-                      className="rounded-full h-8 px-3 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                      className={cn(
+                        "rounded-full h-8 px-3 text-xs transition-all duration-300",
+                        isSheetDark 
+                          ? "text-gray-300 hover:text-white hover:bg-zinc-800" 
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/80"
+                      )}
                     >
                       <Maximize2 className="w-3.5 h-3.5 mr-1.5" />
                       Focus
                     </Button>
+                    </div>
                   </div>
-                </div>
                 
                 {/* Content */}
-                <div className="px-12 pb-20">
+                <div className={cn(
+                  "px-12 pb-20",
+                  isSheetDark && "sheet-dark-mode"
+                )}>
                   {loadingContent ? (
                     <div className="space-y-4 animate-pulse pt-8">
-                      <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full"></div>
-                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                      <div className={cn("h-8 rounded w-1/3", isSheetDark ? "bg-zinc-700" : "bg-gray-200")}></div>
+                      <div className={cn("h-4 rounded w-full", isSheetDark ? "bg-zinc-700" : "bg-gray-200")}></div>
+                      <div className={cn("h-4 rounded w-full", isSheetDark ? "bg-zinc-700" : "bg-gray-200")}></div>
                     </div>
                   ) : (
                     <>
                       <div 
                         dangerouslySetInnerHTML={{ __html: processedHtml }}
-                        className="prose prose-lg max-w-none"
+                        className={cn(
+                          "prose prose-lg max-w-none",
+                          isSheetDark && "prose-invert sheet-dark-mode"
+                        )}
                       />
                       
                       {/* Take Quiz Button - Only in Reader Mode with quizId */}
@@ -1745,11 +1912,66 @@ function CourseViewerContent() {
          
          {/* FloatingTimer removed as per user request */}
       </div>
+      
+      {/* Navigation Drawer Portal */}
+      {showNavDrawer && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-100 flex">
+           {/* Backdrop */}
+           <div 
+             className={cn(
+               "absolute inset-0 bg-black/20 backdrop-blur-sm",
+               isClosingDrawer ? "animate-out fade-out" : "animate-in fade-in"
+             )}
+             onClick={handleCloseNav}
+           />
+           
+           {/* Drawer */}
+           <div className={cn(
+             "relative w-[280px] h-full bg-sidebar border-r border-sidebar-border shadow-2xl flex flex-col",
+             isClosingDrawer ? "animate-out slide-out-to-left duration-300" : "animate-in slide-in-from-left duration-300"
+           )}>
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+                  <div className="flex items-center gap-2 font-bold text-xl">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm">G</div>
+                    <span>Gavelogy</span>
+                  </div>
+                  <button 
+                    onClick={handleCloseNav}
+                    className="p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                    title="Collapse Navigation"
+                  >
+                    <ChevronsLeft className="w-5 h-5" />
+                  </button>
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto py-4">
+                 <SidebarNav />
+              </div>
+           </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Sheet Dark Mode - Global Override (Only if Sheet is Dark) */}
+      <style jsx global>{`
+        ${isSheetDark ? `
+          /* Scrollbar styling for dark sheet */
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #27272a;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #52525b;
+            border: 3px solid #27272a;
+          }
+        ` : ''}
+      `}</style>
     </div>
   );
 }
 
-export default function GenericCourseViewer() {
+export default function CourseViewerPage() {
   return (
     <Suspense fallback={
        <div className="min-h-screen flex items-center justify-center">

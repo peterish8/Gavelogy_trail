@@ -301,7 +301,7 @@ export function CourseNotes({ courseId, itemId }: CourseNotesProps) {
           </div>
         </div>
         <p className="text-xs text-slate-400 pl-1">
-          These notes are stored in your browser's local storage and are private to you. 
+          These notes are stored in your browser&apos;s local storage and are private to you. 
           <Highlighter className="inline w-3 h-3 ml-1 mb-0.5"/> Select text to highlight.
         </p>
       </div>

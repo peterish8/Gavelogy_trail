@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -38,11 +39,13 @@ async function traceNoteItem() {
   // Or maybe 'notes'?
   // Let's try 'structure_items' first as commonly used name
   
-  const { data: item, error: itemError } = await supabase
+  await supabase
     .from('structure_items')
     .select('id, title, course_id, parent_id')
     .eq('id', quiz.note_item_id)
     .single();
+
+  console.log('Structure item lookup attempted');
 
   if (item) {
       console.log('✅ Found in structure_items:', item);

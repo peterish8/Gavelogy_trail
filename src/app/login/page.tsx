@@ -22,7 +22,6 @@ import { validateEmail, validatePassword } from "@/lib/validation";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/lib/stores/auth";
-import type { User, Profile } from "@/types";
 
 export default function LoginPage() {
   // Hardcoded credentials for localhost testing
@@ -39,9 +38,9 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const { user, loading, signIn } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const { checkAuth, setUser, setProfile, setIsAuthenticated, isAuthenticated: isAuthFromStore, isLoading: isAuthLoading } = useAuthStore();
+  const { isAuthenticated: isAuthFromStore, isLoading: isAuthLoading } = useAuthStore();
 
   // Check if user is already authenticated and redirect to dashboard
   useEffect(() => {
@@ -194,7 +193,7 @@ export default function LoginPage() {
         window.location.href = "/dashboard";
       } else if (error?.message.includes('Invalid login credentials')) {
         // Try signup if login fails
-        const { data: signupData, error: signupError } = await supabase.auth.signUp({
+        const { data: signupData, error: _signupError } = await supabase.auth.signUp({
           email,
           password,
         });
@@ -203,12 +202,12 @@ export default function LoginPage() {
           // Signup successful - go to dashboard
           window.location.href = "/dashboard";
         } else {
-          setError(signupError?.message || "Authentication failed");
+          setError(_signupError?.message || "Authentication failed");
         }
       } else {
         setError(error?.message || "Authentication failed");
       }
-    } catch (error) {
+    } catch {
       setError("Authentication failed");
     } finally {
       setIsSubmitting(false);
@@ -229,7 +228,7 @@ export default function LoginPage() {
         setError(error.message);
       }
       // If successful, user will be redirected to dashboard
-    } catch (error) {
+    } catch {
       setError("Google authentication failed");
     }
   };

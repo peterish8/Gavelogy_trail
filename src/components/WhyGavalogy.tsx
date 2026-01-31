@@ -59,10 +59,10 @@ const features: FeaturePoint[] = [
 
 export function WhyGavelogy() {
   return (
-    <section className="bg-gradient-to-b from-blue-50/40 to-white/60 backdrop-blur-sm py-24 relative z-10 overflow-hidden">
+    <section className="bg-linear-to-b from-blue-50/40 to-white/60 backdrop-blur-sm py-24 relative z-10 overflow-hidden">
       {/* Gradient Sphere Decoration */}
-      <div className="absolute top-20 right-10 w-96 h-96 bg-gradient-to-br from-yellow-400/30 via-orange-400/30 to-pink-400/30 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 right-10 w-96 h-96 bg-linear-to-br from-yellow-400/30 via-orange-400/30 to-pink-400/30 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 left-10 w-80 h-80 bg-linear-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -76,7 +76,7 @@ export function WhyGavelogy() {
             Why Gavelogy?
           </h2>
           <p className="text-[#6C6C6C] text-lg max-w-3xl mx-auto leading-relaxed">
-            We understand how law students learn — that's why we built Gavelogy
+            We understand how law students learn — that&apos;s why we built Gavelogy
             to make mastering the law simpler, structured, and smarter.
           </p>
         </motion.div>
@@ -100,7 +100,7 @@ export function WhyGavelogy() {
                   }}
                 >
                   <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 flex items-center gap-4 h-full">
-                    <div className="flex-shrink-0 p-3 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-300">
+                    <div className="shrink-0 p-3 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-300">
                       {feature.icon}
                     </div>
                     <span className="text-base font-medium text-[#2C2C2C]">
@@ -120,8 +120,8 @@ export function WhyGavelogy() {
             className="text-center mt-12"
           >
             <p className="text-[#6C6C6C] italic text-base md:text-lg">
-              "Because understanding the law should be as clear as the judgment
-              itself."
+              &quot;Because understanding the law should be as clear as the judgment
+              itself.&quot;
             </p>
           </motion.div>
         </div>

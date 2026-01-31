@@ -33,7 +33,7 @@ export function useSpacedRepetition() {
         if (cached && schedules.length === 0) {
             try {
                 setSchedules(JSON.parse(cached));
-            } catch (e) { /* ignore */ }
+            } catch { /* ignore */ }
         }
         
         // If we have cache, we are not "loading" visually
@@ -58,7 +58,7 @@ export function useSpacedRepetition() {
           )
         `)
         .eq('user_id', user.id)
-        .eq('status', 'active');
+        .eq('status', 'active') as { data: SpacedRepetitionItem[] | null, error: { message: string } | null };
         
       if (srsError) {
         throw srsError;
@@ -67,12 +67,12 @@ export function useSpacedRepetition() {
       const rawItems = srsData || [];
       
       // 2. Resolve Course ID via Note Item -> Structure Item
-      const noteItemIds = rawItems.map((item: any) => {
+      const noteItemIds = rawItems.map((item: SpacedRepetitionItem) => {
           const q = Array.isArray(item.quiz) ? item.quiz[0] : item.quiz;
           return q?.note_item_id;
       }).filter(Boolean);
 
-      let noteItemMap: Record<string, string> = {}; // note_item_id -> course_id
+      const noteItemMap: Record<string, string> = {}; // note_item_id -> course_id
 
       if (noteItemIds.length > 0) {
           const { data: structures, error: structError } = await supabase
@@ -81,14 +81,14 @@ export function useSpacedRepetition() {
             .in('id', noteItemIds);
             
           if (!structError && structures) {
-             structures.forEach((s: any) => {
+             structures.forEach((s: { id: string; course_id: string }) => {
                  noteItemMap[s.id] = s.course_id;
              });
           }
       }
 
       // 4. Merge Data
-      const formatted = rawItems.map((item: any) => {
+      const formatted = rawItems.map((item: SpacedRepetitionItem) => {
         const quizObj = Array.isArray(item.quiz) ? item.quiz[0] : item.quiz;
         const noteId = quizObj?.note_item_id;
         const courseId = noteItemMap[noteId];

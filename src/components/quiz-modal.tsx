@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AttachedQuiz, QuizQuestion, QuizLoader } from "@/lib/quiz-loader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AttachedQuiz, QuizLoader } from "@/lib/quiz-loader";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, XCircle, ArrowRight, RotateCcw } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { CheckCircle, XCircle } from "lucide-react";
 import { useStreakStore } from "@/lib/stores/streaks";
 import { useAuthStore } from "@/lib/stores/auth";
 import { cn } from "@/lib/utils";

@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -34,7 +35,7 @@ async function fixDailyActivity() {
   
   if (attempts.length > 0) {
       console.log('Deleting existing daily_activity rows to ensure clean slate...');
-      const { error: delError } = await supabase
+      await supabase
         .from('daily_activity')
         .delete()
         .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all (unsafe filter workaround)

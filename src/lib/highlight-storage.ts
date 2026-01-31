@@ -211,7 +211,7 @@ export function applyHighlightsToHtml(html: string, courseId: string, itemId: st
           const originalEnd = originalEndCursor + 1;
 
           // 3. Identify nodes to wrap
-          let nodesToWrap: { node: Text, from: number, to: number }[] = [];
+          const nodesToWrap: { node: Text, from: number, to: number }[] = [];
           
           for (const item of nodes) {
               const overlapStart = Math.max(item.start, originalStart);

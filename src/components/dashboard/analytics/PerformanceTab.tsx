@@ -42,7 +42,7 @@ export default function PerformanceTab() {
   ];
 
   const subjectAccuracy = Object.entries(stats.attemptsBySubject).map(
-    ([subject, attempts]) => {
+    ([subject]) => {
       const subjectStats = getSubjectStats(subject);
       return {
         subject,

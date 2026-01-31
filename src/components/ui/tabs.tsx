@@ -29,7 +29,7 @@ const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => {
-  const Comp = MotionTabsTrigger as any
+  const Comp = MotionTabsTrigger as React.ElementType
   return (
     <Comp
       ref={ref}

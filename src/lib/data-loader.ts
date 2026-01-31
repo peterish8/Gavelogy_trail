@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, Database } from './supabase';
 import { cache, CACHE_KEYS } from './cache';
 
 // Cached data loader with instant fallback
@@ -24,7 +24,7 @@ export class DataLoader {
       
       this.contemporaryCourseId = data.id;
       return data.id;
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -34,7 +34,7 @@ export class DataLoader {
     const cacheKey = CACHE_KEYS.CONTEMPORARY_CASES(year);
     
     // Return cached data immediately if available
-    const cached = cache.get(cacheKey);
+    const cached = cache.get(cacheKey) as { case_number: string; overall_content: string }[] | null;
     if (cached) {
       return { data: cached, fromCache: true };
     }
@@ -86,7 +86,7 @@ export class DataLoader {
     const cacheKey = CACHE_KEYS.CASE_NOTES(year, caseNumber);
     
     // Return cached data immediately
-    const cached = cache.get(cacheKey);
+    const cached = cache.get(cacheKey) as { case_number: string; overall_content: string } | null;
     if (cached) {
       return { data: cached, fromCache: true };
     }
@@ -166,7 +166,18 @@ export class DataLoader {
     const cacheKey = CACHE_KEYS.QUIZ_QUESTIONS(caseNumber);
     
     // Return cached data immediately
-    const cached = cache.get(cacheKey);
+    const cached = cache.get(cacheKey) as {
+      id: string;
+      case_number: string;
+      case_name: string;
+      question: string;
+      option_a: string;
+      option_b: string;
+      option_c: string;
+      option_d: string;
+      correct_answer: string;
+      explanation: string;
+    }[] | null;
     if (cached) {
       return { data: cached, fromCache: true };
     }
@@ -309,7 +320,7 @@ export class DataLoader {
       );
 
       await Promise.all(preloadPromises);
-    } catch (error) {
+    } catch {
       // Silent fail for preloading
     }
   }
@@ -364,7 +375,7 @@ export class DataLoader {
       // Build tree
       const items = data || [];
       const itemMap = new Map();
-      const rootItems: any[] = [];
+      const rootItems: Database['public']['Tables']['structure_items']['Row'][] = [];
 
       // First pass: Create map and initialize children
       items.forEach(item => {
@@ -420,14 +431,16 @@ export class DataLoader {
         throw error;
       }
       return data?.content_html || '';
-    } catch (error: any) {
-      console.error('Error fetching note content (catch):', error?.message || error);
+    } catch (error) {
+      const err = error as Error;
+      console.error('Error fetching note content (catch):', err?.message || error);
       return null;
     }
   }
 
   // Get user's completed items for a course
-  static async getUserCompletedItems(courseId: string) {
+  // Note: courseId parameter is currently unused but kept for future filtering
+  static async getUserCompletedItems() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -477,12 +490,13 @@ export class DataLoader {
         }
       }
       return true;
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { message?: string; code?: string; details?: string; hint?: string };
       console.error('Error toggling completion:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint,
+        message: err?.message,
+        code: err?.code,
+        details: err?.details,
+        hint: err?.hint,
         itemId
       });
       return false;

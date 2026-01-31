@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Highlighter } from 'lucide-react';
-import { HIGHLIGHT_COLORS, saveHighlight } from '@/lib/highlight-storage';
+import { HIGHLIGHT_COLORS, saveHighlight, TextHighlight } from '@/lib/highlight-storage';
 
 interface HighlightToolbarProps {
   courseId: string;
   itemId: string;
   contentContainerId: string;
   onHighlightApplied: () => void;  // Called after highlight is saved
-  onHighlightAdd?: (highlight: any) => void; // For history tracking
+  onHighlightAdd?: (highlight: TextHighlight) => void; // For history tracking
 }
 
 export function HighlightToolbar({ 
@@ -74,7 +74,7 @@ export function HighlightToolbar({
         y: rect.bottom + 10,  // No scrollY needed - fixed positioning uses viewport coords
       });
       setSelectedText(text);
-    } catch (e) {
+    } catch {
       // Selection might be invalid
       setPosition(null);
       setSelectedText('');

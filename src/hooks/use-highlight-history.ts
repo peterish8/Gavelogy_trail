@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { saveHighlight, removeHighlight, TextHighlight } from '@/lib/highlight-storage';
+import { saveHighlight, removeHighlight } from '@/lib/highlight-storage';
 
 export type HighlightAction = {
   type: 'ADD' | 'REMOVE';

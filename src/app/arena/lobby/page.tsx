@@ -11,7 +11,7 @@ import { Loader2, User, Play, Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AppHeader } from "@/components/app-header";
+// AppHeader import removed
 import { DottedBackground } from "@/components/DottedBackground";
 
 export default function LobbyPage() {
@@ -19,7 +19,7 @@ export default function LobbyPage() {
     <Suspense fallback={
       <div className="min-h-screen relative flex flex-col">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <main className="container flex grow items-center justify-center p-4 mx-auto">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
@@ -36,7 +36,7 @@ function LobbyContent() {
   const mode = (searchParams.get('mode') as 'duel' | 'arena') || 'duel';
   
   const { profile } = useAuthStore();
-  const { lobbyId, status, players, setLobbyId, setStatus, setPlayers, setQuestions, addPlayer, reset } = useGameStore();
+  const { lobbyId, status, players, setLobbyId, setStatus, setPlayers, setQuestions, reset } = useGameStore();
 
   const [searching, setSearching] = useState(true);
   const [matchingError, setMatchingError] = useState<string | null>(null);
@@ -91,7 +91,7 @@ function LobbyContent() {
            
            if (currentPlayers) {
               // unique ID for frontend:
-              const playersWithIds = currentPlayers.map((p: any) => ({
+              const playersWithIds = currentPlayers.map((p: { user_id: string; id: string; display_name: string; avatar_url: string; is_bot: boolean }) => ({
                   id: p.user_id || `bot-${p.id}`, 
                   displayName: p.display_name,
                   avatarUrl: p.avatar_url,
@@ -103,7 +103,7 @@ function LobbyContent() {
               setPlayers(playersWithIds);
            }
          }
-       } catch (e) {
+       } catch {
          setMatchingError('Failed to join matchmaking.');
          setSearching(false);
        }
@@ -112,7 +112,7 @@ function LobbyContent() {
     if (profile) {
       initMatch();
     }
-  }, [profile, lobbyId, mode, setLobbyId, setPlayers, setStatus]);
+  }, [profile, lobbyId, mode, setLobbyId, setPlayers, setStatus, reset]);
 
   // Realtime subscription
   useEffect(() => {
@@ -141,7 +141,7 @@ function LobbyContent() {
        (async () => {
            const res = await startGameIfReady(lobbyId!);
            if (res.success && res.questions) {
-               setQuestions(res.questions as any); // Type assertion: server returns compatible shape
+               setQuestions(res.questions as unknown as []); // Type assertion: server returns compatible shape
                setStatus('active');
            }
        })();
@@ -191,7 +191,7 @@ function LobbyContent() {
     return (
       <div className="min-h-screen relative flex flex-col">
         <DottedBackground />
-        <AppHeader />
+        {/* AppHeader removed */}
         <main className="container flex grow items-center justify-center p-4 mx-auto">
           <Card className="w-full max-w-md border-destructive shadow-lg">
              <CardHeader>
@@ -212,7 +212,7 @@ function LobbyContent() {
   return (
     <div className="min-h-screen relative flex flex-col">
       <DottedBackground />
-      <AppHeader />
+      {/* AppHeader removed */}
       
       <main className="container flex grow flex-col items-center justify-center p-4 mx-auto max-w-lg">
         <div className="text-center mb-8 space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">

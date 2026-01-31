@@ -1,9 +1,8 @@
-import { ChevronRight, ChevronDown, Check, Lock, FileText, Play } from "lucide-react";
+import { ChevronRight, ChevronDown, Check, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface StructureItem {
   id: string;
@@ -61,7 +60,7 @@ export function CourseStructureList({ items, onFileSelect, completedItems, onTog
   );
 }
 
-function YearCard({ item, theme, onFileSelect, completedItems, onToggleComplete, onQuizSelect, expandedIds, onExpand, itemsWithNotes, itemsWithQuizzes }: { item: StructureItem, theme: any, onFileSelect: (id: string) => void, completedItems: Set<string>, onToggleComplete: (id: string) => void, onQuizSelect?: (id: string) => void, expandedIds?: Set<string>, onExpand?: (id: string) => void, itemsWithNotes?: Set<string>, itemsWithQuizzes?: Set<string> }) {
+function YearCard({ item, theme, onFileSelect, completedItems, onToggleComplete, onQuizSelect, expandedIds, onExpand, itemsWithNotes, itemsWithQuizzes }: { item: StructureItem, theme: { bg: string, text: string, badge: string, progress: string, border: string, shadow: string }, onFileSelect: (id: string) => void, completedItems: Set<string>, onToggleComplete: (id: string) => void, onQuizSelect?: (id: string) => void, expandedIds?: Set<string>, onExpand?: (id: string) => void, itemsWithNotes?: Set<string>, itemsWithQuizzes?: Set<string> }) {
   // Use controlled expansion if expandedIds is provided, otherwise local state
   const isControlled = expandedIds !== undefined;
   const [localExpanded, setLocalExpanded] = useState(false);
@@ -84,8 +83,7 @@ function YearCard({ item, theme, onFileSelect, completedItems, onToggleComplete,
     <Card 
       data-item-id={item.id}
       className={cn(
-        "overflow-hidden relative border-0 shadow-lg rounded-2xl bg-linear-to-br hover:shadow-xl transition-all duration-300 group backdrop-blur-sm",
-        theme.bg
+        "year-card overflow-hidden relative border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300 group"
       )}
     >
       <CardContent className="p-6">
@@ -180,10 +178,9 @@ function ChildItem({ item, displayIndex, onFileSelect, completedItems, onToggleC
              onClick={handleToggleOpen}
            >
               <div className="flex items-center gap-2">
-                 <span className="text-lg font-semibold text-gray-800">
+                 <span className="text-lg font-semibold text-gray-800 group-hover:text-black transition-colors">
                     ⚖️ {item.title}
                  </span>
-                 <Badge variant="secondary" className="text-xs">{item.children?.length || 0} cases</Badge>
               </div>
               {isOpen ? <ChevronDown className="h-4 w-4 text-gray-500"/> : <ChevronRight className="h-4 w-4 text-gray-500"/>}
            </div>

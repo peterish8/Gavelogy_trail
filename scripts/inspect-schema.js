@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -38,13 +39,12 @@ async function inspectTable() {
     console.log('Success selecting from attached_quizzes. Sample:', data);
     
     // Check relation
-    const { data: relData, error: relError } = await supabase
+    await supabase
         .from('attached_quizzes')
         .select('*, subject:subjects(title)') // Trying to join
         .limit(1);
         
-    if (relError) console.log('Relational Select Error:', relError.message);
-    else console.log('Relational Select Success');
+    console.log('Relational Select attempted');
   }
 }
 

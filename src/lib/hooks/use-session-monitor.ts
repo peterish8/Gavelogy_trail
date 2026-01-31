@@ -11,7 +11,7 @@ interface SessionState {
 }
 
 export function useSessionMonitor() {
-  const { sessionId, isAuthenticated, logout } = useAuthStore();
+  const { sessionId, isAuthenticated } = useAuthStore();
   const [sessionState, setSessionState] = useState<SessionState>({ status: 'active' });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -36,7 +36,7 @@ export function useSessionMonitor() {
         }
 
         if (data) {
-            const result = data as any; // Type assertion for JSONB response
+            const result = data as { status: string; reason?: string; message?: string }; // Type assertion for JSONB response
             
             if (result.status === 'terminated') {
                 setSessionState({ 

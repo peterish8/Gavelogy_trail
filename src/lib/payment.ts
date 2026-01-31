@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { supabase } from "./supabase";
+import { supabase, Database } from "./supabase";
 import { useAuthStore } from "./stores/auth";
 import { DataLoader } from "./data-loader";
+import { User } from "@/types";
 
 export interface Course {
   id: string;
@@ -56,12 +57,11 @@ export const usePaymentStore = create<PaymentState>()(
           set({ isLoading: true });
           const courses = await DataLoader.getCourses();
           // Transform if necessary to match Course interface
-           const mappedCourses: Course[] = courses.map((c: any) => ({
+           const mappedCourses: Course[] = courses.map((c: Database['public']['Tables']['courses']['Row']) => ({
               id: c.id,
               name: c.name,
               description: c.description,
               price: c.price,
-              icon: c.icon,
               is_active: c.is_active
            }));
           set({ availableCourses: mappedCourses, isLoading: false });
@@ -76,7 +76,7 @@ export const usePaymentStore = create<PaymentState>()(
           
           if (!user) {
              const { data } = await supabase.auth.getUser();
-             user = data.user as any;
+             user = data.user as unknown as User;
           }
 
           if (!user) {
@@ -148,7 +148,7 @@ export const usePaymentStore = create<PaymentState>()(
           }));
 
           return { success: true, orderId };
-        } catch (error) {
+        } catch {
           set({ isLoading: false });
           return { success: false, error: "Payment failed" };
         }
@@ -185,7 +185,7 @@ export const usePaymentStore = create<PaymentState>()(
              }
              return false;
 
-          } catch (e) {
+          } catch {
               return false;
           }
       },
@@ -201,7 +201,7 @@ export const usePaymentStore = create<PaymentState>()(
          } catch(e) { console.error(e) }
       },
 
-      isContentFree: (courseId: string, contentIndex: number) => {
+      isContentFree: () => {
          // Logic for free content could be dynamic too, but keeping simple for now
          return false; 
       },

@@ -22,7 +22,13 @@ export function useDayHistory(date: Date) {
     // 0. OPTIMISTIC LOADING: Try to load from cache using LAST KNOWN user if current user is loading
     // This bridges the 1-2s gap while useAuthStore initializes
     const effectiveUserId = user?.id || localStorage.getItem('gavalogy-last-user-id');
-    const dateKey = date.toISOString().split('T')[0];
+    
+    // Fix: Use local date string for cache key instead of toISOString (which shifts day)
+    const yKey = date.getFullYear();
+    const mKey = String(date.getMonth() + 1).padStart(2, '0');
+    const dKey = String(date.getDate()).padStart(2, '0');
+    const dateKey = `${yKey}-${mKey}-${dKey}`;
+    
     const cacheKey = `day_history_${effectiveUserId}_${dateKey}`;
     
     // Attempt cache load immediately
@@ -30,7 +36,7 @@ export function useDayHistory(date: Date) {
     if (cached && history.length === 0) {
         try {
             setHistory(JSON.parse(cached));
-        } catch (e) { console.warn("Failed to parse history cache"); }
+        } catch { console.warn("Failed to parse history cache"); }
     }
 
     if (!effectiveUserId) return; // Can't fetch if we don't know who we are (even historically)
@@ -44,6 +50,12 @@ export function useDayHistory(date: Date) {
       
       const end = new Date(date);
       end.setHours(23, 59, 59, 999);
+      
+      // Notes on Timezone:
+      // start.toISOString() converts local midnight to UTC.
+      // Example: IST Midnight (Jan 21 00:00) -> UTC (Jan 20 18:30).
+      // This IS the correct UTC timestamp that opens the day in local time.
+      // So no manual offset calculation is needed.
 
       const { data, error } = await supabase
         .from('quiz_attempts')
@@ -66,7 +78,14 @@ export function useDayHistory(date: Date) {
         console.error('Error fetching day history:', error);
       } else {
         const rawAttempts = data || [];
-        const attempts: CompletedQuizAttempt[] = rawAttempts.map((item: any) => ({
+        const attempts: CompletedQuizAttempt[] = rawAttempts.map((item: {
+          id: string;
+          quiz_id: string;
+          score: number;
+          passed: boolean;
+          completed_at: string;
+          quiz: { title: string } | { title: string }[];
+        }) => ({
              ...item,
              quiz: Array.isArray(item.quiz) ? item.quiz[0] : item.quiz
         }));

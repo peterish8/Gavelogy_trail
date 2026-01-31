@@ -22,7 +22,6 @@ export default function GameResults() {
   const myPlayer = players.find(p => p.id === profile?.id);
   const myScore = myPlayer?.score || 0;
   const myRank = sortedPlayers.findIndex(p => p.id === profile?.id) + 1;
-  const winner = sortedPlayers[0];
   const isWinner = myRank === 1;
 
   useEffect(() => {

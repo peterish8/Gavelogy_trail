@@ -23,10 +23,10 @@ const StarBorder = <T extends React.ElementType = 'button'>({
   return (
     <Component
       className={`relative inline-block overflow-hidden rounded-[20px] group ${className}`}
-      {...(rest as any)}
+      {...(rest as React.ComponentPropsWithoutRef<T>)}
       style={{
         padding: `${thickness}px 0`,
-        ...(rest as any).style
+        ...(rest as React.HTMLAttributes<HTMLElement>).style
       }}
     >
       <div
@@ -45,10 +45,10 @@ const StarBorder = <T extends React.ElementType = 'button'>({
       ></div>
       <div className="relative z-10 px-[26px] py-[16px] rounded-[20px] text-white text-center text-[16px] font-semibold tracking-wide shadow-[0_12px_30px_rgba(10,10,30,0.35)] transition-all duration-700 group-hover:shadow-[0_18px_45px_rgba(86,60,150,0.55)] overflow-hidden">
         {/* Base dark gradient (default state) */}
-        <div className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-[#0c0c14] via-[#11111c] to-[#161627] opacity-100 transition-opacity duration-700 group-hover:opacity-0"></div>
+        <div className="absolute inset-0 rounded-[20px] bg-linear-to-r from-[#0c0c14] via-[#11111c] to-[#161627] opacity-100 transition-opacity duration-700 group-hover:opacity-0"></div>
         {/* Dreamy gradient overlay that fades in smoothly */}
-        <div className="absolute inset-0 rounded-[20px] bg-gradient-to-r from-[#2c1b47] via-[#4c2c72] to-[#f4c484] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-        <div className="absolute inset-[2px] rounded-[18px] opacity-80 transition-all duration-700 bg-gradient-to-r from-[#09060f] via-[#120c1d] to-[#1b1430] group-hover:from-[#1b1230] group-hover:via-[#2e1b4c] group-hover:to-[#49286c] blur-[0px]"></div>
+        <div className="absolute inset-0 rounded-[20px] bg-linear-to-r from-[#2c1b47] via-[#4c2c72] to-[#f4c484] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        <div className="absolute inset-[2px] rounded-[18px] opacity-80 transition-all duration-700 bg-linear-to-r from-[#09060f] via-[#120c1d] to-[#1b1430] group-hover:from-[#1b1230] group-hover:via-[#2e1b4c] group-hover:to-[#49286c] blur-[0px]"></div>
         <span className="relative z-10 flex items-center justify-center gap-2">
           {children}
         </span>
