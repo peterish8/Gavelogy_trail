@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import { DataLoader } from "@/lib/data-loader";
+import { usePaymentStore } from "@/lib/payment";
 import { CourseStructureList } from "@/components/course-structure-list";
 import { DottedBackground } from "@/components/DottedBackground";
 import { customToHtml } from "@/lib/content-converter";
@@ -367,6 +368,8 @@ function CourseViewerContent() {
   useEffect(() => {
     if (courseId) {
       loadStructure(courseId);
+      // Track as recent course
+      usePaymentStore.getState().markCourseAsVisited(courseId);
     }
   }, [courseId]);
 

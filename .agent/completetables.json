@@ -1,5 +1,98 @@
 [
   {
+    "table_name": "admin_presence",
+    "columns": [
+      {
+        "type": "jsonb",
+        "column": "cursor_position",
+        "default": "'{}'::jsonb",
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "admin_email",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "admin_name",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "current_page",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "last_seen_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "current_item_id",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Admins can view all presence"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Admins can insert their own presence"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Admins can update their own presence"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "DELETE",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Admins can delete their own presence"
+      }
+    ]
+  },
+  {
     "table_name": "attached_quizzes",
     "columns": [
       {
@@ -98,7 +191,24 @@
         "nullable": "NO"
       }
     ],
-    "policies": []
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view own transactions"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Server can insert transactions"
+      }
+    ]
   },
   {
     "table_name": "courses",
@@ -106,6 +216,12 @@
       {
         "type": "boolean",
         "column": "is_active",
+        "default": "false",
+        "nullable": "YES"
+      },
+      {
+        "type": "boolean",
+        "column": "is_crash_course",
         "default": "false",
         "nullable": "YES"
       },
@@ -184,12 +300,69 @@
     ]
   },
   {
+    "table_name": "daily_activity",
+    "columns": [
+      {
+        "type": "date",
+        "column": "activity_date",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "integer",
+        "column": "quizzes_completed",
+        "default": "0",
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "timezone('utc'::text, now())",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view own daily activity"
+      }
+    ]
+  },
+  {
     "table_name": "draft_content_cache",
     "columns": [
       {
         "type": "jsonb",
+        "column": "cursor_data",
+        "default": "'{}'::jsonb",
+        "nullable": "YES"
+      },
+      {
+        "type": "jsonb",
         "column": "draft_data",
         "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "last_active_at",
+        "default": "now()",
         "nullable": "YES"
       },
       {
@@ -440,6 +613,12 @@
         "column": "display_name",
         "default": null,
         "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "team",
+        "default": null,
+        "nullable": "YES"
       },
       {
         "type": "timestamp with time zone",
@@ -695,6 +874,234 @@
     ]
   },
   {
+    "table_name": "otps",
+    "columns": [
+      {
+        "type": "integer",
+        "column": "attempts",
+        "default": "0",
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "identifier",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "otp_hash",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "expires_at",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "USER-DEFINED",
+        "column": "channel",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      }
+    ],
+    "policies": []
+  },
+  {
+    "table_name": "profiles",
+    "columns": [
+      {
+        "type": "boolean",
+        "column": "email_marketing_consent",
+        "default": "false",
+        "nullable": "YES"
+      },
+      {
+        "type": "boolean",
+        "column": "email_verified",
+        "default": "false",
+        "nullable": "YES"
+      },
+      {
+        "type": "boolean",
+        "column": "phone_verified",
+        "default": "false",
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "avatar_url",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "consent_source",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "email",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "full_name",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "consent_timestamp",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "updated_at",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view own profile"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can update own profile"
+      }
+    ]
+  },
+  {
+    "table_name": "question_memory_states",
+    "columns": [
+      {
+        "type": "boolean",
+        "column": "last_was_wrong",
+        "default": "false",
+        "nullable": "YES"
+      },
+      {
+        "type": "integer",
+        "column": "times_correct",
+        "default": "0",
+        "nullable": "YES"
+      },
+      {
+        "type": "integer",
+        "column": "times_shown",
+        "default": "0",
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "bucket",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "last_confidence",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "question_id",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "last_shown_at",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "quiz_id",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view own memory states"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can insert own memory states"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can update own memory states"
+      }
+    ]
+  },
+  {
     "table_name": "quiz_answer_confidence",
     "columns": [
       {
@@ -794,6 +1201,12 @@
         "type": "integer",
         "column": "score",
         "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "integer",
+        "column": "total_questions",
+        "default": "0",
         "nullable": "YES"
       },
       {
@@ -930,6 +1343,148 @@
         "command": "SELECT",
         "permissive": "PERMISSIVE",
         "policy_name": "Everyone view questions"
+      }
+    ]
+  },
+  {
+    "table_name": "spaced_repetition_schedules",
+    "columns": [
+      {
+        "type": "jsonb",
+        "column": "meta_stats",
+        "default": "'{}'::jsonb",
+        "nullable": "YES"
+      },
+      {
+        "type": "smallint",
+        "column": "current_stage_index",
+        "default": "0",
+        "nullable": "NO"
+      },
+      {
+        "type": "text",
+        "column": "status",
+        "default": "'active'::text",
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "last_completed_at",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "next_due_at",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "updated_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "quiz_id",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view own spaced repetition schedules"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "DELETE",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can delete own spaced repetition schedules"
+      }
+    ]
+  },
+  {
+    "table_name": "speed_court_scores",
+    "columns": [
+      {
+        "type": "integer",
+        "column": "correct_count",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "integer",
+        "column": "score_points",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "integer",
+        "column": "total_attempted",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "YES"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "View all"
+      },
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Insert own"
       }
     ]
   },
@@ -1135,6 +1690,45 @@
     ]
   },
   {
+    "table_name": "user_concurrency_state",
+    "columns": [
+      {
+        "type": "integer",
+        "column": "concurrency_level",
+        "default": "0",
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "overlap_started_at",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "updated_at",
+        "default": "now()",
+        "nullable": "YES"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view their own concurrency state"
+      }
+    ]
+  },
+  {
     "table_name": "user_courses",
     "columns": [
       {
@@ -1271,6 +1865,75 @@
         "command": "UPDATE",
         "permissive": "PERMISSIVE",
         "policy_name": "Users can update own points"
+      }
+    ]
+  },
+  {
+    "table_name": "user_sessions",
+    "columns": [
+      {
+        "type": "inet",
+        "column": "ip_address",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "jsonb",
+        "column": "device_info",
+        "default": "'{}'::jsonb",
+        "nullable": "YES"
+      },
+      {
+        "type": "text",
+        "column": "device_id",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "created_at",
+        "default": "now()",
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "last_active_at",
+        "default": "now()",
+        "nullable": "NO"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "logged_out_at",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "type": "timestamp with time zone",
+        "column": "session_started_at",
+        "default": "now()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "id",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "type": "uuid",
+        "column": "user_id",
+        "default": null,
+        "nullable": "NO"
+      }
+    ],
+    "policies": [
+      {
+        "roles": [
+          "public"
+        ],
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "policy_name": "Users can view their own sessions"
       }
     ]
   },
@@ -1415,7 +2078,7 @@
       {
         "type": "integer",
         "column": "coins",
-        "default": "0",
+        "default": "500",
         "nullable": "YES"
       },
       {
@@ -1433,7 +2096,13 @@
       {
         "type": "integer",
         "column": "total_coins",
-        "default": "100",
+        "default": "500",
+        "nullable": "YES"
+      },
+      {
+        "type": "integer",
+        "column": "xp",
+        "default": "0",
         "nullable": "YES"
       },
       {

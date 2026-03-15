@@ -45,7 +45,7 @@ export function AppSidebar() {
     <aside
       suppressHydrationWarning
       className={cn(
-        "fixed left-0 top-0 bottom-0 z-50 bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out overflow-hidden",
+        "fixed left-0 top-0 bottom-0 z-50 bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out",
         // Before mount: start hidden to avoid flash, then transition to correct state
         !isMounted ? "w-0 opacity-0" : (
           isCollapsed 
@@ -74,8 +74,8 @@ export function AppSidebar() {
         <SidebarNav />
       </div>
       
-      {/* User Profile / Footer */}
-      <div suppressHydrationWarning className="shrink-0">
+      {/* User Profile / Footer - Flex pinned to bottom */}
+      <div suppressHydrationWarning className="mt-auto shrink-0 bg-sidebar border-t border-sidebar-border/30 pt-2 pb-2">
         <SidebarFooter />
       </div>
     </aside>

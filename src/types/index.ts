@@ -16,6 +16,7 @@ export interface Profile {
   username: string;
   full_name: string;
   avatar_url?: string;
+  xp: number;
   total_coins: number;
   streak_count: number;
   longest_streak: number;

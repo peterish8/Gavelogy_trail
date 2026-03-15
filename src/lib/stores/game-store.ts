@@ -23,7 +23,7 @@ interface GameQuestion {
 interface GameState {
   // Lobby state
   lobbyId: string | null;
-  mode: 'duel' | 'arena' | null;
+  mode: 'duel' | 'arena' | 'tagteam' | 'speed_court' | null;
   status: 'matchmaking' | 'waiting' | 'active' | 'finished';
   
   
@@ -47,7 +47,7 @@ interface GameState {
   
   // Actions
   setLobbyId: (id: string | null) => void;
-  setMode: (mode: 'duel' | 'arena' | null) => void;
+  setMode: (mode: 'duel' | 'arena' | 'tagteam' | 'speed_court' | null) => void;
   setStatus: (status: GameState['status']) => void;
   setPlayers: (players: GamePlayer[]) => void;
   addPlayer: (player: GamePlayer) => void;

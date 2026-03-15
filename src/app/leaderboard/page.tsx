@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DottedBackground } from "@/components/DottedBackground";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
-import { Trophy, Flame, Target, Award, Zap, Crown } from "lucide-react";
+import { Trophy, Flame, Target, Award, Crown } from "lucide-react";
+import { GavelIcon } from '@/components/icons/gavel-icon';
 
 export default function LeaderboardPage() {
   const container = {
@@ -124,7 +125,7 @@ export default function LeaderboardPage() {
                 </div>
                 <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl">
                   <div className="flex items-center justify-center mb-2">
-                    <Zap className="h-6 w-6 text-purple-500 mr-1" />
+                    <GavelIcon className="h-6 w-6 text-purple-500 mr-1" />
                     <span className="text-3xl font-bold text-purple-600">
                       {currentUserEntry?.monthly_points || 0}
                     </span>
@@ -161,7 +162,7 @@ export default function LeaderboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center text-lg">
-                <Zap className="h-5 w-5 mr-2 text-yellow-500" />
+                <GavelIcon className="h-5 w-5 mr-2 text-yellow-500" />
                 Streak Bonuses
               </CardTitle>
             </CardHeader>

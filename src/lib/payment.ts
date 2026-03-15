@@ -44,6 +44,10 @@ interface PaymentState {
   checkUserCourseAccess: (courseId: string) => Promise<boolean>;
   isContentFree: (courseId: string, contentIndex: number) => boolean;
   loadUserCourses: () => Promise<void>;
+  
+  // Recent Courses Feature
+  recentCourses: string[]; 
+  markCourseAsVisited: (courseId: string) => void;
 }
 
 export const usePaymentStore = create<PaymentState>()(
@@ -51,6 +55,7 @@ export const usePaymentStore = create<PaymentState>()(
     (set, get) => ({
       availableCourses: [],
       purchasedCourses: [],
+      recentCourses: [],
       isLoading: false,
 
       loadAvailableCourses: async () => {
@@ -201,6 +206,18 @@ export const usePaymentStore = create<PaymentState>()(
          } catch(e) { console.error(e) }
       },
 
+      markCourseAsVisited: (courseId: string) => {
+        set((state) => {
+            const currentRecent = state.recentCourses || []; // Handle potential undefined from migration
+            // Remove if already exists to prevent duplicates
+            const filtered = currentRecent.filter(id => id !== courseId);
+            // Add to front
+            const updated = [courseId, ...filtered];
+            // Keep top 5
+            return { recentCourses: updated.slice(0, 5) };
+        });
+      },
+
       isContentFree: () => {
          // Logic for free content could be dynamic too, but keeping simple for now
          return false; 
@@ -211,6 +228,7 @@ export const usePaymentStore = create<PaymentState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         purchasedCourses: state.purchasedCourses,
+        recentCourses: state.recentCourses,
       }),
     }
   )

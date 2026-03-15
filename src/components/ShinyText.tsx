@@ -111,14 +111,11 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   const gradientStyle: React.CSSProperties = {
     backgroundImage: `linear-gradient(${spread}deg, ${color} 0%, ${color} 35%, ${shineColor} 50%, ${color} 65%, ${color} 100%)`,
     backgroundSize: '200% auto',
-    WebkitBackgroundClip: 'text',
-    backgroundClip: 'text',
-    WebkitTextFillColor: 'transparent'
   };
 
   return (
     <motion.span
-      className={`inline-block ${className}`}
+      className={`inline-block bg-clip-text text-transparent ${className}`}
       style={{ ...gradientStyle, backgroundPosition }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

@@ -220,7 +220,9 @@ export const QuizLoader = {
     passed: boolean,
     answers: Array<{ questionId: string; selectedAnswer: string; isCorrect: boolean }>,
     totalQuestions?: number,
-    isSpacedRepetition?: boolean
+    isSpacedRepetition?: boolean,
+    subject?: string,
+    topic?: string
   ): Promise<boolean> {
     try {
       console.log(`[QuizLoader] Saving attempt for User ${userId}, Quiz ${quizId}, Passed: ${passed}`);
@@ -235,6 +237,8 @@ export const QuizLoader = {
           answers,
           totalQuestions: totalQuestions || answers.length,
           isSpacedRepetition: isSpacedRepetition || false,
+          subject,
+          topic,
           localDate: (() => {
             const now = new Date();
             const offset = now.getTimezoneOffset(); 

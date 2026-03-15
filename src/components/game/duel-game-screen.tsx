@@ -3,8 +3,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/lib/stores/game-store';
-import { submitAnswer, finishGame } from '@/actions/game/gameplay';
+import { submitAllAnswers, finishGame } from '@/actions/game/gameplay';
 import { simulateSingleBotAnswer, generateBotAccuracy } from '@/lib/game/bot-system';
+import { calculatePoints } from '@/lib/game/scoring';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, XCircle } from 'lucide-react';
@@ -18,6 +19,22 @@ const QUESTION_TIME = 45; // Seconds
 const SFX_CORRECT = '/sounds/correct.mp3';
 const SFX_WRONG = '/sounds/wrong.mp3';
 
+// Normalize answer strings for comparison
+const normalizeAnswer = (ans: string | null | undefined): string => {
+  if (!ans) return '';
+  return String(ans).replace(/[()]/g, '').trim().toUpperCase();
+};
+
+// Local answer record for batch submission
+interface LocalAnswer {
+  questionId: string;
+  answer: string;
+  isCorrect: boolean;
+  timeTakenMs: number;
+  pointsEarned: number;
+  questionOrder: number;
+}
+
 export default function DuelGameScreen() {
   const { 
     lobbyId, 
@@ -25,7 +42,6 @@ export default function DuelGameScreen() {
     questions, 
     currentQuestionIndex, 
     nextQuestion, 
-    submitAnswer: storeSubmitAnswer,
     updatePlayerProgress,
     setStatus
   } = useGameStore();
@@ -36,12 +52,16 @@ export default function DuelGameScreen() {
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false); // Local feedback
+  const [isCorrect, setIsCorrect] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [myScore, setMyScore] = useState(0); // Local score for immediate UI feedback
+  const [myScore, setMyScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
   const [correctAnswerKey, setCorrectAnswerKey] = useState<string | null>(null);
-  const [botAccuracy] = useState(() => generateBotAccuracy()); // Generate once per game
+  const [botAccuracy] = useState(() => generateBotAccuracy());
+  
+  // Collect all answers locally — NO per-question DB calls!
+  const localAnswersRef = useRef<LocalAnswer[]>([]);
+  const correctCountRef = useRef(0);
 
   const timerRef = useRef<NodeJS.Timeout>(null);
   const correctSfxRef = useRef<HTMLAudioElement | null>(null);
@@ -60,20 +80,17 @@ export default function DuelGameScreen() {
   const totalQuestions = questions.length;
   
   // Identify self and opponent
-  // Assuming 2 players for Duel
   const me = players.find(p => p.id === profile?.id);
   const opponent = players.find(p => p.id !== profile?.id);
 
   // Timer Effect
   useEffect(() => {
-    // Reset state on new question
     setTimeLeft(QUESTION_TIME);
     setSelectedOption(null);
     setIsAnswered(false);
     setShowFeedback(false);
     setCorrectAnswerKey(null);
 
-    // Start Timer
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -104,98 +121,111 @@ export default function DuelGameScreen() {
     }
   };
 
-  const handleAnswer = async (answer: string | null) => {
-    if (isAnswered) return;
+  /**
+   * CLIENT-SIDE answer validation — NO server call!
+   * Correct answer is already in the question object.
+   */
+  const handleAnswer = (answer: string | null) => {
+    if (isAnswered || !question) return;
     setIsAnswered(true);
     if (timerRef.current) clearInterval(timerRef.current);
     
     setSelectedOption(answer || 'TIMEOUT');
     const timeTaken = (QUESTION_TIME - timeLeft) * 1000;
     
-    // Optimistic / Server validation
-    // For Phase 1 we let server decide correctness, but for UI feedback we need to wait response
-    // OR we assume we know logic?
-    // questions[] from server stripped 'correct_answer'.
-    // So we MUST await server for correctness feedback.
+    // Client-side validation using question.correctAnswer
+    const correct = normalizeAnswer(question.correctAnswer) === normalizeAnswer(answer);
+    const points = calculatePoints(correct, timeTaken);
     
-    if (lobbyId && me && question) {
-        const res = await submitAnswer(lobbyId, me.id, question.id, answer || '', timeTaken, 1, currentQuestionIndex + 1);
-        
-        if (res.success) {
-            setIsCorrect(!!res.isCorrect);
-            
-            // Play SFX
-            if (res.isCorrect) {
-                correctSfxRef.current?.play().catch(() => {});
-                setMyScore(prev => prev + (res.points || 0));
-                confetti({
-                    particleCount: 80,
-                    spread: 60,
-                    origin: { y: 0.7 }
-                });
-            } else {
-                wrongSfxRef.current?.play().catch(() => {});
-            }
-            
-            if (res.correctAnswer) {
-                setCorrectAnswerKey(res.correctAnswer);
-            }
-            
-            // Update Store
-            storeSubmitAnswer(question.id, answer || '', timeTaken);
-        }
+    setIsCorrect(correct);
+    setCorrectAnswerKey(question.correctAnswer || null);
+    
+    // Play SFX + update local score
+    if (correct) {
+      correctSfxRef.current?.play().catch(() => {});
+      setMyScore(prev => prev + points);
+      correctCountRef.current += 1;
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    } else {
+      wrongSfxRef.current?.play().catch(() => {});
     }
+    
+    // Store answer locally (NO DB call)
+    localAnswersRef.current.push({
+      questionId: question.id,
+      answer: answer || '',
+      isCorrect: correct,
+      timeTakenMs: timeTaken,
+      pointsEarned: points,
+      questionOrder: currentQuestionIndex + 1
+    });
     
     setShowFeedback(true);
     
     // Auto-advance
     setTimeout(() => {
-       if (currentQuestionIndex < totalQuestions - 1) {
-         nextQuestion();
-       } else {
-         handleFinish();
-       }
+      if (currentQuestionIndex < totalQuestions - 1) {
+        nextQuestion();
+      } else {
+        handleFinish();
+      }
     }, 2000);
   };
 
+  /**
+   * BATCH SUBMIT: Send all answers to server in ONE request at the end.
+   */
   const handleFinish = async () => {
-    if (lobbyId) {
-        // Save final score to store for results screen
-        if (profile?.id) {
-          updatePlayerProgress(profile.id, { score: myScore });
-        }
-        await finishGame(lobbyId);
-        setStatus('finished');
-    }
+    if (!lobbyId || !me || !profile?.id) return;
+    
+    const finalScore = localAnswersRef.current.reduce((sum, a) => sum + a.pointsEarned, 0);
+    
+    // Update store for results screen
+    updatePlayerProgress(profile.id, { 
+      score: finalScore,
+      currentQuestion: totalQuestions 
+    });
+    
+    // ONE server call: batch submit all answers + update score
+    await submitAllAnswers(lobbyId, profile.id, localAnswersRef.current, finalScore);
+    
+    // ONE server call: mark game as finished
+    await finishGame(lobbyId);
+    
+    setStatus('finished');
   };
 
-  // Bot Logic (Host runs this)
+  // Bot Logic (Host runs this) — bot answers are simulated locally too
   useEffect(() => {
-    // Only run if I am the "host" (e.g. first player or just me if solo testing)
-    // Simple heuristic: if I am player 0, I manage bots.
     const isHost = players.length > 0 && players[0].id === profile?.id;
     
     if (isHost && opponent && opponent.isBot && !isAnswered) {
-         // Determine when bot answers this specific question
-         // This effect depends on [currentQuestionIndex]
-         
-         // Using simulateSingleBotAnswer which sets a timeout
-         simulateSingleBotAnswer(
-            { name: opponent.displayName || 'Bot', accuracy: botAccuracy, avgResponseTime: 20000 }, // Use generated accuracy (60-80% typical)
-            question,
-            async (ans, time) => {
-                if (lobbyId && question && opponent) {
-                    const res = await submitAnswer(lobbyId, opponent.id, question.id, ans, time, 1, currentQuestionIndex + 1);
-                    // Update opponent score in UI
-                    if (res.success && res.points) {
-                        setOpponentScore(prev => prev + res.points);
-                    }
-                }
-            }
-         );
+      simulateSingleBotAnswer(
+        { name: opponent.displayName || 'Bot', accuracy: botAccuracy, avgResponseTime: 20000 },
+        question,
+        (_ans, _time) => {
+          // Bot scoring is simulated client-side for UI
+          // Just update opponent score visually
+          const botCorrect = Math.random() < botAccuracy / 100;
+          const botPoints = botCorrect ? calculatePoints(true, 15000 + Math.random() * 20000) : 0;
+          setOpponentScore(prev => prev + botPoints);
+          
+          // Update opponent in game store
+          if (opponent) {
+            updatePlayerProgress(opponent.id, { 
+              score: (opponent.score || 0) + botPoints,
+              currentQuestion: currentQuestionIndex + 1
+            });
+          }
+        }
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuestionIndex, isAnswered]); // Re-run on new question
+  }, [currentQuestionIndex, isAnswered]);
 
   if (!question) return <div className="p-10 text-center">Loading Question...</div>;
 
@@ -283,33 +313,26 @@ export default function DuelGameScreen() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 {optionsList.map((option) => {
                     const isSelected = selectedOption === option.key;
-                    // Normalize: strip parentheses and uppercase for comparison
-                    const normalize = (s: string | null | undefined) => s?.replace(/[()]/g, '').trim().toUpperCase() || '';
                     const correctKey = correctAnswerKey || question.correctAnswer;
-                    const isCorrectAnswer = normalize(correctKey) === normalize(option.key);
+                    const isCorrectAnswer = normalizeAnswer(correctKey) === normalizeAnswer(option.key);
                     const isWrongAnswer = showFeedback && isSelected && !isCorrectAnswer;
                     const showAsCorrect = showFeedback && isCorrectAnswer;
 
-                    // Style Logic (matching course-quiz pattern)
                     let containerClasses = "bg-white border-2 border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 text-foreground";
                     let labelClasses = "bg-gray-100 text-gray-500 border-gray-200";
                     
                     if (showFeedback) {
                         if (showAsCorrect) {
-                            // CORRECT ANSWER (Always Green)
                             containerClasses = "bg-green-500 text-white border-green-500 shadow-md";
                             labelClasses = "bg-white/20 text-white border-white/40";
                         } else if (isWrongAnswer) {
-                            // WRONG SELECTION (Red)
                             containerClasses = "bg-red-500 text-white border-red-500 shadow-md";
                             labelClasses = "bg-white/20 text-white border-white/40";
                         } else {
-                            // OTHER OPTIONS (Disabled/Dimmed)
                             containerClasses = "border-gray-100 bg-gray-50 text-gray-400 opacity-60";
                             labelClasses = "bg-gray-100 text-gray-400 border-gray-200";
                         }
                     } else if (isSelected) {
-                        // Selected but not yet submitted
                         containerClasses = "bg-blue-500 text-white border-blue-500 shadow-lg scale-[1.02]";
                         labelClasses = "bg-white/20 text-white border-white/40";
                     }
@@ -347,7 +370,7 @@ export default function DuelGameScreen() {
                 })}
             </div>
             
-            {/* Feedback / Explanation Box (matching course-quiz style) */}
+            {/* Feedback / Explanation Box */}
             <AnimatePresence>
                 {showFeedback && (
                     <motion.div 

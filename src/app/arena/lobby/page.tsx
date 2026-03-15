@@ -12,28 +12,28 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 // AppHeader import removed
-import { DottedBackground } from "@/components/DottedBackground";
+import { useArenaBackground } from "@/components/game/arena-background";
 
 export default function LobbyPage() {
+  const arenaBackground = useArenaBackground();
   return (
     <Suspense fallback={
-      <div className="min-h-screen relative flex flex-col">
-        <DottedBackground />
+      <div className="min-h-screen relative flex flex-col arena-bg" style={arenaBackground}>
         {/* AppHeader removed */}
         <main className="container flex grow items-center justify-center p-4 mx-auto">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
       </div>
     }>
-      <LobbyContent />
+      <LobbyContent arenaBackground={arenaBackground} />
     </Suspense>
   );
 }
 
-function LobbyContent() {
+function LobbyContent({ arenaBackground }: { arenaBackground: React.CSSProperties }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mode = (searchParams.get('mode') as 'duel' | 'arena') || 'duel';
+  const mode = (searchParams.get('mode') as 'duel' | 'arena' | 'tagteam') || 'duel';
   
   const { profile } = useAuthStore();
   const { lobbyId, status, players, setLobbyId, setStatus, setPlayers, setQuestions, reset } = useGameStore();
@@ -189,8 +189,7 @@ function LobbyContent() {
 
   if (matchingError) {
     return (
-      <div className="min-h-screen relative flex flex-col">
-        <DottedBackground />
+      <div className="min-h-screen relative flex flex-col arena-bg" style={arenaBackground}>
         {/* AppHeader removed */}
         <main className="container flex grow items-center justify-center p-4 mx-auto">
           <Card className="w-full max-w-md border-destructive shadow-lg">
@@ -210,8 +209,7 @@ function LobbyContent() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col">
-      <DottedBackground />
+    <div className="min-h-screen relative flex flex-col arena-bg" style={arenaBackground}>
       {/* AppHeader removed */}
       
       <main className="container flex grow flex-col items-center justify-center p-4 mx-auto max-w-lg">
@@ -238,7 +236,7 @@ function LobbyContent() {
           <CardContent className="space-y-6 pt-6">
             {/* Players List */}
             <div className="space-y-3">
-               {players.slice(0, mode === 'duel' ? 2 : 5).map((player) => (
+               {players.slice(0, mode === 'duel' ? 2 : mode === 'tagteam' ? 4 : 5).map((player) => (
                  <div key={player.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50 animate-in fade-in slide-in-from-bottom-2">
                    <Avatar className="h-10 w-10 border-2 border-background shadow-xs">
                      <AvatarImage src={player.avatarUrl} />
@@ -256,7 +254,7 @@ function LobbyContent() {
                ))}
                
                {/* Empty Slots */}
-               {Array.from({ length: Math.max(0, (mode === 'duel' ? 2 : 5) - players.length) }).map((_, i) => (
+               {Array.from({ length: Math.max(0, (mode === 'duel' ? 2 : mode === 'tagteam' ? 4 : 5) - players.length) }).map((_, i) => (
                  <div key={`empty-${i}`} className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-border/50 opacity-50 bg-muted/20">
                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                      <User className="h-5 w-5 text-muted-foreground" />

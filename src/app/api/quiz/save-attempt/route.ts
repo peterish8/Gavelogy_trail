@@ -19,7 +19,9 @@ export async function POST(request: Request) {
       answers,
       totalQuestions,
       localDate,
-      isSpacedRepetition // NEW: Flag to indicate SR mode
+      isSpacedRepetition, // NEW: Flag to indicate SR mode
+      subject,
+      topic
     } = body;
 
     // Use Service Role Key to bypass RLS
@@ -38,7 +40,9 @@ export async function POST(request: Request) {
       passed,
       answers, // JSONB column
       total_questions: totalQuestions || (Array.isArray(answers) ? answers.length : 0),
-      completed_at: completionTime.toISOString()
+      completed_at: completionTime.toISOString(),
+      subject,
+      topic
     });
 
     if (attemptError) {

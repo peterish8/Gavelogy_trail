@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { isAuthenticated: isAuthFromStore, isLoading: isAuthLoading } = useAuthStore();
+  const { isAuthenticated: isAuthFromStore, isLoading: isAuthLoading, setUser, setProfile, setIsAuthenticated } = useAuthStore();
 
   // Check if user is already authenticated and redirect to dashboard
   useEffect(() => {
@@ -165,10 +165,11 @@ export default function LoginPage() {
           username: user.username,
           full_name: user.full_name,
           avatar_url: user.avatar_url,
-          total_coins: 100,
+          total_coins: 0,
           streak_count: 0,
           longest_streak: 0,
           dark_mode: false,
+          xp: 0,
           created_at: user.created_at,
           updated_at: user.updated_at,
         };

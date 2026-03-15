@@ -47,7 +47,7 @@ function HomeContent() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner text="Loading..." />
+        <LoadingSpinner size="lg" text="Loading..." />
       </div>
     );
   }
@@ -57,7 +57,7 @@ function HomeContent() {
   if (!allowLanding && (user || isAuthenticated)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner text="Redirecting to dashboard..." />
+        <LoadingSpinner size="lg" text="Redirecting to dashboard!" />
       </div>
     );
   }

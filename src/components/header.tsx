@@ -5,9 +5,18 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { useThemeStore } from "@/lib/stores/theme";
+import { usePaymentStore, type Course } from "@/lib/payment";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Moon, Sun, User, LogOut, Menu, X, Settings } from "lucide-react";
+import { Moon, Sun, User, LogOut, Menu, X, ChevronDown, BookOpen } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 
 const AUTH_NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -20,9 +29,15 @@ export function Header() {
   const router = useRouter();
   const { profile, isAuthenticated, logout } = useAuthStore();
   const { isDarkMode, toggleTheme } = useThemeStore();
+  const { recentCourses, availableCourses } = usePaymentStore();
+  
+  const recentCourseList = recentCourses
+    .map(id => availableCourses.find(c => c.id === id))
+    .filter((c): c is Course => Boolean(c))
+    .slice(0, 5);
+
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showMobileSettings, setShowMobileSettings] = useState(false);
   const [showLandingMenu, setShowLandingMenu] = useState(false);
   const pathname = usePathname();
 
@@ -44,7 +59,7 @@ export function Header() {
   };
 
   const navContainerRef = useRef<HTMLDivElement | null>(null);
-  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const linkRefs = useRef<Record<string, HTMLElement | null>>({});
   const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, left: 0 });
 
   useEffect(() => {
@@ -114,7 +129,58 @@ export function Header() {
               className="relative flex items-center space-x-6 border-b border-transparent pb-1"
               ref={navContainerRef}
             >
-              {AUTH_NAV_LINKS.map((link) => (
+              {AUTH_NAV_LINKS.map((link) => {
+                if (link.href === '/courses' && recentCourseList.length > 0) {
+                     return (
+                        <div
+                            key={link.href}
+                            ref={(el) => {
+                                linkRefs.current[link.href] = el;
+                            }}
+                            className="flex items-center gap-1 group"
+                        >
+                            <Link
+                                href={link.href}
+                                className={`text-sm font-semibold transition-colors ${
+                                    pathname.startsWith(link.href)
+                                    ? "text-primary"
+                                    : "text-muted-foreground group-hover:text-primary/80"
+                                }`}
+                            >
+                                {link.label}
+                            </Link>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="outline-none focus:outline-none opacity-50 hover:opacity-100 transition-opacity p-0.5 rounded-sm hover:bg-muted">
+                                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-56" sideOffset={8}>
+                                    <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Recent Courses</DropdownMenuLabel>
+                                    {recentCourseList.map((course: Course) => (
+                                        <DropdownMenuItem 
+                                            key={course.id}
+                                            className="cursor-pointer gap-2"
+                                            onClick={() => router.push(`/course-viewer?courseId=${course.id}`)}
+                                        >
+                                            <BookOpen className="h-4 w-4 text-blue-500" />
+                                            <span className="truncate">{course.name}</span>
+                                        </DropdownMenuItem>
+                                    ))}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
+                                        className="cursor-pointer justify-center text-primary font-medium"
+                                        onClick={() => router.push('/courses')}
+                                    >
+                                        View All Courses
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                     );
+                }
+
+                return (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -129,7 +195,7 @@ export function Header() {
                 >
                   {link.label}
                 </Link>
-              ))}
+              )})}
               <span
                 className="absolute -bottom-0.5 h-0.5 bg-primary transition-all duration-300 ease-out"
                 style={{
@@ -284,7 +350,6 @@ export function Header() {
             className="fixed inset-0 bg-black/50 z-9998 md:hidden"
             onClick={() => {
               setShowMobileMenu(false);
-              setShowMobileSettings(false);
             }}
           />
 
@@ -303,7 +368,6 @@ export function Header() {
                   size="icon"
                   onClick={() => {
                     setShowMobileMenu(false);
-                    setShowMobileSettings(false);
                   }}
                   className="h-8 w-8 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
@@ -368,39 +432,11 @@ export function Header() {
                 <span className="text-base font-medium">Courses</span>
               </Link>
 
-              {/* Settings Section */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6">
-                <button
-                  onClick={() => setShowMobileSettings(!showMobileSettings)}
-                  className="flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-white"
-                >
-                  <div className="flex items-center">
-                    <Settings className="h-5 w-5 mr-3" />
-                    <span className="text-base font-medium">Settings</span>
-                  </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {showMobileSettings ? "Hide" : "Show"}
-                  </span>
-                </button>
-
-                {/* Settings Submenu */}
-                {showMobileSettings && (
-                  <div className="ml-4 mt-3 space-y-2">
-                    <Link
-                      href="/settings"
-                      className="flex items-center px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-white"
-                      onClick={() => {
-                        setShowMobileMenu(false);
-                        setShowMobileSettings(false);
-                      }}
-                    >
-                      <User className="h-4 w-4 mr-3" />
-                      <span className="text-sm">Settings</span>
-                    </Link>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6 space-y-2">
                     <button
                       onClick={() => {
                         toggleTheme();
-                        setShowMobileSettings(false);
+                        setShowMobileMenu(false);
                       }}
                       className="flex items-center w-full px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-white"
                     >
@@ -417,15 +453,12 @@ export function Header() {
                       onClick={() => {
                         handleLogout();
                         setShowMobileMenu(false);
-                        setShowMobileSettings(false);
                       }}
                       className="flex items-center w-full px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-red-600 dark:text-red-400"
                     >
                       <LogOut className="h-4 w-4 mr-3" />
                       <span className="text-sm">Logout</span>
                     </button>
-                  </div>
-                )}
               </div>
             </nav>
           </div>

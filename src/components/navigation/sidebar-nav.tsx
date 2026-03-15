@@ -1,37 +1,68 @@
-'use client'
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SidebarItem } from './sidebar-item'
 import { SidebarSection } from './sidebar-section'
 import { SearchCommandMenu } from '@/components/search-command-menu'
+import { usePaymentStore, type Course } from "@/lib/payment"
 import { 
   LayoutDashboard, 
   BookOpen, 
   Trophy, 
   Gamepad2,
   AlertCircle,
-  Settings, 
-  User,
   Search,
-  LogOut,
-  Moon,
-  Sun
+  ChevronDown,
+  FileText,
+  Swords,
+  Zap,
+  Users
 } from 'lucide-react'
-import { useAuthStore } from '@/lib/stores/auth'
-import { useRouter } from 'next/navigation'
-import { useThemeStore } from '@/lib/stores/theme'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { cn } from "@/lib/utils"
+
+const ARENA_MODES = [
+  { id: 'duel', name: 'Duel', emoji: '⚔️', icon: Swords, href: '/arena/duel', color: '#6366f1' },
+  { id: 'speed_court', name: 'Speed Court', emoji: '⚡', icon: Zap, href: '/arena/speed-court', color: '#f59e0b' },
+  { id: 'arena', name: 'Arena', emoji: '🏆', icon: Trophy, href: '/arena/lobby?mode=arena', color: '#ef4444' },
+  { id: 'tagteam', name: 'Tag Team', emoji: '🤝', icon: Users, href: '/arena/lobby?mode=tagteam', color: '#06b6d4' },
+];
 
 export function SidebarNav() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [activeItem, setActiveItem] = useState('/dashboard') // Default active
-  const { logout } = useAuthStore()
-  const router = useRouter()
-  const { isDarkMode, toggleTheme } = useThemeStore()
+  const pathname = usePathname()
+  
+  // Recent Courses Logic
+  const { recentCourses, availableCourses, purchasedCourses, loadAvailableCourses } = usePaymentStore();
 
-  const handleLogout = async () => {
-    await logout()
-    router.push("/login")
+  // Ensure courses are loaded for the sidebar resolving
+  useEffect(() => {
+    if (availableCourses.length === 0) {
+      loadAvailableCourses();
+    }
+  }, [availableCourses.length, loadAvailableCourses]);
+  
+  // 1. Get objects for recent courses
+  let displayCourses = recentCourses
+    .map(id => availableCourses.find(c => c.id === id))
+    .filter((c): c is Course => Boolean(c));
+
+  // 2. If no recent courses, fallback to purchased courses (up to 5)
+  // Logic: "Show all the course they register that too recent clicked" -> Implies priority to recent
+  // If recent is empty, show registered.
+  const isFallback = displayCourses.length === 0;
+  if (isFallback) {
+      displayCourses = purchasedCourses
+        .slice(0, 5)
+        .map(id => availableCourses.find(c => c.id === id))
+        .filter((c): c is Course => Boolean(c));
   }
+  
+  // Ensure max 5
+  displayCourses = displayCourses.slice(0, 5);
+
+  const [isCoursesOpen, setIsCoursesOpen] = useState(false)
+  const [isArenaOpen, setIsArenaOpen] = useState(false)
 
   return (
     <div className="space-y-6 px-3">
@@ -55,61 +86,144 @@ export function SidebarNav() {
           icon={LayoutDashboard} 
           label="Dashboard" 
           href="/dashboard" 
-          active={activeItem === '/dashboard'} 
-          onClick={() => setActiveItem('/dashboard')}
+          active={pathname === '/dashboard'} 
         />
-        <SidebarItem 
-          icon={BookOpen} 
-          label="Courses" 
-          href="/courses"
-          active={activeItem === '/courses'}
-          onClick={() => setActiveItem('/courses')}
-        />
+        
+        
+        {/* Smart Courses Dropdown */}
+        <Collapsible open={isCoursesOpen} onOpenChange={setIsCoursesOpen} className="group/collapsible">
+            <div className={cn(
+                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group relative",
+                (pathname === '/courses' || pathname.startsWith('/course-viewer'))
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                  : "text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+            )}>
+               {/* Main Link */}
+               <Link 
+                  href="/courses"
+                  className="flex-1 flex items-center gap-3 cursor-pointer"
+               >
+                  <BookOpen className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    Courses
+                  </span>
+               </Link>
+
+               {/* Toggle Chevron - Right Aligned */}
+               <CollapsibleTrigger asChild>
+                  <button className="h-5 w-5 flex items-center justify-center rounded-sm hover:bg-sidebar-accent/50 transition-colors ml-auto">
+                     <ChevronDown className={cn(
+                       "h-4 w-4 opacity-70 transition-transform duration-200", 
+                       !isCoursesOpen && "-rotate-90" 
+                     )} />
+                  </button>
+               </CollapsibleTrigger>
+            </div>
+
+            {/* Nested Items */}
+            <CollapsibleContent>
+               <div className="mt-1 space-y-0.5">
+                  {displayCourses.length > 0 ? (
+                    displayCourses.map((course: Course) => (
+                      <Link
+                        key={course.id}
+                        href={`/course-viewer?courseId=${course.id}`}
+                        className="w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/40 rounded-md transition-all text-left group/item"
+                      >
+                         <FileText className="h-4 w-4 shrink-0 text-sidebar-foreground/70 group-hover/item:text-sidebar-foreground transition-colors" />
+                         <span className="truncate">{course.name}</span>
+                      </Link>
+                    ))
+                  ) : (
+                      <div className="pl-8 pr-2 py-2 text-sm text-sidebar-foreground/50 italic cursor-default">
+                        No recent courses
+                      </div>
+                  )}
+               </div>
+            </CollapsibleContent>
+        </Collapsible>
+
         <SidebarItem 
           icon={AlertCircle} 
           label="Mistakes" 
           href="/mistakes"
-          active={activeItem === '/mistakes'}
-          onClick={() => setActiveItem('/mistakes')}
+          active={pathname.startsWith('/mistakes')}
         />
-        <SidebarItem 
-          icon={Gamepad2} 
-          label="Game Arena" 
-          href="/arena"
-          active={activeItem === '/arena'}
-          onClick={() => setActiveItem('/arena')}
-        />
+        {/* Game Arena Dropdown */}
+        <Collapsible open={isArenaOpen} onOpenChange={setIsArenaOpen} className="group/collapsible">
+            <div className={cn(
+                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group relative",
+                pathname.startsWith('/arena')
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                  : "text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+            )}>
+               {/* Main Link */}
+               <Link 
+                  href="/arena"
+                  className="flex-1 flex items-center gap-3 cursor-pointer"
+               >
+                  <Gamepad2 className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    Game Arena
+                  </span>
+               </Link>
+
+               {/* Toggle Chevron */}
+               <CollapsibleTrigger asChild>
+                  <button className="h-5 w-5 flex items-center justify-center rounded-sm hover:bg-sidebar-accent/50 transition-colors ml-auto">
+                     <ChevronDown className={cn(
+                       "h-4 w-4 opacity-70 transition-transform duration-200", 
+                       !isArenaOpen && "-rotate-90" 
+                     )} />
+                  </button>
+               </CollapsibleTrigger>
+            </div>
+
+            {/* Game Mode Links */}
+            <CollapsibleContent>
+               <div className="mt-1 space-y-0.5">
+                 {ARENA_MODES.map((mode) => (
+                   <Link
+                     key={mode.id}
+                     href={mode.href}
+                     className={cn(
+                       "w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm rounded-md transition-all duration-200 text-left group/item",
+                       pathname === mode.href
+                         ? "text-sidebar-accent-foreground"
+                         : "text-sidebar-foreground hover:text-sidebar-foreground"
+                     )}
+                     style={{
+                       backgroundColor: pathname === mode.href ? `${mode.color}15` : undefined,
+                       borderLeft: pathname === mode.href ? `3px solid ${mode.color}` : '3px solid transparent',
+                     }}
+                     onMouseEnter={(e) => {
+                       if (pathname !== mode.href) {
+                         e.currentTarget.style.backgroundColor = `${mode.color}12`;
+                         e.currentTarget.style.borderLeftColor = `${mode.color}80`;
+                       }
+                     }}
+                     onMouseLeave={(e) => {
+                       if (pathname !== mode.href) {
+                         e.currentTarget.style.backgroundColor = 'transparent';
+                         e.currentTarget.style.borderLeftColor = 'transparent';
+                       }
+                     }}
+                   >
+                      <mode.icon className="h-4 w-4 shrink-0 transition-colors" style={{ color: mode.color }} />
+                      <span className="truncate">{mode.name}</span>
+                   </Link>
+                 ))}
+               </div>
+            </CollapsibleContent>
+        </Collapsible>
         <SidebarItem 
           icon={Trophy} 
           label="Leaderboard" 
           href="/leaderboard"
-          active={activeItem === '/leaderboard'}
-          onClick={() => setActiveItem('/leaderboard')}
+          active={pathname.startsWith('/leaderboard')}
         />
       </SidebarSection>
       
-      {/* User & Settings */}
-      <SidebarSection title="Account">
-        <SidebarItem icon={User} label="Profile" href="/profile" />
-        <SidebarItem icon={Settings} label="Settings" href="/settings" />
-        
-        <button 
-          onClick={toggleTheme}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md transition-colors text-left"
-        >
-          {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
-        </button>
-
-        <button 
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors text-left"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Logout</span>
-        </button>
-      </SidebarSection>
-
       <SearchCommandMenu open={isSearchOpen} setOpen={setIsSearchOpen} />
     </div>
   )
