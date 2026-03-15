@@ -1061,3 +1061,31 @@ span[data-fontsize="3rem"] { font-size: 3rem !important; }
   border-top-color: rgba(0,0,0,0.06) !important;
 }
 
+
+/* ===== Notes + Judgment Mode ===== */
+
+/* Linked text spans — PDF jump targets */
+.linked-text {
+  border-bottom: 1.5px dashed #c9922a;
+  color: #b07820;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.linked-text:hover {
+  background: rgba(201, 146, 42, 0.12);
+}
+
+/* Active speaking paragraph */
+.notes-speech-container p.speaking,
+.notes-speech-container li.speaking,
+.notes-speech-container h1.speaking,
+.notes-speech-container h2.speaking,
+.notes-speech-container h3.speaking,
+.notes-speech-container div.note-box.speaking {
+  border-left: 3px solid #c9922a;
+  padding-left: 8px;
+  background: rgba(201, 146, 42, 0.06);
+  transition: border-left 0.2s, background 0.2s;
+}

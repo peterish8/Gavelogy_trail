@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack -p 3001",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -31,6 +32,7 @@
     "lucide-react": "^0.546.0",
     "mathjs": "^15.0.0",
     "next": "15.5.9",
+    "pdfjs-dist": "^5.5.207",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.6.0",

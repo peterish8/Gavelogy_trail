@@ -267,6 +267,20 @@ export interface ModalProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
+// Judgment mode types
+export interface NotePdfLink {
+  id: string;
+  item_id: string;
+  link_id: string;
+  pdf_page: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label?: string;
+  created_at: string;
+}
+
 // Utility types
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequireFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
