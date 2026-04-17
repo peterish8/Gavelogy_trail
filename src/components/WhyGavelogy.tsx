@@ -86,6 +86,7 @@ export function WhyGavelogy() {
             {features.map((feature, index) => {
               const rowIndex = Math.floor(index / 3);
               const isShifted = rowIndex % 2 === 1; // Shift odd rows
+              
               return (
                 <motion.div
                   key={index}
@@ -93,14 +94,12 @@ export function WhyGavelogy() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="group"
-                  style={{
-                    transform: isShifted ? "translateX(50px)" : "translateX(0)",
-                  }}
+                  whileHover={{ y: -5 }}
+                  className={`group ${isShifted ? "lg:translate-x-12" : ""}`}
                 >
-                  <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 flex items-center gap-4 h-full">
-                    <div className="shrink-0 p-3 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-300">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/60 p-6 hover:shadow-xl transition-all duration-300 flex items-center gap-4 h-full relative overflow-hidden">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="shrink-0 p-3 bg-blue-50/80 rounded-lg group-hover:bg-blue-100 transition-colors duration-300">
                       {feature.icon}
                     </div>
                     <span className="text-base font-medium text-[#2C2C2C]">

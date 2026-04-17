@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { motion } from "framer-motion";
-import ShinyText from '@/components/ShinyText';
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -75,14 +74,11 @@ export function LoadingSpinner({
 
         {text && (
             <div className="mt-4">
-               <ShinyText 
-                  text={text} 
-                  disabled={false} 
-                  speed={3} 
-                  className="text-sm font-medium tracking-[0.2em] uppercase"
-                  color="#888888" // Neutral gray
-                  shineColor="#3b82f6" // Blue shine! (Brand color)
-               />
+               <span 
+                 className="text-sm font-medium tracking-[0.2em] uppercase text-gray-500 animate-pulse"
+               >
+                 {text}
+               </span>
             </div>
         )}
       </div>

@@ -5,8 +5,7 @@ import { Providers } from "@/components/providers";
 import { CacheInitializer } from "@/components/CacheInitializer";
 import { AuthProvider } from "@/lib/auth-context";
 import { SessionManager } from "@/components/session/session-manager";
-import { AppSidebar } from "@/components/navigation/app-sidebar"
-import { FloatingMenuToggle } from "@/components/navigation/sidebar-toggle"
+import { ConditionalSidebar } from "@/components/navigation/conditional-sidebar"
 import { SidebarLayoutClient } from "@/components/navigation/sidebar-layout-client"
 
 const inter = Inter({
@@ -51,7 +50,7 @@ export default function RootLayout({
               (function() {
                 try {
                   // Theme Restore
-                  var storedTheme = localStorage.getItem('gavalogy-theme');
+                  var storedTheme = localStorage.getItem('gavelogy-theme');
                   if (storedTheme) {
                     var theme = JSON.parse(storedTheme);
                     if (theme.state.isDarkMode) {
@@ -85,9 +84,8 @@ export default function RootLayout({
             
             {/* Sidebar State Provider Wrapper - Handles main content margin */}
             <SidebarLayoutClient>
-              <AppSidebar />
-              <FloatingMenuToggle />
-              
+              <ConditionalSidebar />
+
               {/* Main Content Area */}
               <main className="flex-1 w-full relative">
                 {children}

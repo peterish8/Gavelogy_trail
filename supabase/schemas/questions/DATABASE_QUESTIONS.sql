@@ -1,4 +1,4 @@
--- Gavalogy Questions Database Setup
+-- Gavelogy Questions Database Setup
 -- This script inserts questions for all 13 CLAT PG subjects
 -- Run this after setting up the basic schema
 

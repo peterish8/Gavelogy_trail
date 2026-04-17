@@ -10,7 +10,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem('gavalogy-theme')
+    const savedTheme = localStorage.getItem('gavelogy-theme')
     if (savedTheme) {
       const theme = JSON.parse(savedTheme)
       setTheme(theme.state.isDarkMode)

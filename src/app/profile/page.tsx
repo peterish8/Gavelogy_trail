@@ -17,9 +17,10 @@ import {
   Save,
   Edit3,
   Flame,
-  Zap,
+
   Award,
 } from "lucide-react";
+import { GavelIcon } from '@/components/icons/gavel-icon';
 import { DottedBackground } from "@/components/DottedBackground";
 import Link from "next/link";
 
@@ -253,7 +254,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-center p-4 rounded-xl bg-purple-100/60 dark:bg-purple-500/10 dark:border dark:border-purple-500/50">
                       <div className="flex items-center justify-center mb-2">
-                        <Zap className="h-6 w-6 text-purple-500 mr-1" />
+                        <GavelIcon className="h-6 w-6 text-purple-500 mr-1" />
                         <span className="text-2xl font-bold text-purple-600">
                           {currentUserEntry?.monthly_points || 0}
                         </span>

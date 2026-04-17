@@ -58,7 +58,7 @@ const faqs: FAQItem[] = [
   {
     question: "How does gamification work on Gavelogy?",
     answer:
-      "As you study and engage, you earn XP points, badges, and leaderboard ranks. Your consistent performance is tracked using advanced statistics, so you can see how you're growing week by week.",
+      "As you study and engage, you earn Gavels, badges, and leaderboard ranks. Your consistent performance is tracked using advanced statistics, so you can see how you're growing week by week.",
   },
 ];
 
@@ -70,7 +70,7 @@ export function FAQSection() {
   };
 
   return (
-    <section className="bg-gradient-to-b from-white/60 to-blue-50/40 backdrop-blur-sm py-24 relative z-10">
+    <section className="bg-linear-to-b from-white/60 to-blue-50/40 backdrop-blur-sm py-24 relative z-10">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -105,7 +105,7 @@ export function FAQSection() {
                   className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-blue-50/50 transition-colors duration-200"
                 >
                   <div className="flex items-center gap-3 flex-1">
-                    <HelpCircle className="h-5 w-5 text-[#6B9BD2] flex-shrink-0" />
+                    <HelpCircle className="h-5 w-5 text-[#6B9BD2] shrink-0" />
                     <span className="text-lg font-semibold text-[#2C2C2C] pr-4">
                       {faq.question}
                     </span>
@@ -114,7 +114,7 @@ export function FAQSection() {
                     animate={{ rotate: openIndex === index ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChevronDown className="h-5 w-5 text-[#6B9BD2] flex-shrink-0" />
+                    <ChevronDown className="h-5 w-5 text-[#6B9BD2] shrink-0" />
                   </motion.div>
                 </button>
 

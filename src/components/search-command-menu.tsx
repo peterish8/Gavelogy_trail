@@ -14,13 +14,15 @@ import {
   StickyNote,
   Brain,
   Loader2,
-  X
+  X,
+  ArrowRight
 } from "lucide-react";
 import { useThemeStore } from "@/lib/stores/theme";
 import { useSearch, SearchResult } from "@/hooks/use-search";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SearchCommandMenuProps {
   open: boolean;
@@ -203,10 +205,27 @@ function SearchResultItem({ result, onAction }: SearchResultItemProps) {
     folder: "text-green-500",
   };
 
+  const getActionStyles = (label: string) => {
+    const l = label.toLowerCase();
+    if (l.includes("quiz")) return {
+       icon: Brain,
+       className: "text-green-500"
+    };
+    if (l.includes("note")) return {
+       icon: StickyNote,
+       className: "text-purple-500"
+    };
+    return {
+       icon: ArrowRight,
+       className: "text-muted-foreground"
+    };
+  };
+
   return (
     <Command.Item 
       value={result.id}
       className="flex items-center h-12 px-3 rounded-md cursor-pointer aria-selected:bg-accent transition-colors group"
+      onSelect={() => onAction("OPEN_PRIMARY")}
     >
       {/* Icon */}
       <Icon className={`h-5 w-5 mr-3 shrink-0 ${colors[result.type]}`} />
@@ -219,22 +238,31 @@ function SearchResultItem({ result, onAction }: SearchResultItemProps) {
         )}
       </div>
 
-      {/* Inline Buttons (Right Aligned) */}
+      {/* Inline Buttons (Right Aligned) - Icons Only */}
       <div className="flex items-center gap-2 shrink-0 opacity-0 group-aria-selected:opacity-100 transition-opacity">
-        {result.actions.map((action, idx) => (
-          <Button
-            key={`${result.id}-${action.actionType}-${idx}`}
-            size="sm"
-            variant={idx === 0 ? "default" : "outline"}
-            className="h-7 text-xs px-2"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAction(action.actionType);
-            }}
-          >
-            {action.label}
-          </Button>
-        ))}
+        {result.actions.map((action, idx) => {
+          const style = getActionStyles(action.label);
+          const ActionIcon = style.icon;
+          
+          return (
+            <Button
+              key={`${result.id}-${action.actionType}-${idx}`}
+              size="icon"
+              variant="ghost" 
+              className={cn(
+                "h-8 w-8 rounded-full", 
+                style.className
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAction(action.actionType);
+              }}
+              title={action.label}
+            >
+              <ActionIcon className="h-4 w-4" />
+            </Button>
+          );
+        })}
       </div>
     </Command.Item>
   );

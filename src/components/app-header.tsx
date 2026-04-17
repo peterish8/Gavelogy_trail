@@ -27,11 +27,15 @@ export function AppHeader() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const pathname = usePathname();
 
   const handleLogout = async () => {
+    setShowLogoutConfirm(false);
+    setShowUserMenu(false);
+    setShowMobileMenu(false);
     await logout();
-    router.push("/login"); // Force redirect to login
+    router.push("/");
   };
 
   // No longer using ref-based indicator
@@ -154,7 +158,7 @@ export function AppHeader() {
                       Profile
                     </Link>
                     <button
-                      onClick={handleLogout}
+                      onClick={() => { setShowLogoutConfirm(true); setShowUserMenu(false); }}
                       className="flex w-full items-center px-3 py-2 text-sm hover:bg-accent rounded-sm text-red-600"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
@@ -236,10 +240,10 @@ export function AppHeader() {
                             </Button>
                         </Link>
 
-                        <Button 
-                            variant="ghost" 
+                        <Button
+                            variant="ghost"
                             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={handleLogout}
+                            onClick={() => { setShowLogoutConfirm(true); setShowMobileMenu(false); }}
                         >
                             <LogOut className="h-4 w-4 mr-2" />
                             Logout
@@ -250,6 +254,28 @@ export function AppHeader() {
         </div>
       )}
       <SearchCommandMenu open={isSearchOpen} setOpen={setIsSearchOpen} />
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowLogoutConfirm(false)} />
+          <Card className="relative z-10 w-80 p-6 shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <LogOut className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Sign out?</h3>
+                <p className="text-sm text-muted-foreground mt-1">You&apos;ll be redirected to the home page.</p>
+              </div>
+              <div className="flex gap-3 w-full">
+                <Button variant="outline" className="flex-1" onClick={() => setShowLogoutConfirm(false)}>Cancel</Button>
+                <Button variant="destructive" className="flex-1" onClick={handleLogout}>Sign Out</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </header>
   );
 }

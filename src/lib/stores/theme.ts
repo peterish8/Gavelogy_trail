@@ -42,7 +42,7 @@ export const useThemeStore = create<ThemeState>()(
       },
     }),
     {
-      name: 'gavalogy-theme',
+      name: 'gavelogy-theme',
       onRehydrateStorage: () => (state) => {
         // Apply theme on hydration
         if (state && typeof window !== 'undefined') {

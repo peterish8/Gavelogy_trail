@@ -2,11 +2,13 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { fetchGameQuestions } from './questions';
+import { deductEntryFee } from './rewards';
+import { getCasualEntryFee } from '@/lib/game/economy';
 
 /**
  * Creates a new game lobby and adds the creator as the first player.
  */
-export async function createLobby(mode: 'duel' | 'arena', userId: string, displayName: string, avatarUrl?: string) {
+export async function createLobby(mode: 'duel' | 'arena' | 'tagteam', userId: string, displayName: string, avatarUrl?: string) {
   const supabase = await createClient();
   
   // 1. Create Lobby
@@ -16,7 +18,7 @@ export async function createLobby(mode: 'duel' | 'arena', userId: string, displa
       mode,
       status: 'waiting',
       question_ids: [], // Empty initially
-      max_rounds: mode === 'duel' ? 1 : 4
+      max_rounds: mode === 'duel' ? 1 : mode === 'arena' ? 4 : 1
     })
     .select('id')
     .single();
@@ -115,6 +117,33 @@ export async function startGameIfReady(lobbyId: string) {
     return { alreadyStarted: true };
   }
 
+  // 1.5 Deduct entry fee for casual modes (arena, tagteam, speed_court)
+  const casualModes = ['arena', 'tagteam', 'speed_court'];
+  if (casualModes.includes(lobby.mode)) {
+    const fee = getCasualEntryFee();
+    // Fetch all real (non-bot) players in this lobby
+    const { data: players } = await supabase
+      .from('game_players')
+      .select('user_id')
+      .eq('lobby_id', lobbyId)
+      .eq('is_bot', false);
+
+    if (players && players.length > 0) {
+      for (const player of players) {
+        if (!player.user_id) continue;
+        const result = await deductEntryFee(player.user_id, lobbyId, fee);
+        if (result.insufficientFunds) {
+          // Revert lobby to waiting so player can see the error
+          await supabase
+            .from('game_lobbies')
+            .update({ status: 'waiting', started_at: null })
+            .eq('id', lobbyId);
+          return { error: 'insufficient_funds', userId: player.user_id };
+        }
+      }
+    }
+  }
+
   // 2. Fetch Questions
   const questions = await fetchGameQuestions(lobby.mode as 'duel' | 'arena');
   const questionIds = questions.map(q => q.id);
@@ -139,17 +168,20 @@ export async function startGameIfReady(lobbyId: string) {
 /**
  * Finds an open lobby or creates a new one.
  */
-export async function findMatch(mode: 'duel' | 'arena', userId: string, displayName: string, avatarUrl?: string) {
+export async function findMatch(mode: 'duel' | 'arena' | 'tagteam', userId: string, displayName: string, avatarUrl?: string) {
   const supabase = await createClient();
   
+  // Ignore lobbies older than 30 seconds (they are likely abandoned since bots auto-fill in 9s)
+  const recentThreshold = new Date(Date.now() - 30 * 1000).toISOString();
   
   // 0. Check if user is ALREADY in a waiting lobby
   const { data: existingLobby } = await supabase
     .from('game_players')
-    .select('lobby_id, game_lobbies!inner(status, mode)')
+    .select('lobby_id, game_lobbies!inner(status, mode, created_at)')
     .eq('user_id', userId)
     .eq('game_lobbies.status', 'waiting')
     .eq('game_lobbies.mode', mode)
+    .gte('game_lobbies.created_at', recentThreshold)
     .single();
 
   if (existingLobby && existingLobby.game_lobbies) {
@@ -180,6 +212,7 @@ export async function findMatch(mode: 'duel' | 'arena', userId: string, displayN
     .select('id')
     .eq('mode', mode)
     .eq('status', 'waiting')
+    .gte('created_at', recentThreshold)
     .order('created_at', { ascending: true }) // FIFO
     .limit(1);
     

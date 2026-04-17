@@ -1,4 +1,4 @@
--- GAVALOGY COMPLETE DATABASE SETUP
+-- GAVELOGY COMPLETE DATABASE SETUP
 -- Paste this entire file into your Supabase SQL Editor and run it
 -- This creates everything: tables, data, and questions
 
@@ -480,7 +480,7 @@ INSERT INTO questions (id, quiz_id, question_text, option_a, option_b, option_c,
 ('550e8400-e29b-41d4-a716-446655440370', '550e8400-e29b-41d4-a716-446655440261', 'What is diplomatic immunity?', 'Immunity from civil suits', 'Immunity from criminal prosecution', 'Immunity from taxation', 'All of the above', 'D. All of the above', 'Diplomatic immunity covers various types of immunity.', 5);
 
 -- ==============================================
--- COMPLETE! Your Gavalogy database is ready!
+-- COMPLETE! Your Gavelogy database is ready!
 -- ==============================================
 
 -- Summary of what was created:

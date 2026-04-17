@@ -86,7 +86,7 @@ export class DataLoader {
     const cacheKey = CACHE_KEYS.CASE_NOTES(year, caseNumber);
     
     // Return cached data immediately
-    const cached = cache.get(cacheKey) as { case_number: string; overall_content: string } | null;
+    const cached = cache.get(cacheKey) as { case_number: string; overall_content: string; item_id?: string } | null;
     if (cached) {
       return { data: cached, fromCache: true };
     }
@@ -148,7 +148,8 @@ export class DataLoader {
 
       const resultData = {
         case_number: notesCaseNumber,
-        overall_content: content.content_html
+        overall_content: content.content_html,
+        item_id: item.id
       };
 
       // Cache for 15 minutes (notes don't change often)

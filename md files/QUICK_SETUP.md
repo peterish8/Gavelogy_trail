@@ -1,4 +1,4 @@
-# Quick Setup Instructions for Gavalogy
+# Quick Setup Instructions for Gavelogy
 
 ## 🚀 **Immediate Fix for Authentication Error**
 

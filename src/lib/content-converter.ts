@@ -198,8 +198,16 @@ export function customToHtml(text: string): string {
     // 10. Horizontal Rule
     html = html.replace(/\[hr\]/g, '<hr class="content-hr">')
 
+    // 11. Linked text spans — [link:link-id]text[/link]
+    // These render as clickable spans that jump the PDF to the mapped section
+    html = html.replace(
+      /\[link:([a-zA-Z0-9_-]+)\]/g,
+      '<span class="linked-text" data-link-id="$1">'
+    )
+    html = html.replace(/\[\/link\]/g, '</span>')
+
     // Newlines to BR (for text outside P tags)
     // But be careful not to break nested tags
-    
+
     return html
 }

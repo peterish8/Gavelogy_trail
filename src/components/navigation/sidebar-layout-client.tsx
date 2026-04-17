@@ -14,9 +14,10 @@ export function SidebarLayoutClient({ children }: { children: React.ReactNode })
   const pathname = usePathname()
   const isLandingPage = pathname === "/"
   const isCourseViewerPage = pathname === "/course-viewer"
-  
+  const isAuthPage = pathname === "/login" || pathname === "/signup"
+
   // Pages without sidebar don't need left padding
-  const hasCustomLayout = isLandingPage || isCourseViewerPage
+  const hasCustomLayout = isLandingPage || isCourseViewerPage || isAuthPage
   
   // Sync state to DOM attribute for CSS-based blocking script compatibility
   React.useEffect(() => {

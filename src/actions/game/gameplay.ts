@@ -1,26 +1,38 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { calculatePoints } from '@/lib/game/scoring';
+
+interface AnswerData {
+  questionId: string;
+  answer: string;
+  isCorrect: boolean;
+  timeTakenMs: number;
+  pointsEarned: number;
+  questionOrder: number;
+}
 
 /**
- * Validates answer server-side, calculates points, stores result, and broadcasts.
+ * Batch submit ALL answers for a player at the end of the game.
+ * This replaces the per-question submitAnswer approach.
+ * 
+ * ONE request to:
+ *  1. Look up player record
+ *  2. Insert all answers in batch
+ *  3. Update player final score
+ *  4. Broadcast score update
  */
-export async function submitAnswer(
-  lobbyId: string, 
-  userId: string, // Changed: Now accepts user_id, not game_players.id
-  questionId: string, 
-  answer: string, 
-  timeTakenMs: number,
-  round: number,
-  questionOrder: number
+export async function submitAllAnswers(
+  lobbyId: string,
+  userId: string,
+  answers: AnswerData[],
+  totalScore: number
 ) {
   const supabase = await createClient();
 
-  // 0. Look up the actual game_players.id from user_id
+  // 1. Look up game_players.id from user_id (one query)
   const { data: playerRecord, error: playerError } = await supabase
     .from('game_players')
-    .select('id, score, current_question')
+    .select('id')
     .eq('lobby_id', lobbyId)
     .eq('user_id', userId)
     .single();
@@ -30,76 +42,63 @@ export async function submitAnswer(
     return { error: 'Player not found in lobby' };
   }
 
-  const playerId = playerRecord.id; // The actual game_players primary key
+  const playerId = playerRecord.id;
 
-  // 1. Fetch Question Correctness
-  const { data: question, error: qError } = await supabase
-    .from('quiz_questions')
-    .select('correct_answer')
-    .eq('id', questionId)
-    .single();
+  // 2. Batch insert all answers (one query)
+  const answerRows = answers.map(a => ({
+    lobby_id: lobbyId,
+    player_id: playerId,
+    question_id: a.questionId,
+    round: 1,
+    question_order: a.questionOrder,
+    answer: a.answer,
+    is_correct: a.isCorrect,
+    time_taken_ms: a.timeTakenMs,
+    points_earned: a.pointsEarned
+  }));
 
-  if (qError || !question) return { error: 'Invalid question' };
-
-  // Normalize both answers: handle non-string values, strip parentheses, trim, uppercase
-  const normalizeAnswer = (ans: unknown): string => {
-    if (ans === null || ans === undefined) return '';
-    const str = typeof ans === 'string' ? ans : String(ans);
-    return str.replace(/[()]/g, '').trim().toUpperCase();
-  };
-  
-  const isCorrect = normalizeAnswer(question.correct_answer) === normalizeAnswer(answer);
-  const points = calculatePoints(isCorrect, timeTakenMs);
-
-  // 2. Store Answer
-  const { error: ansError } = await supabase
+  const { error: insertError } = await supabase
     .from('game_answers')
-    .insert({
-      lobby_id: lobbyId,
-      player_id: playerId, // Now using correct game_players.id
-      question_id: questionId,
-      round,
-      question_order: questionOrder,
-      answer,
-      is_correct: isCorrect,
-      time_taken_ms: timeTakenMs,
-      points_earned: points
-    });
+    .insert(answerRows);
 
-  if (ansError) {
-    console.error('[GAME] Answer insert failed:', ansError);
-    return { error: ansError.message };
+  if (insertError) {
+    console.error('[GAME] Batch answer insert failed:', insertError);
+    return { error: insertError.message };
   }
 
-  // 3. Update Player Score & Progress
-  const newScore = (playerRecord.score || 0) + points;
-  const newQ = (playerRecord.current_question || 0) + 1;
-  
+  // 3. Update player final score + progress (one query)
   await supabase
     .from('game_players')
-    .update({ score: newScore, current_question: newQ })
+    .update({ 
+      score: totalScore, 
+      current_question: answers.length 
+    })
     .eq('id', playerId);
-    
-  // 4. Broadcast Answer & Score Update
+
+  // 4. Broadcast final score (one broadcast)
   const channel = supabase.channel(`game-lobby:${lobbyId}`);
   await channel.send({
     type: 'broadcast',
     event: 'answer_submitted',
-    payload: { 
-      playerId: userId, // Keep using userId for client consistency
-      questionIndex: newQ - 1,
-      score: newScore,
-      pointsEarned: points
+    payload: {
+      playerId: userId,
+      questionIndex: answers.length - 1,
+      score: totalScore,
+      pointsEarned: totalScore,
+      isFinal: true
     }
   });
 
-  return { success: true, isCorrect, points, correctAnswer: String(question.correct_answer) };
+  return { 
+    success: true, 
+    totalScore,
+    correctCount: answers.filter(a => a.isCorrect).length,
+    totalQuestions: answers.length
+  };
 }
 
 /**
  * Marks the game as finished and handles rewards if needed.
- * This is usually called by the host or triggered when everyone finishes.
- * For Phase 1 Duel: Triggered by client when they finish 10 questions.
  */
 export async function finishGame(lobbyId: string) {
   const supabase = await createClient();
@@ -119,7 +118,4 @@ export async function finishGame(lobbyId: string) {
     event: 'game_finished',
     payload: { status: 'finished' }
   });
-  
-  // Note: Coin awards are handled separately via awardCoins
-  // usually called by the client showing the Results screen
 }

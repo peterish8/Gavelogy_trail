@@ -14,7 +14,7 @@ export function useDailyActivity(year: number, month: number) {
 
   useEffect(() => {
     // 1. EAGER LOAD: Use last known user ID if current user isn't ready
-    const effectiveUserId = user?.id || localStorage.getItem('gavalogy-last-user-id');
+    const effectiveUserId = user?.id || localStorage.getItem('gavelogy-last-user-id');
     const cacheKey = effectiveUserId ? `daily_activity_${effectiveUserId}_${year}_${month}` : null;
     
     const cached = cacheKey ? localStorage.getItem(cacheKey) : null;
@@ -60,7 +60,7 @@ export function useDailyActivity(year: number, month: number) {
         
         // Save to cache & update last user
         if (cacheKey) localStorage.setItem(cacheKey, JSON.stringify(result));
-        localStorage.setItem('gavalogy-last-user-id', user.id);
+        localStorage.setItem('gavelogy-last-user-id', user.id);
       }
       setIsLoading(false);
     };

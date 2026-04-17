@@ -1,4 +1,4 @@
--- Sample Data for Gavalogy Database
+-- Sample Data for Gavelogy Database
 -- Run this AFTER running SCHEMA_FIXED.sql
 
 -- Insert sample courses

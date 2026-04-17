@@ -16,6 +16,7 @@ export interface Profile {
   username: string;
   full_name: string;
   avatar_url?: string;
+  xp: number;
   total_coins: number;
   streak_count: number;
   longest_streak: number;
@@ -264,6 +265,20 @@ export interface ModalProps {
   title?: string;
   children: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
+}
+
+// Judgment mode types
+export interface NotePdfLink {
+  id: string;
+  item_id: string;
+  link_id: string;
+  pdf_page: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label?: string;
+  created_at: string;
 }
 
 // Utility types

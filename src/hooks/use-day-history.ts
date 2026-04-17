@@ -21,7 +21,7 @@ export function useDayHistory(date: Date) {
   useEffect(() => {
     // 0. OPTIMISTIC LOADING: Try to load from cache using LAST KNOWN user if current user is loading
     // This bridges the 1-2s gap while useAuthStore initializes
-    const effectiveUserId = user?.id || localStorage.getItem('gavalogy-last-user-id');
+    const effectiveUserId = user?.id || localStorage.getItem('gavelogy-last-user-id');
     
     // Fix: Use local date string for cache key instead of toISOString (which shifts day)
     const yKey = date.getFullYear();
@@ -103,7 +103,7 @@ export function useDayHistory(date: Date) {
         
         // Update cache & last user pointer
         localStorage.setItem(cacheKey, JSON.stringify(result));
-        localStorage.setItem('gavalogy-last-user-id', effectiveUserId);
+        localStorage.setItem('gavelogy-last-user-id', effectiveUserId);
       }
       setIsLoading(false);
     };

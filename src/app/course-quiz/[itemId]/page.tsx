@@ -11,6 +11,8 @@ import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
+import { supabase } from "@/lib/supabase";
+import { usePaymentStore } from "@/lib/payment";
 
 interface UserAnswer {
   questionId: string;
@@ -58,12 +60,20 @@ function CourseQuizContent({
   const [isCompleted, setIsCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [noteTitle, setNoteTitle] = useState<string | null>(null);
+  const [courseTitle, setCourseTitle] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confidenceRating, setConfidenceRating] = useState<'confident' | '50/50' | 'fluke' | null>(null);
 
   /* Updated to support Spaced Repetition Mode */
   const mode = searchParams?.get("mode");
   const isSpacedRepetition = mode === "spaced-repetition";
+
+  useEffect(() => {
+    if (courseId) {
+       usePaymentStore.getState().markCourseAsVisited(courseId);
+    }
+  }, [courseId]);
 
   useEffect(() => {
     // Only load if user is present for SR mode, or always for normal mode
@@ -99,6 +109,33 @@ function CourseQuizContent({
       }
       
       setQuiz(quizData);
+      
+      // Fetch Note Title (Parent Item Name) for better tracking
+      // In standard mode, itemId is note_item_id. In SR mode, we have quizData.note_item_id
+      const targetNoteId = isSpacedRepetition ? quizData.note_item_id : itemId;
+      
+      if (targetNoteId) {
+        const { data: noteItem } = await supabase
+          .from('structure_items')
+          .select('title')
+          .eq('id', targetNoteId)
+          .single();
+          
+        if (noteItem) {
+           setNoteTitle(noteItem.title);
+        }
+      }
+
+      // Fetch Course Name
+      if (courseId) {
+         const { data: courseData } = await supabase
+            .from('courses')
+            .select('name')
+            .eq('id', courseId)
+            .single();
+         if (courseData) setCourseTitle(courseData.name);
+      }
+
     } catch (err: unknown) {
       console.error("Error loading quiz:", err);
       setError("Error loading quiz. Please try again.");
@@ -182,7 +219,9 @@ function CourseQuizContent({
         passed,
         userAnswers,
         totalQuestions,
-        isSpacedRepetition
+        isSpacedRepetition,
+        noteTitle || quiz.title, // Subject: Note Title (Bold)
+        courseTitle || "Course Content" // Topic: Course Name (Subtext)
       );
 
       if (passed) {

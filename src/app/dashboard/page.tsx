@@ -24,6 +24,8 @@ import {
 } from "@/lib/payment";
 import { useRouter } from "next/navigation";
 import { SpacedRepetitionCalendar } from "@/components/spaced-repetition/calendar-view";
+import { RecentActivityList } from "@/components/dashboard/recent-activity-list";
+import { PerformancePanel } from "@/components/dashboard/performance-panel";
 
 export default function DashboardPage() {
   const { isCollapsed, isMounted } = useSidebarState();
@@ -236,89 +238,33 @@ export default function DashboardPage() {
                  <SpacedRepetitionCalendar />
             </div>
 
-            <Card className="mt-8 shiny-card">
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Your last 12 quiz attempts across all subjects
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+            {/* Two-column layout: Left = scrollable activity, Right = Performance Panel */}
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                  
-                  {recentAttempts.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {recentAttempts.map((attempt) => {
-                        // The 'score' field is stored as a percentage (0-100) in the DB
-                        const accuracy = attempt.score; 
-                        const totalQs = attempt.totalQuestions || 0;
-                        const correctCount = totalQs > 0 ? Math.round((accuracy / 100) * totalQs) : Math.round(accuracy/10); // Fallback estimate? Or just show accuracy.
-                        // Actually, if totalQs is 0 (legacy data), we can't know the count. 
-                        // But let's assume if totalQs is missing, we just show dashes or hide.
-                        // However, to fix the 'negative' wrong count, we use derived numbers.
-                        
-                        const displayCorrect = totalQs > 0 ? correctCount : '-'; 
-                        const displayWrong = totalQs > 0 ? totalQs - correctCount : '-';
-
-                        const displayTopic = formatTopicName(attempt.subject || 'Unknown', attempt.topic || 'Unknown');
-                        return (
-                          <Card key={attempt.id} className={`border-l-4 ${getAccuracyBorderColor(accuracy)} shiny-card transition-colors duration-200 dark:hover:bg-[#262626]! hover:bg-accent/50`}>
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-lg">{getQuizTypeIcon(attempt.subject || '')}</span>
-                                  <div className="flex-1">
-                                    <p className="font-medium text-sm">{attempt.subject || 'Unknown Subject'}</p>
-                                    <p className="text-xs text-muted-foreground line-clamp-2" title={displayTopic}>
-                                      {displayTopic}
-                                    </p>
-                                  </div>
-                                </div>
-                                <Badge 
-                                  variant={accuracy < 35 ? 'destructive' : 'outline'}
-                                  className={accuracy >= 76 ? 'bg-green-500 text-white border-green-500' : accuracy >= 35 ? 'bg-yellow-500 text-white border-yellow-500' : ''}
-                                >
-                                  {accuracy}%
-                                </Badge>
-                              </div>
-                              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {formatTimeAgo(attempt.completedAt)}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex items-center gap-1">
-                                    <CheckCircle className="h-3 w-3 text-green-500" />
-                                    {displayCorrect}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <XCircle className="h-3 w-3 text-red-500" />
-                                    {displayWrong}
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center text-muted-foreground py-8">
-                      <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No quiz attempts found. Start by taking a quiz!</p>
-                      <Button 
-                        onClick={() => router.push('/subjects')}
-                        className="mt-4"
-                        variant="outline"
-                      >
-                        Browse Subjects
-                      </Button>
-                    </div>
-                  )}
+              {/* LEFT — Fixed-height scrollable recent activity */}
+              <div className="lg:col-span-7 flex flex-col">
+                <div className="mb-3">
+                  <h2 className="text-xl font-bold tracking-tight text-foreground">Recent Activity</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your last 12 quiz attempts across all subjects</p>
                 </div>
-              </CardContent>
-            </Card>
+                {/* Fixed height box with overflow scroll */}
+                <div className="h-[420px] overflow-y-auto pr-1 space-y-0 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                  <RecentActivityList attempts={recentAttempts} />
+                </div>
+              </div>
+
+              {/* RIGHT — Performance Summary Panel */}
+              <div className="lg:col-span-5 flex flex-col">
+                <div className="mb-3">
+                  <h2 className="text-xl font-bold tracking-tight text-foreground">Performance Summary</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your overall stats and subject breakdown</p>
+                </div>
+                <div className="h-[420px]">
+                  <PerformancePanel attempts={allAttempts} />
+                </div>
+              </div>
+
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics">

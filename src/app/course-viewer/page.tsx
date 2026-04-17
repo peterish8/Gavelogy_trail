@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import { DataLoader } from "@/lib/data-loader";
+import { usePaymentStore } from "@/lib/payment";
 import { CourseStructureList } from "@/components/course-structure-list";
 import { DottedBackground } from "@/components/DottedBackground";
 import { customToHtml } from "@/lib/content-converter";
@@ -189,7 +190,45 @@ function CourseViewerContent() {
   const [sentences, setSentences] = useState<string[]>([]);
   const tts = useTTS(sentences);
 
-  // Restore TTS Highlighting using data-sentence-index
+  // ── TTS POSITION PERSISTENCE ──────────────────────────────────────────────
+  // Restore TTS position when sentences load (or when note changes)
+  const ttsStorageKey = selectedItemId ? `tts-position-${selectedItemId}` : null;
+
+  useEffect(() => {
+    if (!ttsStorageKey || sentences.length === 0) return;
+    const saved = localStorage.getItem(ttsStorageKey);
+    if (!saved) return;
+    try {
+      const { sentenceIndex, speed } = JSON.parse(saved) as { sentenceIndex: number; speed: number };
+      if (typeof speed === 'number' && speed > 0) {
+        tts.setRate(speed);
+      }
+      if (typeof sentenceIndex === 'number' && sentenceIndex > 0 && sentenceIndex < sentences.length) {
+        // Jump but don't auto-play — user must press play
+        tts.jumpToSentence(sentenceIndex);
+        // Immediately pause so it doesn't start playing automatically
+        setTimeout(() => tts.pause(), 50);
+      }
+    } catch {
+      // ignore corrupt data
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sentences.length, ttsStorageKey]);
+
+  // Save TTS position whenever sentence index changes
+  useEffect(() => {
+    if (!ttsStorageKey || sentences.length === 0) return;
+    const { currentSentenceIndex, rate, isPlaying, isPaused } = tts;
+    if (!isPlaying && !isPaused) return; // Only save when active
+
+    if (currentSentenceIndex >= sentences.length - 1 && !isPlaying) {
+      // Reached end — clear saved position
+      localStorage.removeItem(ttsStorageKey);
+    } else {
+      localStorage.setItem(ttsStorageKey, JSON.stringify({ sentenceIndex: currentSentenceIndex, speed: rate }));
+    }
+  }, [tts.currentSentenceIndex, tts.isPlaying, tts.isPaused, ttsStorageKey, sentences.length, tts.rate]);
+
   useEffect(() => {
     // 1. Clear active state from all elements
     const prevActive = document.querySelectorAll('.tts-active');
@@ -367,6 +406,8 @@ function CourseViewerContent() {
   useEffect(() => {
     if (courseId) {
       loadStructure(courseId);
+      // Track as recent course
+      usePaymentStore.getState().markCourseAsVisited(courseId);
     }
   }, [courseId]);
 
@@ -1188,7 +1229,15 @@ function CourseViewerContent() {
                           }}
                         >
                           <button
-                            onClick={() => { setShowDownloadMenu(false); /* handleDownload() */ }}
+                            onClick={async () => { 
+                              setShowDownloadMenu(false); 
+                              try {
+                                await handleDownload();
+                              } catch {
+                                // toast handled by browser, log error
+                                console.error('PDF generation failed');
+                              }
+                            }}
                             className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
                           >
                             <ScrollText className="w-4 h-4 text-blue-600" />
@@ -1198,7 +1247,14 @@ function CourseViewerContent() {
                             </div>
                           </button>
                           <button
-                            onClick={() => { setShowDownloadMenu(false); /* handlePageByPageDownload() */ }}
+                            onClick={async () => { 
+                              setShowDownloadMenu(false); 
+                              try {
+                                await handlePageByPageDownload();
+                              } catch {
+                                console.error('Page-by-page PDF generation failed');
+                              }
+                            }}
                             className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3"
                           >
                             <FileStack className="w-4 h-4 text-green-600" />

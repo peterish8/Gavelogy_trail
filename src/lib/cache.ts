@@ -41,7 +41,7 @@ class CacheManager {
   clear() {
     this.cache.clear();
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('gavalogy_cache');
+      localStorage.removeItem('gavelogy_cache');
     }
   }
 
@@ -49,7 +49,7 @@ class CacheManager {
     try {
       if (typeof window === 'undefined') return;
       const cacheData = Array.from(this.cache.entries());
-      localStorage.setItem('gavalogy_cache', JSON.stringify(cacheData));
+      localStorage.setItem('gavelogy_cache', JSON.stringify(cacheData));
     } catch (error) {
       console.warn('Failed to save cache to localStorage:', error);
     }
@@ -58,7 +58,7 @@ class CacheManager {
   private loadFromStorage() {
     try {
       if (typeof window === 'undefined') return;
-      const stored = localStorage.getItem('gavalogy_cache');
+      const stored = localStorage.getItem('gavelogy_cache');
       if (stored) {
         const cacheData = JSON.parse(stored);
         this.cache = new Map(cacheData);

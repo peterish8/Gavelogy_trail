@@ -1,6 +1,6 @@
 # Supabase Database Files
 
-This directory contains all SQL files for the Gavalogy database, organized into categorized subdirectories for easy navigation and maintenance.
+This directory contains all SQL files for the Gavelogy database, organized into categorized subdirectories for easy navigation and maintenance.
 
 ## 📁 Folder Structure
 

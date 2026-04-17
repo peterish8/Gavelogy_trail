@@ -1,4 +1,4 @@
--- Gavalogy Database Schema
+-- Gavelogy Database Schema
 -- This file contains all the tables needed for the CLAT PG preparation platform
 
 -- Enable UUID extension

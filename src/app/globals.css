@@ -1,4 +1,4 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 
 @plugin "tailwindcss-animate";
@@ -9,6 +9,33 @@
 @import "./dark-theme.css";
 
 /* ... existing code ... */
+
+/* ── Auth page animated cloud keyframes ── */
+@keyframes cloud-drift-left {
+  0%   { transform: translateX(0px) translateY(0px); }
+  25%  { transform: translateX(-60px) translateY(12px); }
+  50%  { transform: translateX(-110px) translateY(-8px); }
+  75%  { transform: translateX(-60px) translateY(16px); }
+  100% { transform: translateX(0px) translateY(0px); }
+}
+
+@keyframes cloud-drift-right {
+  0%   { transform: translateX(0px) translateY(0px); }
+  25%  { transform: translateX(60px) translateY(-10px); }
+  50%  { transform: translateX(110px) translateY(14px); }
+  75%  { transform: translateX(55px) translateY(-6px); }
+  100% { transform: translateX(0px) translateY(0px); }
+}
+
+.cloud-drift-left {
+  animation: cloud-drift-left linear infinite;
+  will-change: transform;
+}
+
+.cloud-drift-right {
+  animation: cloud-drift-right linear infinite;
+  will-change: transform;
+}
 
 /* Prose List Styling as requested - MATCHING SCREENSHOT PROPERTIES */
 /* Using Times New Roman serif font for clean notes style */
@@ -230,9 +257,219 @@
   border-color: var(--border);
 }
 
+
 body {
   font-family: var(--font-sans);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREMIUM INTERACTION SYSTEM — Emil Kowalski Design Engineering
+   
+   Every interactive element gets buttery, intentional feedback.
+   All animations use transform + opacity only (GPU-accelerated).
+   Custom easing curves replace weak CSS defaults.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Emil's custom easing curves — stronger than CSS defaults */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Duration tokens — Emil: UI animations stay under 300ms */
+  --duration-press: 160ms;
+  --duration-hover: 200ms;
+  --duration-enter: 250ms;
+  --duration-exit: 150ms;   /* Exit faster than enter — asymmetric timing */
+  --duration-dropdown: 180ms;
+}
+
+/* ── Button press feedback ─────────────────────────────────────────
+   Emil: "Buttons must feel responsive. Add scale(0.97) on :active."
+   CSS transitions beat Framer Motion under browser load (off main thread).
+   ─────────────────────────────────────────────────────────────────── */
+.btn-press {
+  transition: transform var(--duration-press) var(--ease-out-strong),
+              background-color var(--duration-hover) ease,
+              color var(--duration-hover) ease,
+              border-color var(--duration-hover) ease,
+              box-shadow var(--duration-hover) ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ── Interactive cards ─────────────────────────────────────────────
+   Hover: subtle lift + shadow deepening. 
+   Active: press-in feedback like a physical button.
+   Touch-safe: hover only on pointer devices.
+   ─────────────────────────────────────────────────────────────────── */
+.card-interactive {
+  transition: transform var(--duration-hover) var(--ease-out-strong),
+              box-shadow var(--duration-hover) var(--ease-out-strong);
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.card-interactive:active {
+  transform: scale(0.98);
+  transition-duration: 100ms;
+}
+
+/* ── Pressable elements (generic) ──────────────────────────────────
+   For any tappable element that isn't a button or card.
+   Nav items, list rows, icon buttons, etc.
+   ─────────────────────────────────────────────────────────────────── */
+.pressable {
+  transition: transform var(--duration-press) var(--ease-out-strong),
+              opacity var(--duration-press) ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
+/* ── Link press ────────────────────────────────────────────────────
+   Subtle scale on text links. Less aggressive than buttons.
+   ─────────────────────────────────────────────────────────────────── */
+.link-press {
+  transition: transform var(--duration-press) var(--ease-out-strong),
+              color var(--duration-hover) ease;
+  display: inline-block;
+}
+
+.link-press:active {
+  transform: scale(0.98);
+}
+
+/* ── Icon button ───────────────────────────────────────────────────
+   Compact hit target with press feedback.
+   ─────────────────────────────────────────────────────────────────── */
+.icon-btn {
+  transition: transform var(--duration-press) var(--ease-out-strong),
+              background-color var(--duration-hover) ease,
+              color var(--duration-hover) ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* ── Touch-safe hover guard ────────────────────────────────────────
+   Emil: "Touch devices trigger hover on tap, causing false positives.
+   Gate hover animations behind this media query."
+   ─────────────────────────────────────────────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+  }
+}
+
+/* ── Dropdown / Popover enter ──────────────────────────────────────
+   Emil: Popovers should scale from trigger, not center.
+   Use origin-aware transform-origin with Radix CSS variables.
+   Never start from scale(0) — start from 0.95 with opacity.
+   ─────────────────────────────────────────────────────────────────── */
+.popover-enter {
+  transform-origin: var(--radix-popover-content-transform-origin, top);
+  animation: popoverIn var(--duration-dropdown) var(--ease-out-strong) forwards;
+}
+
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────
+   Emil: "Reduced motion means fewer and gentler animations, not zero.
+   Keep opacity and color transitions. Remove movement."
+   ─────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .btn-press,
+  .card-interactive,
+  .pressable,
+  .link-press,
+  .icon-btn {
+    transition: background-color var(--duration-hover) ease,
+                color var(--duration-hover) ease,
+                opacity var(--duration-hover) ease;
+  }
+  
+  .btn-press:active:not(:disabled),
+  .card-interactive:active,
+  .pressable:active,
+  .icon-btn:active {
+    transform: none;
+  }
+  
+  .card-interactive:hover {
+    transform: none;
+  }
+}
+
+/* ── Collapsible dropdown expand/collapse ──────────────────────────
+   Smooth height animation for sidebar dropdowns.
+   Quick and snappy — just height transition, no child stagger.
+   ─────────────────────────────────────────────────────────────────── */
+@keyframes collapsible-down {
+  from {
+    height: 0;
+    opacity: 0.5;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+.collapsible-content[data-state="open"] {
+  animation: collapsible-down 180ms var(--ease-spring) forwards;
+}
+
+.collapsible-content[data-state="closed"] {
+  animation: collapsible-up 120ms var(--ease-out-strong) forwards;
 }
 
 /* Main content transition for sidebar */
@@ -273,11 +510,14 @@ main {
 /* Animation utilities */
 @keyframes coinDrop {
   0% {
-    transform: scale(0) translateY(0);
+    transform: scale(0.6) translateY(0);
     opacity: 0;
   }
+  30% {
+    opacity: 1;
+  }
   50% {
-    transform: scale(1.2) translateY(-20px);
+    transform: scale(1.1) translateY(-20px);
     opacity: 1;
   }
   100% {
@@ -306,6 +546,23 @@ main {
   }
 }
 
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float-particle {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-20px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.6; }
+}
+
+@keyframes shine-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 .animate-coin-drop {
   animation: coinDrop 1s ease-out forwards;
 }
@@ -323,6 +580,15 @@ main {
     var(--muted) 100%
   );
   background-size: 1000px 100%;
+}
+
+.animate-gradient-text {
+  background-size: 200% auto;
+  animation: gradient-shift 4s ease infinite;
+}
+
+.animate-float-particle {
+  animation: float-particle 4s ease-in-out infinite;
 }
 
 /* Cloud animation delays */
@@ -343,6 +609,8 @@ main {
     transform: translateY(0);
   }
 }
+
+
 
 /* Prevent copying and text selection for content pages */
 .no-copy {
@@ -518,8 +786,13 @@ main {
   border-style: solid;
 }
 
-/* Keep box colors from before */
-/* Note Box Styles (Admin Panel 2D Theme) */
+/* ========================================
+   GAVELOGY NOTES RENDERING
+   Supports both Light & Dark mode.
+   Does NOT change fonts — site font is preserved.
+   ======================================== */
+
+/* --- Note Box Base --- */
 .note-box {
   padding: 1rem;
   border-radius: 0.5rem;
@@ -527,45 +800,76 @@ main {
   border: 2px solid;
   width: 100%;
   box-sizing: border-box;
-}
-
-.note-box.note-blue, .note-blue {
-  background: rgba(59, 130, 246, 0.1) !important;
-  border-color: #3B82F6 !important;
   color: #1e293b;
 }
 
-.note-box.note-green, .note-green {
-  background: rgba(34, 197, 94, 0.1) !important;
-  border-color: #22C55E !important;
-  color: #1e293b;
-}
+/* --- Light Theme Note Colors --- */
+.note-blue   { background: rgba(59, 130, 246, 0.1);  border-color: #3B82F6; color: #1e293b; }
+.note-green  { background: rgba(34, 197, 94, 0.1);   border-color: #22C55E; color: #1e293b; }
+.note-red    { background: rgba(239, 68, 68, 0.1);   border-color: #EF4444; color: #1e293b; }
+.note-amber  { background: rgba(245, 158, 11, 0.1);  border-color: #F59E0B; color: #1e293b; }
+.note-purple { background: rgba(168, 85, 247, 0.1);  border-color: #A855F7; color: #1e293b; }
+.note-violet { background: rgba(124, 58, 237, 0.1);  border-color: #7C3AED; color: #1e293b; }
+.note-slate  { background: rgba(30, 41, 59, 0.95);   border-color: #334155; color: #f1f5f9; }
+.note-dark   { background: rgba(15, 23, 42, 0.95);   border-color: #1e293b; color: #f8fafc; }
+.note-black  { background: rgba(0, 0, 0, 0.9);       border-color: #374151; color: #ffffff; }
+.note-cyan   { background: rgba(6, 182, 212, 0.1);   border-color: #06B6D4; color: #1e293b; }
+.note-pink   { background: rgba(236, 72, 153, 0.1);  border-color: #EC4899; color: #1e293b; }
+.note-yellow { background: rgba(245, 158, 11, 0.1);  border-color: #F59E0B; color: #1e293b; }
 
-.note-box.note-red, .note-red {
-  background: rgba(239, 68, 68, 0.1) !important;
-  border-color: #EF4444 !important;
-  color: #1e293b;
+/* ========================================
+   GAVELOGY NOTES - SAFELY SCOPED FIXES
+   For the Student / User-Facing Site
+   ======================================== */
+/* 1. LIGHT MODE: Force explicitly dark notes to have WHITE bold text */
+.note-slate strong, .note-slate b,
+.note-dark strong, .note-dark b,
+.note-black strong, .note-black b {
+  color: #FFFFFF !important;
 }
-
-.note-box.note-amber, .note-amber, .note-box.note-yellow, .note-yellow {
-  background: rgba(245, 158, 11, 0.1) !important;
-  border-color: #F59E0B !important;
-  color: #1e293b;
+/* 2. LIGHT MODE: Ensure other note boxes have dark bold text */
+/* Using :not() to exclude the inherently dark boxes above */
+.note-box:not(.note-slate):not(.note-dark):not(.note-black) strong,
+.note-box:not(.note-slate):not(.note-dark):not(.note-black) b {
+  color: #1e293b; /* Dark slate */
 }
-
-.note-box.note-purple, .note-purple {
-  background: rgba(168, 85, 247, 0.1) !important;
-  border-color: #A855F7 !important;
-  color: #1e293b;
+/* 3. SAFELY SCOPED HIGHLIGHTS (<mark>) */
+/* Only highlights inside note boxes or the main prose editor area get styled */
+.note-box mark,
+.prose mark {
+  color: #000000; /* Force black text */
+  border-radius: 0.125rem;
+  padding: 0 0.125rem;
+  /* We DO NOT force background-color, letting the inline style (green/blue/pink) show through! */
 }
-
-/* Horizontal Rule (Thick) */
-hr, .content-hr {
+/* 4. SAFELY SCOPED HORIZONTAL RULES (<hr>) */
+/* Only dividers inside prose content apply the styling */
+.prose hr,
+.note-box hr {
   border: none;
-  height: 2px;
-  background: #cbd5e1; /* hex slate-300 */
+  height: 3px;
+  background: linear-gradient(90deg, #e2e8f0, #94a3b8, #e2e8f0);
   margin: 1.5rem 0;
+  border-radius: 2px;
 }
+/* ========================================
+   .sheet-dark-mode REFINEMENTS
+   Augments your existing soft dark mode without overriding it.
+   ======================================== */
+/* Make highlights readable in dark mode (black text on the colored bg) */
+.sheet-dark-mode .note-box mark,
+.sheet-dark-mode .prose mark {
+  color: #000000 !important;
+}
+/* Ensure horizontal rules look good in dark mode */
+.sheet-dark-mode .prose hr,
+.sheet-dark-mode .note-box hr {
+  background: linear-gradient(90deg, #2A2A2A, #555555, #2A2A2A);
+}
+/* 
+  NOTE: We intentionally do NOT force `.sheet-dark-mode .note-box { color: #FFFFFF !important; }`. 
+  This allows your custom pastel text colors (like #bfdbfe for blue notes) to remain untouched!
+*/
 
 /* === Bullets: deterministic non-native markers === */
 /* CSS custom properties make bullet math explicit and DPR-independent */
@@ -943,3 +1247,111 @@ span[data-fontsize="3rem"] { font-size: 3rem !important; }
 }
 
 .tts-active { background-color: #fef08a; transition: background-color 0.2s; } .dark .tts-active { background-color: #422006; }
+
+/* League node - force clean circle, no square artifacts */
+.league-node-clean,
+.league-node-clean * {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Light mode arena diamond pattern — premium bright cushion style */
+:root:not(.dark) .arena-bg {
+  background-color: #e8e2f4 !important;
+  background-image: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='64' height='64' fill='%23e8e2f4'/%3E%3Cpath d='M32 1L63 32L32 63L1 32Z' fill='%23f4f1fb'/%3E%3Cpath d='M32 2L2 32' stroke='%23ffffff' stroke-width='1.5' fill='none'/%3E%3Cpath d='M32 2L62 32' stroke='%23ffffff' stroke-width='1.5' fill='none'/%3E%3Cpath d='M62 32L32 62' stroke='%23d5cee6' stroke-width='1.5' fill='none'/%3E%3Cpath d='M2 32L32 62' stroke='%23d5cee6' stroke-width='1.5' fill='none'/%3E%3Cpath d='M32 0L64 32L32 64L0 32Z' fill='none' stroke='%23d0c8e2' stroke-width='0.5'/%3E%3C/svg%3E") !important;
+  background-size: 64px 64px !important;
+}
+
+/* ═══ Light Mode Arena Component Fixes ═══ */
+/* Top bar: visible background & border */
+:root:not(.dark) .arena-bg > .sticky {
+  background-color: rgba(255,255,255,0.85) !important;
+  border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Divider lines (bg-white/10 → visible) */
+:root:not(.dark) .arena-bg .h-px.bg-white\/10,
+:root:not(.dark) .arena-bg [class*="bg-white/10"].h-px {
+  background-color: rgba(0,0,0,0.1) !important;
+}
+
+/* League connector lines */
+:root:not(.dark) .arena-bg .h-0\.5.bg-white\/10 {
+  background-color: rgba(0,0,0,0.1) !important;
+}
+
+/* League info card — glass effect for light mode */
+:root:not(.dark) .arena-bg .border-white\/10.bg-white\/5 {
+  background-color: rgba(255,255,255,0.7) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+}
+
+/* XP pill inside info card */
+:root:not(.dark) .arena-bg .bg-white\/5.border-white\/10 {
+  background-color: rgba(255,255,255,0.5) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Progress bar track */
+:root:not(.dark) .arena-bg .bg-white\/10.overflow-hidden {
+  background-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Locked node icon color (white/20 → dark) */
+:root:not(.dark) .arena-bg .text-white\/20 {
+  color: rgba(0,0,0,0.2) !important;
+}
+
+/* Past node check icon (white/70 → dark) */
+:root:not(.dark) .arena-bg .text-white\/70 {
+  color: rgba(0,0,0,0.5) !important;
+}
+
+/* Mode selector cards — borders & surfaces */
+:root:not(.dark) .arena-bg .border-white\/10 {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+:root:not(.dark) .arena-bg .hover\:border-white\/25:hover {
+  border-color: rgba(0,0,0,0.15) !important;
+}
+:root:not(.dark) .arena-bg .border-white\/5 {
+  border-color: rgba(0,0,0,0.05) !important;
+}
+
+/* Card footer divider */
+:root:not(.dark) .arena-bg .border-t.border-white\/5 {
+  border-top-color: rgba(0,0,0,0.06) !important;
+}
+
+
+/* ===== Notes + Judgment Mode ===== */
+
+/* Linked text spans — PDF jump targets */
+.linked-text {
+  border-bottom: 1.5px dashed #c9922a;
+  color: #b07820;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.linked-text:hover {
+  background: rgba(201, 146, 42, 0.12);
+}
+
+/* Active speaking paragraph */
+.notes-speech-container p.speaking,
+.notes-speech-container li.speaking,
+.notes-speech-container h1.speaking,
+.notes-speech-container h2.speaking,
+.notes-speech-container h3.speaking,
+.notes-speech-container div.note-box.speaking {
+  border-left: 3px solid #c9922a;
+  padding-left: 8px;
+  background: rgba(201, 146, 42, 0.06);
+  transition: border-left 0.2s, background 0.2s;
+}

@@ -258,7 +258,7 @@ export function SpacedRepetitionCalendar() {
                   onClick={() => setSelectedDate(date)}
                   className={`
                     aspect-square p-2 rounded-lg border transition-all cursor-pointer flex flex-col justify-between relative
-                    hover:shadow-sm
+                    hover:shadow-sm pressable
                     ${isSelected 
                        ? 'bg-primary/5 border-primary ring-1 ring-primary' 
                        : isTodayDate 
