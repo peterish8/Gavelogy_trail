@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src\" -type f \\\\\\( -path \"*admin*\" -o -path \"*cases*\" -o -path \"*notes*\" \\\\\\) | grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(grep -r \"overall_content\\\\|case.*notes\" \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src\" --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -20)",
+      "Bash(find \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src/app/cases\" -type f -name \"*.tsx\" | xargs ls -lh)",
+      "Bash(grep -r \"admin\\\\|Admin\" \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src\" --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -10)",
+      "Bash(grep -r \"structure_items\\\\|note_contents\\\\|attached_quizzes\" \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src\" --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | grep -v \"node_modules\" | head -15)",
+      "Bash(xargs wc:*)"
+    ]
+  }
+}

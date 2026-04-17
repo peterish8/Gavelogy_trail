@@ -11,10 +11,10 @@ import type { User, Profile, AuthState } from "@/types";
 // Helper to get or create device ID
 const getDeviceId = () => {
   if (typeof window === 'undefined') return 'server';
-  let deviceId = localStorage.getItem('gavalogy-device-id');
+  let deviceId = localStorage.getItem('gavelogy-device-id');
   if (!deviceId) {
     deviceId = crypto.randomUUID();
-    localStorage.setItem('gavalogy-device-id', deviceId);
+    localStorage.setItem('gavelogy-device-id', deviceId);
   }
   return deviceId;
 };
@@ -74,7 +74,7 @@ export const useAuthStore = create<AuthStoreState>()(
           set({ isLoading: true, error: null });
 
           // Clear manual logout flag when user logs in
-          localStorage.removeItem("gavalogy-manual-logout");
+          localStorage.removeItem("gavelogy-manual-logout");
 
           console.log("Attempting login with email:", email);
 
@@ -265,7 +265,7 @@ export const useAuthStore = create<AuthStoreState>()(
           set({ isLoading: true, error: null });
 
           // Clear manual logout flag when user signs up
-          localStorage.removeItem("gavalogy-manual-logout");
+          localStorage.removeItem("gavelogy-manual-logout");
 
           console.log("Attempting signup with email:", email);
 
@@ -404,6 +404,11 @@ export const useAuthStore = create<AuthStoreState>()(
         try {
           set({ isLoading: true, error: null });
 
+          // Clear manual logout flag when initiating Google Sign-In
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem("gavelogy-manual-logout");
+          }
+
           // Use Supabase Google OAuth
           const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
@@ -429,8 +434,11 @@ export const useAuthStore = create<AuthStoreState>()(
       },
 
       logout: async () => {
+        if (!get().isAuthenticated && get().isLoading) return; // Prevent double logout deadlocks
+
         try {
-          set({ isLoading: true });
+          // Immediately set isAuthenticated to false to prevent event listener loops
+          set({ isLoading: true, isAuthenticated: false });
 
           // Sign out from Supabase
           await supabase.auth.signOut();
@@ -440,7 +448,7 @@ export const useAuthStore = create<AuthStoreState>()(
             // Nuke everything to be safe
             localStorage.clear();
             // Re-set the flag to prevent auto-login loops if any logic depends on it
-            localStorage.setItem("gavalogy-manual-logout", "true");
+            localStorage.setItem("gavelogy-manual-logout", "true");
           } catch {
             console.log("Could not clear storage");
           }
@@ -535,7 +543,7 @@ export const useAuthStore = create<AuthStoreState>()(
 
           // Check if user manually logged out
           if (typeof window !== 'undefined') {
-            const manualLogout = localStorage.getItem("gavalogy-manual-logout");
+            const manualLogout = localStorage.getItem("gavelogy-manual-logout");
             if (manualLogout === "true") {
               set({
                 user: null,
@@ -547,13 +555,14 @@ export const useAuthStore = create<AuthStoreState>()(
               return;
             }
 
-            // Check for localhost auth first
-            const isLocalhost = window.location.hostname === 'localhost' || 
+            // Check for localhost auth first (DEV ONLY — never runs in production)
+            const isLocalhost = process.env.NODE_ENV === 'development' &&
+                               (window.location.hostname === 'localhost' || 
                                window.location.hostname === '127.0.0.1' ||
-                               window.location.hostname.includes('localhost');
+                               window.location.hostname.includes('localhost'));
             
             if (isLocalhost) {
-              const localhostAuth = localStorage.getItem('gavalogy-localhost-auth');
+              const localhostAuth = localStorage.getItem('gavelogy-localhost-auth');
               if (localhostAuth) {
                 try {
                   const mockUser = JSON.parse(localhostAuth);
@@ -602,6 +611,17 @@ export const useAuthStore = create<AuthStoreState>()(
             // We MUST verify with Supabase to ensure RLS tokens are valid.
             // The previous block here caused 'zombie sessions' where UI was logged in but RLS failed.
 
+            // First check if we have an OAuth token in the URL that is STILL being processed.
+            // We MUST check this synchronously before any `await`, because Supabase might strip 
+            // the hash asynchronously while we are awaiting getSession().
+            const isProcessingOAuth = typeof window !== 'undefined' && 
+                (window.location.hash.includes('access_token') || window.location.search.includes('code='));
+
+            if (isProcessingOAuth) {
+               console.log("OAuth token detected on init. Waiting for onAuthStateChange to process it...");
+               // Keep isLoading: true. AuthContext's onAuthStateChange will trigger checkAuth again when ready.
+               return;
+            }
           }
 
           // Check Supabase session
@@ -691,7 +711,7 @@ export const useAuthStore = create<AuthStoreState>()(
       setError: (error: string | null) => set({ error }),
     }),
     {
-      name: "gavalogy-auth-storage",
+      name: "gavelogy-auth-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,

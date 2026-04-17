@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-# Gavalogy - CLAT PG Preparation Platform
+# Gavelogy - CLAT PG Preparation Platform
 
 ## 📋 Table of Contents
 
@@ -19,7 +19,7 @@
 
 ## 1. Executive Summary
 
-**Product Name:** Gavalogy (formerly Gavelogy)
+**Product Name:** Gavelogy (formerly Gavelogy)
 
 **Product Type:** SaaS Education Platform
 
@@ -33,7 +33,7 @@
 
 ## 2. Product Overview
 
-Gavalogy is a comprehensive CLAT PG preparation platform that combines:
+Gavelogy is a comprehensive CLAT PG preparation platform that combines:
 
 - **Static Subject Courses**: 13 foundational law subjects with 650 questions
 - **Contemporary Cases**: 150 landmark cases from 2023-2025

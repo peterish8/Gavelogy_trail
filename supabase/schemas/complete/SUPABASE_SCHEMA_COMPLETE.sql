@@ -1,5 +1,5 @@
 -- ============================================
--- GAVALOGY COMPLETE DATABASE SCHEMA
+-- GAVELOGY COMPLETE DATABASE SCHEMA
 -- Production-ready schema for analytics and badges
 -- ============================================
 

@@ -25,7 +25,7 @@ export function useSpacedRepetition() {
 
   const fetchSchedules = async () => {
      // 1. EAGER LOAD: Use cached version immediately if available
-     const effectiveUserId = user?.id || localStorage.getItem('gavalogy-last-user-id');
+     const effectiveUserId = user?.id || localStorage.getItem('gavelogy-last-user-id');
      const cacheKey = effectiveUserId ? `srs_schedules_${effectiveUserId}` : null;
      
      if (cacheKey) {
@@ -107,7 +107,7 @@ export function useSpacedRepetition() {
       
       if (cacheKey) {
         localStorage.setItem(cacheKey, JSON.stringify(formatted));
-        localStorage.setItem('gavalogy-last-user-id', user.id);
+        localStorage.setItem('gavelogy-last-user-id', user.id);
       }
 
     } catch (err) {

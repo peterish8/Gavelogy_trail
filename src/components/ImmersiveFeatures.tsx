@@ -39,6 +39,20 @@ export function ImmersiveFeatures() {
           }}
         />
 
+        {/* Floating Background Orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div 
+            animate={{ y: [0, -40, 0], x: [0, 30, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[15%] left-[10%] w-[400px] h-[400px] bg-purple-300/20 rounded-full blur-[80px]"
+          />
+          <motion.div 
+            animate={{ y: [0, 50, 0], x: [0, -40, 0], scale: [1, 1.3, 1] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-[100px]"
+          />
+        </div>
+
         <div className="container mx-auto px-4 py-24 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -47,12 +61,12 @@ export function ImmersiveFeatures() {
             transition={{ duration: 0.8 }}
             className="max-w-5xl mx-auto text-center"
           >
-            <h2 className="text-5xl md:text-7xl font-bold mb-8 text-[#2C2C2C]">
-              Smarter Learning.
+            <h2 className="text-5xl md:text-7xl font-bold mb-8 text-[#2C2C2C] tracking-tight">
+              <span className="bg-clip-text text-transparent bg-linear-to-r from-[#2C2C2C] to-[#5C5C5C]">Smarter Learning.</span>
               <br />
-              Effortless Consistency.
+              <span className="bg-clip-text text-transparent bg-linear-to-r from-[#6B9BD2] via-[#8B83D2] to-[#A793E2]">Effortless Consistency.</span>
             </h2>
-            <p className="text-2xl text-[#6C6C6C] mb-16 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-[#6C6C6C] mb-16 max-w-3xl mx-auto leading-relaxed font-medium">
               Gavelogy combines intelligent mistake tracking, detailed
               analytics, and gamified practice to turn your preparation into
               progress you can see. From adaptive quizzes to realistic mock
@@ -60,7 +74,7 @@ export function ImmersiveFeatures() {
             </p>
 
             {/* Feature Icons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-16 px-4">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -70,12 +84,14 @@ export function ImmersiveFeatures() {
               >
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-28 h-28 rounded-3xl bg-[#6B9BD2] flex items-center justify-center mb-6 shadow-xl"
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <Brain className="h-14 w-14 text-white" />
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-[#6B9BD2]/90 to-[#4A7BB2] backdrop-blur-xl border border-white/50 flex items-center justify-center mb-6 shadow-[0_15px_35px_rgba(107,155,210,0.35)] relative overflow-hidden group hover:scale-105 hover:-rotate-6 transition-all duration-300 cursor-pointer">
+                    <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out"></div>
+                    <Brain className="h-12 w-12 md:h-16 md:w-16 text-white drop-shadow-lg relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                  </div>
                 </motion.div>
-                <p className="text-base font-semibold text-[#2C2C2C]">
+                <p className="text-sm md:text-lg font-bold text-[#2C2C2C]">
                   Intelligent Tracking
                 </p>
               </motion.div>
@@ -89,12 +105,14 @@ export function ImmersiveFeatures() {
               >
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-                  className="w-28 h-28 rounded-3xl bg-[#D4E1A3] flex items-center justify-center mb-6 shadow-xl"
+                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
                 >
-                  <BarChart3 className="h-14 w-14 text-[#2C2C2C]" />
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-[#D4E1A3]/95 to-[#B4C183] backdrop-blur-xl border border-white/50 flex items-center justify-center mb-6 shadow-[0_15px_35px_rgba(212,225,163,0.4)] relative overflow-hidden group hover:scale-105 hover:rotate-6 transition-all duration-300 cursor-pointer">
+                    <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out"></div>
+                    <BarChart3 className="h-12 w-12 md:h-16 md:w-16 text-[#2C2C2C] drop-shadow-md relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                  </div>
                 </motion.div>
-                <p className="text-base font-semibold text-[#2C2C2C]">
+                <p className="text-sm md:text-lg font-bold text-[#2C2C2C]">
                   Smart Analytics
                 </p>
               </motion.div>
@@ -108,12 +126,14 @@ export function ImmersiveFeatures() {
               >
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-                  className="w-28 h-28 rounded-3xl bg-[#F7C6A1] flex items-center justify-center mb-6 shadow-xl"
+                  transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
                 >
-                  <Zap className="h-14 w-14 text-[#2C2C2C]" />
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-[#F7C6A1]/95 to-[#D7A681] backdrop-blur-xl border border-white/50 flex items-center justify-center mb-6 shadow-[0_15px_35px_rgba(247,198,161,0.4)] relative overflow-hidden group hover:scale-105 hover:-rotate-6 transition-all duration-300 cursor-pointer">
+                    <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out"></div>
+                    <Zap className="h-12 w-12 md:h-16 md:w-16 text-[#2C2C2C] drop-shadow-md relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                  </div>
                 </motion.div>
-                <p className="text-base font-semibold text-[#2C2C2C]">
+                <p className="text-sm md:text-lg font-bold text-[#2C2C2C]">
                   Gamified Learning
                 </p>
               </motion.div>
@@ -127,12 +147,14 @@ export function ImmersiveFeatures() {
               >
                 <motion.div
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.9 }}
-                  className="w-28 h-28 rounded-3xl bg-[#F8C9D0] flex items-center justify-center mb-6 shadow-xl"
+                  transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.9 }}
                 >
-                  <Clock className="h-14 w-14 text-[#2C2C2C]" />
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-[#F8C9D0]/95 to-[#D8A9B0] backdrop-blur-xl border border-white/50 flex items-center justify-center mb-6 shadow-[0_15px_35px_rgba(248,201,208,0.4)] relative overflow-hidden group hover:scale-105 hover:rotate-6 transition-all duration-300 cursor-pointer">
+                    <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out"></div>
+                    <Clock className="h-12 w-12 md:h-16 md:w-16 text-[#2C2C2C] drop-shadow-md relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                  </div>
                 </motion.div>
-                <p className="text-base font-semibold text-[#2C2C2C]">
+                <p className="text-sm md:text-lg font-bold text-[#2C2C2C]">
                   Mock Tests
                 </p>
               </motion.div>
@@ -317,6 +339,20 @@ export function ImmersiveFeatures() {
           }}
         />
 
+        {/* Floating Background Orbs for Slide 3 */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div 
+            animate={{ y: [0, 50, 0], x: [0, -40, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[20%] left-[20%] w-[350px] h-[350px] bg-yellow-300/20 rounded-full blur-[80px]"
+          />
+          <motion.div 
+            animate={{ y: [0, -30, 0], x: [0, 50, 0], scale: [1, 1.3, 1] }}
+            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-[20%] right-[10%] w-[450px] h-[450px] bg-pink-300/20 rounded-full blur-[100px]"
+          />
+        </div>
+
         <div className="container mx-auto px-4 py-24 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left side - Text content */}
@@ -327,12 +363,12 @@ export function ImmersiveFeatures() {
               transition={{ duration: 0.8 }}
               className="text-left"
             >
-              <h2 className="text-5xl md:text-7xl font-bold mb-8 text-[#2C2C2C]">
-                Stay Current.
+              <h2 className="text-5xl md:text-7xl font-bold mb-8 text-[#2C2C2C] tracking-tight">
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-[#2C2C2C] to-[#5C5C5C]">Stay Current.</span>
                 <br />
-                Grow Together.
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-yellow-500 via-orange-400 to-pink-400">Grow Together.</span>
               </h2>
-              <p className="text-2xl text-[#6C6C6C] mb-8 leading-relaxed">
+              <p className="text-xl md:text-2xl text-[#6C6C6C] mb-8 leading-relaxed font-medium">
                 Access the most recent Supreme Court judgments from 2023–2025 —
                 summarized and paired with CLAT-PG-style questions. Join a
                 thriving community of aspirants who learn, compete, and
@@ -360,12 +396,14 @@ export function ImmersiveFeatures() {
                 >
                   <motion.div
                     animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-28 h-28 rounded-3xl bg-[#F8E38F] flex items-center justify-center mb-6 shadow-xl"
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <FileText className="h-14 w-14 text-[#2C2C2C]" />
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-[#F8E38F]/90 to-[#D8C36F] backdrop-blur-xl border border-white/50 flex items-center justify-center mb-6 shadow-[0_15px_35px_rgba(248,227,143,0.4)] relative overflow-hidden group hover:scale-105 hover:-rotate-6 transition-all duration-300 cursor-pointer">
+                      <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out"></div>
+                      <FileText className="h-12 w-12 md:h-16 md:w-16 text-[#2C2C2C] drop-shadow-md relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                    </div>
                   </motion.div>
-                  <p className="text-base font-semibold text-[#2C2C2C]">
+                  <p className="text-sm md:text-lg font-bold text-[#2C2C2C]">
                     Contemporary Cases
                   </p>
                 </motion.div>
@@ -379,12 +417,14 @@ export function ImmersiveFeatures() {
                 >
                   <motion.div
                     animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-                    className="w-28 h-28 rounded-3xl bg-[#D8E3ED] flex items-center justify-center mb-6 shadow-xl"
+                    transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
                   >
-                    <Users className="h-14 w-14 text-[#2C2C2C]" />
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-[#D8E3ED]/90 to-[#B8C3CD] backdrop-blur-xl border border-white/50 flex items-center justify-center mb-6 shadow-[0_15px_35px_rgba(216,227,237,0.4)] relative overflow-hidden group hover:scale-105 hover:rotate-6 transition-all duration-300 cursor-pointer">
+                      <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out"></div>
+                      <Users className="h-12 w-12 md:h-16 md:w-16 text-[#2C2C2C] drop-shadow-md relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                    </div>
                   </motion.div>
-                  <p className="text-base font-semibold text-[#2C2C2C]">
+                  <p className="text-sm md:text-lg font-bold text-[#2C2C2C]">
                     Community
                   </p>
                 </motion.div>
@@ -396,38 +436,48 @@ export function ImmersiveFeatures() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-xl"
+                className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-3xl p-8 shadow-2xl relative overflow-hidden"
               >
-                <h3 className="text-2xl font-bold text-[#2C2C2C] mb-6 text-center">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl"></div>
+                
+                <h3 className="text-2xl font-bold text-[#2C2C2C] mb-8 text-center relative z-10">
                   Why Gavelogy?
                 </h3>
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                  <div className="flex flex-col items-center">
-                    <Shield className="h-10 w-10 text-[#6B9BD2] mb-3" />
+                <div className="grid grid-cols-2 gap-6 mb-8 relative z-10">
+                  <div className="flex flex-col items-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300">
+                    <div className="w-16 h-16 rounded-2xl bg-blue-50/80 backdrop-blur-sm border border-blue-100 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors duration-300 shadow-sm">
+                      <Shield className="h-8 w-8 text-[#6B9BD2] group-hover:scale-110 transition-transform duration-300" />
+                    </div>
                     <p className="text-base font-semibold text-[#2C2C2C]">
                       Accuracy
                     </p>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <Target className="h-10 w-10 text-[#6B9BD2] mb-3" />
+                  <div className="flex flex-col items-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300">
+                    <div className="w-16 h-16 rounded-2xl bg-blue-50/80 backdrop-blur-sm border border-blue-100 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors duration-300 shadow-sm">
+                      <Target className="h-8 w-8 text-[#6B9BD2] group-hover:scale-110 transition-transform duration-300" />
+                    </div>
                     <p className="text-base font-semibold text-[#2C2C2C]">
                       Adaptive
                     </p>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <Users className="h-10 w-10 text-[#6B9BD2] mb-3" />
+                  <div className="flex flex-col items-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300">
+                    <div className="w-16 h-16 rounded-2xl bg-blue-50/80 backdrop-blur-sm border border-blue-100 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors duration-300 shadow-sm">
+                      <Users className="h-8 w-8 text-[#6B9BD2] group-hover:scale-110 transition-transform duration-300" />
+                    </div>
                     <p className="text-base font-semibold text-[#2C2C2C]">
                       Community
                     </p>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <TrendingUp className="h-10 w-10 text-[#6B9BD2] mb-3" />
+                  <div className="flex flex-col items-center group cursor-pointer hover:-translate-y-2 transition-transform duration-300">
+                    <div className="w-16 h-16 rounded-2xl bg-blue-50/80 backdrop-blur-sm border border-blue-100 flex items-center justify-center mb-3 group-hover:bg-blue-100 transition-colors duration-300 shadow-sm">
+                      <TrendingUp className="h-8 w-8 text-[#6B9BD2] group-hover:scale-110 transition-transform duration-300" />
+                    </div>
                     <p className="text-base font-semibold text-[#2C2C2C]">
                       Analytics
                     </p>
                   </div>
                 </div>
-                <p className="text-lg font-semibold text-[#6C6C6C] italic text-center">
+                <p className="text-lg font-semibold text-[#6C6C6C] italic text-center relative z-10">
                   &quot;Built by law graduates, powered by AI, and trusted by
                   thousands of CLAT-PG aspirants.&quot;
                 </p>

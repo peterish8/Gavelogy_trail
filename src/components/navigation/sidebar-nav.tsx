@@ -30,6 +30,7 @@ const ARENA_MODES = [
 
 export function SidebarNav() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const pathname = usePathname()
   
   // Recent Courses Logic
@@ -37,6 +38,7 @@ export function SidebarNav() {
 
   // Ensure courses are loaded for the sidebar resolving
   useEffect(() => {
+    setIsMounted(true);
     if (availableCourses.length === 0) {
       loadAvailableCourses();
     }
@@ -60,6 +62,11 @@ export function SidebarNav() {
   
   // Ensure max 5
   displayCourses = displayCourses.slice(0, 5);
+
+  // Hydration fix: delay showing courses until client code is mounted to match server HTML
+  if (!isMounted) {
+    displayCourses = [];
+  }
 
   const [isCoursesOpen, setIsCoursesOpen] = useState(false)
   const [isArenaOpen, setIsArenaOpen] = useState(false)
@@ -111,9 +118,10 @@ export function SidebarNav() {
 
                {/* Toggle Chevron - Right Aligned */}
                <CollapsibleTrigger asChild>
-                  <button className="h-5 w-5 flex items-center justify-center rounded-sm hover:bg-sidebar-accent/50 transition-colors ml-auto">
+                  <button className="h-5 w-5 flex items-center justify-center rounded-sm hover:bg-sidebar-accent/50 ml-auto icon-btn">
                      <ChevronDown className={cn(
-                       "h-4 w-4 opacity-70 transition-transform duration-200", 
+                       "h-4 w-4 opacity-70 transition-transform duration-200",
+                       "[transition-timing-function:var(--ease-spring)]",
                        !isCoursesOpen && "-rotate-90" 
                      )} />
                   </button>
@@ -128,7 +136,7 @@ export function SidebarNav() {
                       <Link
                         key={course.id}
                         href={`/course-viewer?courseId=${course.id}`}
-                        className="w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/40 rounded-md transition-all text-left group/item"
+                        className="w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/40 rounded-md transition-all text-left group/item pressable"
                       >
                          <FileText className="h-4 w-4 shrink-0 text-sidebar-foreground/70 group-hover/item:text-sidebar-foreground transition-colors" />
                          <span className="truncate">{course.name}</span>
@@ -170,9 +178,10 @@ export function SidebarNav() {
 
                {/* Toggle Chevron */}
                <CollapsibleTrigger asChild>
-                  <button className="h-5 w-5 flex items-center justify-center rounded-sm hover:bg-sidebar-accent/50 transition-colors ml-auto">
+                  <button className="h-5 w-5 flex items-center justify-center rounded-sm hover:bg-sidebar-accent/50 ml-auto icon-btn">
                      <ChevronDown className={cn(
-                       "h-4 w-4 opacity-70 transition-transform duration-200", 
+                       "h-4 w-4 opacity-70 transition-transform duration-200",
+                       "[transition-timing-function:var(--ease-spring)]",
                        !isArenaOpen && "-rotate-90" 
                      )} />
                   </button>
@@ -187,7 +196,7 @@ export function SidebarNav() {
                      key={mode.id}
                      href={mode.href}
                      className={cn(
-                       "w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm rounded-md transition-all duration-200 text-left group/item",
+                       "w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm rounded-md transition-all duration-200 text-left group/item pressable",
                        pathname === mode.href
                          ? "text-sidebar-accent-foreground"
                          : "text-sidebar-foreground hover:text-sidebar-foreground"

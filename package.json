@@ -1,5 +1,5 @@
 {
-  "name": "gavalogy",
+  "name": "gavelogy",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -33,6 +33,7 @@
     "mathjs": "^15.0.0",
     "next": "15.5.9",
     "pdfjs-dist": "^5.5.207",
+    "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.6.0",

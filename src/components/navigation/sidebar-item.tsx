@@ -20,7 +20,7 @@ export function SidebarItem({ icon: Icon, label, href, active, indicatorColor, o
       href={href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group relative",
+        "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group relative pressable",
         active 
           ? "bg-sidebar-accent text-sidebar-accent-foreground" 
           : "text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"

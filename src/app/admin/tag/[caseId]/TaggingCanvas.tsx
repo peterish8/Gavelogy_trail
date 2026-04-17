@@ -42,6 +42,7 @@ interface TaggingCanvasProps {
   pdfUrl: string;
   existingLinks: NotePdfLink[];
   onRegionSelected: (region: TagRegion) => void;
+  highlightedLinkId?: string | null;
 }
 
 interface PageState {
@@ -49,7 +50,7 @@ interface PageState {
   height: number;
 }
 
-export function TaggingCanvas({ pdfUrl, existingLinks, onRegionSelected }: TaggingCanvasProps) {
+export function TaggingCanvas({ pdfUrl, existingLinks, onRegionSelected, highlightedLinkId }: TaggingCanvasProps) {
   const { totalPages, isLoading, error, renderPage } = useVirtualPDF(pdfUrl);
   const [pages, setPages] = useState<Map<number, PageState>>(new Map());
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -57,6 +58,17 @@ export function TaggingCanvas({ pdfUrl, existingLinks, onRegionSelected }: Taggi
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
   const observersRef = useRef<Map<number, IntersectionObserver>>(new Map());
+
+  // Scroll to and pulse-highlight when a linked-text span is clicked in the notes panel
+  useEffect(() => {
+    if (!highlightedLinkId) return;
+    const link = existingLinks.find((l) => l.link_id === highlightedLinkId);
+    if (!link) return;
+    const pageEl = containerRef.current?.querySelector(`[data-admin-page="${link.pdf_page}"]`);
+    if (pageEl) {
+      pageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightedLinkId, existingLinks]);
 
   // Set up intersection observers once total pages known
   useEffect(() => {
@@ -242,21 +254,24 @@ export function TaggingCanvas({ pdfUrl, existingLinks, onRegionSelected }: Taggi
               {links.map((link, idx) => {
                 const { screenX, screenY, screenW, screenH } = linkToScreen(link, canvasHeight);
                 const color = OVERLAY_COLORS[idx % OVERLAY_COLORS.length];
+                const isHighlighted = highlightedLinkId === link.link_id;
                 return (
                   <div
                     key={link.id}
+                    className={isHighlighted ? 'animate-pulse' : ''}
                     style={{
                       position: 'absolute',
                       left: screenX,
                       top: screenY,
                       width: screenW,
                       height: screenH,
-                      background: color,
-                      border: '1.5px solid rgba(201,146,42,0.7)',
+                      background: isHighlighted ? 'rgba(201,146,42,0.45)' : color,
+                      border: isHighlighted ? '2px solid rgba(201,146,42,1)' : '1.5px solid rgba(201,146,42,0.7)',
                       borderRadius: 2,
                       pointerEvents: 'auto',
                       cursor: 'help',
                       zIndex: 5,
+                      boxShadow: isHighlighted ? '0 0 0 3px rgba(201,146,42,0.35)' : 'none',
                     }}
                     onMouseEnter={(e) =>
                       setTooltip({

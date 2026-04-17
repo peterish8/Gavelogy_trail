@@ -8,12 +8,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getLeague, getLeagueProgress, getNextLeague } from "@/lib/game/leagues"
 import { useSidebarStore } from "@/lib/stores/sidebar-store"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 export function SidebarFooter() {
   const { user, profile, logout } = useAuthStore()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [isOpen, setIsOpen] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const router = useRouter()
   
   const initial = profile?.full_name ? profile.full_name[0].toUpperCase() : (user?.email?.[0].toUpperCase() || 'U')
   const name = profile?.full_name || user?.email?.split('@')[0] || "User"
@@ -26,7 +29,14 @@ export function SidebarFooter() {
 
   const { isCollapsed } = useSidebarStore()
 
+  const handleLogout = async () => {
+    setShowLogoutConfirm(false)
+    await logout()
+    router.push("/")
+  }
+
   return (
+    <>
     <div className="mt-auto px-3 pb-3 space-y-2">
 
       {/* XP + LEAGUE ROW */}
@@ -92,7 +102,7 @@ export function SidebarFooter() {
               </button>
               <button
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors mb-1"
-                onClick={() => { logout(); setIsOpen(false); }}
+                onClick={() => { setShowLogoutConfirm(true); setIsOpen(false); }}
               >
                 <LogOut className="h-3.5 w-3.5 shrink-0" />
                 <span>Sign Out</span>
@@ -122,5 +132,32 @@ export function SidebarFooter() {
         </div>
       )}
     </div>
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowLogoutConfirm(false)} />
+          <div className="relative z-10 w-80 rounded-2xl bg-background border border-white/10 p-6 shadow-2xl flex flex-col items-center text-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center">
+              <LogOut className="h-6 w-6 text-red-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base">Sign out?</h3>
+              <p className="text-sm text-muted-foreground mt-1">You&apos;ll be redirected to the home page.</p>
+            </div>
+            <div className="flex gap-3 w-full">
+              <button
+                className="flex-1 px-4 py-2 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition-colors"
+                onClick={() => setShowLogoutConfirm(false)}
+              >Cancel</button>
+              <button
+                className="flex-1 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+                onClick={handleLogout}
+              >Sign Out</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

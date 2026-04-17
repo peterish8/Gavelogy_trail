@@ -38,7 +38,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="w-56 border-r border-amber-900/40 flex flex-col py-6 px-4 gap-2 shrink-0">
         <div className="flex items-center gap-2 mb-6">
           <Gavel className="w-5 h-5 text-amber-400" />
-          <span className="font-semibold text-amber-300 text-sm">Gavalogy Admin</span>
+          <span className="font-semibold text-amber-300 text-sm">Gavelogy Admin</span>
         </div>
         <Link
           href="/admin/tag"

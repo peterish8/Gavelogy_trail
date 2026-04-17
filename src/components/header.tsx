@@ -39,6 +39,7 @@ export function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showLandingMenu, setShowLandingMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const pathname = usePathname();
 
   // Show landing page navigation on home page, dashboard navigation elsewhere
@@ -46,8 +47,11 @@ export function Header() {
   const isAuthPage = pathname === "/login" || pathname === "/signup";
 
   const handleLogout = async () => {
-    await logout();
+    setShowLogoutConfirm(false);
     setShowUserMenu(false);
+    setShowMobileMenu(false);
+    await logout();
+    router.push("/");
   };
 
   const handleGetStarted = () => {
@@ -307,7 +311,7 @@ export function Header() {
                         Profile
                       </Link>
                       <button
-                        onClick={handleLogout}
+                        onClick={() => { setShowLogoutConfirm(true); setShowUserMenu(false); }}
                         className="flex w-full items-center px-3 py-2 text-sm hover:bg-accent rounded-sm"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
@@ -450,10 +454,7 @@ export function Header() {
                       </span>
                     </button>
                     <button
-                      onClick={() => {
-                        handleLogout();
-                        setShowMobileMenu(false);
-                      }}
+                      onClick={() => { setShowLogoutConfirm(true); setShowMobileMenu(false); }}
                       className="flex items-center w-full px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-red-600 dark:text-red-400"
                     >
                       <LogOut className="h-4 w-4 mr-3" />
@@ -490,6 +491,28 @@ export function Header() {
         </div>
       )}
     </header>
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowLogoutConfirm(false)} />
+          <Card className="relative z-10 w-80 p-6 shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <LogOut className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Sign out?</h3>
+                <p className="text-sm text-muted-foreground mt-1">You&apos;ll be redirected to the home page.</p>
+              </div>
+              <div className="flex gap-3 w-full">
+                <Button variant="outline" className="flex-1" onClick={() => setShowLogoutConfirm(false)}>Cancel</Button>
+                <Button variant="destructive" className="flex-1" onClick={handleLogout}>Sign Out</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
 import { Header } from "@/components/header";
@@ -22,8 +22,43 @@ import {
 import Link from "next/link";
 import {
   ArrowRight,
+  Check,
 } from "lucide-react";
 import { motion, useScroll } from "framer-motion";
+
+function StatCounter({ end, label, prefix = "", suffix = "" }: { end: number, label: string, prefix?: string, suffix?: string }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTime: number;
+    const duration = 2000; // 2 seconds
+
+    const updateCounter = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      
+      const easeOut = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(easeOut * end));
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      }
+    };
+
+    requestAnimationFrame(updateCounter);
+  }, [end]);
+
+  return (
+    <div className="flex flex-col items-center p-2 md:p-4">
+      <div className="text-3xl md:text-4xl font-bold text-[#2C2C2C] mb-1">
+        {prefix}{count}{suffix}
+      </div>
+      <div className="text-xs md:text-sm text-[#6C6C6C] font-medium uppercase tracking-wider text-center">
+        {label}
+      </div>
+    </div>
+  );
+}
 
 function HomeContent() {
   const router = useRouter();
@@ -132,6 +167,36 @@ function HomeContent() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 md:py-32 relative z-10">
+        {/* Floating particles */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div 
+            animate={{ 
+              y: [0, -30, 0],
+              x: [0, 20, 0],
+              rotate: [0, 10, -10, 0],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[20%] left-[15%] w-12 h-12 bg-linear-to-br from-blue-300/40 to-purple-300/40 rounded-full blur-md"
+          />
+          <motion.div 
+            animate={{ 
+              y: [0, 40, 0],
+              x: [0, -20, 0],
+              rotate: [0, -15, 10, 0],
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute top-[60%] right-[10%] w-16 h-16 bg-linear-to-br from-pink-300/40 to-orange-300/40 rounded-full blur-md"
+          />
+          <motion.div 
+            animate={{ 
+              y: [0, -20, 0],
+              x: [0, -30, 0],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-[20%] left-[25%] w-8 h-8 bg-linear-to-br from-cyan-300/50 to-blue-300/50 rounded-full blur-sm"
+          />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -142,10 +207,10 @@ function HomeContent() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-block px-6 py-3 bg-linear-to-r from-sky-200/80 via-blue-200/80 to-cyan-200/80 backdrop-blur-sm rounded-full border border-blue-300/30 mb-6 shadow-lg relative overflow-hidden group"
+            className="inline-block px-6 py-3 bg-linear-to-r from-sky-200/80 via-blue-200/80 to-cyan-200/80 backdrop-blur-sm rounded-full border border-blue-300/30 mb-6 shadow-lg overflow-hidden group relative"
           >
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            {/* Shimmer effect - continuous animation instead of hover */}
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
 
             {/* Gradient spheres */}
             <div className="absolute -top-2 -right-2 w-12 h-12 bg-linear-to-br from-sky-300/60 to-blue-300/60 rounded-full blur-xl"></div>
@@ -158,16 +223,28 @@ function HomeContent() {
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-[#2C2C2C] leading-tight">
             <span className="block md:inline">Master</span>{" "}
-            <span className="block md:inline text-[#6B9BD2]">CLAT PG</span>{" "}
+            <span className="block md:inline animate-gradient-text bg-linear-to-r from-[#6B9BD2] via-[#A793E2] to-[#F8C9D0] bg-clip-text text-transparent drop-shadow-sm pb-2">CLAT PG</span>{" "}
             <span className="block md:inline">with</span>
             <br className="hidden md:block" />
-            <span className="block md:inline">Intelligent Learning</span>
+            <span className="block md:inline drop-[0_2px_2px_rgba(0,0,0,0.05)]">Intelligent Learning</span>
           </h1>
 
-          <p className="text-xl text-[#6C6C6C] mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-[#6C6C6C] mb-8 max-w-2xl mx-auto leading-relaxed">
             The only platform that tracks your mistakes, builds your confidence,
             and helps you achieve 75%+ accuracy through systematic practice.
           </p>
+
+          {/* Social Proof Stats */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="grid grid-cols-3 gap-2 md:gap-8 max-w-3xl mx-auto my-10 py-6 md:py-8 bg-white/40 backdrop-blur-md rounded-2xl border border-white/50 shadow-xl"
+          >
+            <StatCounter end={500} suffix="+" label="Students Enrolled" />
+            <StatCounter end={10} suffix="k+" label="Questions Solved" />
+            <StatCounter end={75} suffix="%+" label="Avg. Accuracy" />
+          </motion.div>
 
           <div className="flex justify-center">
             <StarBorder
@@ -236,7 +313,12 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               whileHover={{ y: -8 }}
             >
-              <Card className="relative border-0 shadow-xl bg-linear-to-br from-white to-blue-50/50 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+              <Card className="relative border border-white/40 shadow-xl bg-white/70 backdrop-blur-xl overflow-hidden group hover:shadow-2xl transition-all duration-300">
+                <div className="absolute top-4 right-4 z-20">
+                  <span className="bg-linear-to-r from-blue-500 to-indigo-500 text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] animate-pulse">
+                    MOST POPULAR
+                  </span>
+                </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#6B9BD2]/10 rounded-full blur-3xl"></div>
                 <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl text-[#2C2C2C] mb-2">
@@ -250,18 +332,19 @@ function HomeContent() {
                   </div>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  <ul className="space-y-2 text-sm text-[#6C6C6C] mb-6">
-                    <li>• Constitutional Law, Criminal Law, Contract Law</li>
-                    <li>• Torts, Administrative Law, Jurisprudence</li>
-                    <li>• Environmental Law, Property Law, Family Law</li>
-                    <li>• Labour Law, Tax Law, Corporate Law, IPR</li>
-                    <li>• 20 Full-length Mock Tests</li>
-                    <li>• Intelligent Mistake Tracking</li>
+                  <ul className="space-y-3 text-sm text-[#6C6C6C] mb-8 font-medium">
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Constitutional Law, Criminal Law, Contract Law</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Torts, Administrative Law, Jurisprudence</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Environmental Law, Property Law, Family Law</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Labour Law, Tax Law, Corporate Law, IPR</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">20 Full-length Mock Tests</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Intelligent Mistake Tracking</span></li>
                   </ul>
                   <Button 
-                    className="w-full bg-[#6B9BD2] hover:bg-[#5A8FC7] text-white shadow-lg hover:shadow-xl transition-all"
+                    className="w-full bg-[#6B9BD2] hover:bg-[#5A8FC7] text-white shadow-lg hover:shadow-xl transition-all relative overflow-hidden group/btn"
                     onClick={() => handleAuthAction("/signup")}
                   >
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:animate-shine-sweep bg-linear-to-r from-transparent via-white/30 to-transparent"></div>
                     Buy Now
                   </Button>
                 </CardContent>
@@ -276,7 +359,7 @@ function HomeContent() {
               transition={{ duration: 0.6 }}
               whileHover={{ y: -8 }}
             >
-              <Card className="relative border-0 shadow-xl bg-linear-to-br from-white to-pink-50/50 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+              <Card className="relative border border-white/40 shadow-xl bg-white/70 backdrop-blur-xl overflow-hidden group hover:shadow-2xl transition-all duration-300">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#F8C9D0]/20 rounded-full blur-3xl"></div>
                 <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl text-[#2C2C2C] mb-2">
@@ -290,18 +373,19 @@ function HomeContent() {
                   </div>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  <ul className="space-y-2 text-sm text-[#6C6C6C] mb-6">
-                    <li>• 50 Landmark Cases from 2023</li>
-                    <li>• 50 Landmark Cases from 2024</li>
-                    <li>• 50 Recent Cases from 2025</li>
-                    <li>• Organized by Month</li>
-                    <li>• Month-wise Combined Quizzes</li>
-                    <li>• Regular Updates</li>
+                  <ul className="space-y-3 text-sm text-[#6C6C6C] mb-8 font-medium">
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">50 Landmark Cases from 2023</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">50 Landmark Cases from 2024</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">50 Recent Cases from 2025</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Organized by Month</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Month-wise Combined Quizzes</span></li>
+                    <li className="flex items-start gap-2"><Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" /> <span className="flex-1">Regular Updates</span></li>
                   </ul>
                   <Button 
-                    className="w-full bg-[#F8C9D0] hover:bg-[#F5B8C3] text-[#2C2C2C] shadow-lg hover:shadow-xl transition-all"
+                    className="w-full bg-[#F8C9D0] hover:bg-[#F5B8C3] text-[#2C2C2C] shadow-lg hover:shadow-xl transition-all relative overflow-hidden group/btn"
                     onClick={() => handleAuthAction("/signup")}
                   >
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:animate-shine-sweep bg-linear-to-r from-transparent via-white/50 to-transparent"></div>
                     Buy Now
                   </Button>
                 </CardContent>
@@ -399,10 +483,46 @@ function HomeContent() {
       {/* Footer */}
       <footer
         id="about"
-        className="border-t border-gray-200 py-12 relative z-10 bg-white/60 backdrop-blur-sm"
+        className="border-t border-gray-200/60 py-16 relative z-10 bg-linear-to-b from-transparent to-slate-50/80 backdrop-blur-sm"
       >
-        <div className="container mx-auto px-4 text-center text-[#6C6C6C]">
-          <p>&copy; 2025 Gavelogy. All rights reserved.</p>
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-12">
+            <div className="md:col-span-2 space-y-4">
+              <Link href="/?view=landing" className="flex items-center space-x-2">
+                <div className="h-8 w-8 rounded-lg bg-[#2C2C2C] flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">G</span>
+                </div>
+                <span className="text-xl font-bold text-[#2C2C2C]">Gavelogy</span>
+              </Link>
+              <p className="text-[#6C6C6C] text-sm max-w-sm leading-relaxed">
+                Empowering law students and aspirants with intelligent mistake tracking, comprehensive case summaries, and adaptive learning for CLAT PG and beyond.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <h4 className="font-semibold text-[#2C2C2C]">Quick Links</h4>
+              <ul className="space-y-2 text-sm text-[#6C6C6C]">
+                <li><a href="#features" onClick={(e) => { e.preventDefault(); scrollToFeatures(); }} className="hover:text-[#6B9BD2] transition-colors">Features</a></li>
+                <li><a href="#pricing" onClick={scrollToCourses} className="hover:text-[#6B9BD2] transition-colors">Pricing</a></li>
+                <li><Link href="/subjects" className="hover:text-[#6B9BD2] transition-colors">Courses</Link></li>
+                <li><button onClick={() => handleAuthAction("/login")} className="hover:text-[#6B9BD2] transition-colors">Sign In</button></li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="font-semibold text-[#2C2C2C]">Legal</h4>
+              <ul className="space-y-2 text-sm text-[#6C6C6C]">
+                <li><a href="#" className="hover:text-[#6B9BD2] transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-[#6B9BD2] transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-[#6B9BD2] transition-colors">Refund Policy</a></li>
+                <li><a href="mailto:support@gavelogy.com" className="hover:text-[#6B9BD2] transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-8 border-t border-gray-200/60 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-[#6C6C6C]">&copy; 2025 Gavelogy. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>

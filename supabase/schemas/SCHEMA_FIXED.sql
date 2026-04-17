@@ -1,4 +1,4 @@
--- Gavalogy Database Schema (Fixed Version)
+-- Gavelogy Database Schema (Fixed Version)
 -- Run this in your Supabase SQL Editor
 
 -- Create users table (without referencing auth.users directly)

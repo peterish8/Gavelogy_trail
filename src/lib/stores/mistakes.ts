@@ -54,24 +54,6 @@ interface MistakeStore {
     topic?: string;
   }) => Promise<void>;
   clearMistakeByQuestionId: (questionId: string) => Promise<void>;
-  saveQuizAttempt: (attempt: {
-    question_id: string;
-    quiz_id?: string;
-    quiz_type?: string;
-    subject: string;
-    topic?: string;
-    question_text: string;
-    option_a?: string;
-    option_b?: string;
-    option_c?: string;
-    option_d?: string;
-    user_answer: string;
-    correct_answer: string;
-    is_correct: boolean;
-    confidence_level: 'confident' | 'educated_guess' | 'fluke';
-    time_spent?: number;
-    explanation?: string;
-  }) => Promise<void>;
 }
 
 export const useMistakeStore = create<MistakeStore>()((set, get) => ({
@@ -123,7 +105,49 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
 
   loadConfidenceStats: async () => {
     try {
-      set({ confidenceStats: [] });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('quiz_answer_confidence')
+        .select('confidence_level, answer_was_correct, question_id')
+        .eq('user_id', user.id);
+
+      if (error) {
+        if (error.code === '42P01') return; // table not yet created
+        console.error('Error loading confidence stats:', error);
+        return;
+      }
+
+      // Group by confidence_level, compute correct/wrong counts
+      const map: Record<string, ConfidenceStats> = {};
+      for (const row of data || []) {
+        const level = row.confidence_level || 'confident';
+        if (!map[level]) {
+          map[level] = {
+            subject: level,
+            total_questions: 0,
+            correct_confident: 0,
+            correct_educated_guess: 0,
+            correct_fluke: 0,
+            wrong_confident: 0,
+            wrong_educated_guess: 0,
+            wrong_fluke: 0,
+          };
+        }
+        map[level].total_questions++;
+        if (row.answer_was_correct) {
+          if (level === 'confident') map[level].correct_confident++;
+          else if (level === 'educated_guess') map[level].correct_educated_guess++;
+          else map[level].correct_fluke++;
+        } else {
+          if (level === 'confident') map[level].wrong_confident++;
+          else if (level === 'educated_guess') map[level].wrong_educated_guess++;
+          else map[level].wrong_fluke++;
+        }
+      }
+
+      set({ confidenceStats: Object.values(map) });
     } catch (error) {
       console.error('Error loading confidence stats:', error);
     }
@@ -223,7 +247,4 @@ export const useMistakeStore = create<MistakeStore>()((set, get) => ({
     }
   },
 
-  saveQuizAttempt: async () => {
-    // Not implemented for current schema
-  },
 }));

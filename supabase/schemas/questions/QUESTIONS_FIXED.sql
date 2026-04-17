@@ -1,4 +1,4 @@
--- Gavalogy Questions Database Setup (Fixed UUIDs)
+-- Gavelogy Questions Database Setup (Fixed UUIDs)
 -- This script inserts questions for all 13 CLAT PG subjects
 -- Run this AFTER running SCHEMA_FIXED.sql and SAMPLE_DATA.sql
 

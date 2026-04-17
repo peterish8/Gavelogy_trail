@@ -2,7 +2,7 @@
 
 ## 🎯 **Problem**
 
-Google OAuth shows "eszuhnumhvzczpzfowwe.supabase.co" instead of "Gavalogy"
+Google OAuth shows "eszuhnumhvzczpzfowwe.supabase.co" instead of "Gavelogy"
 
 ## 🔧 **Solution 1: Update Google OAuth App Name (Quickest)**
 
@@ -14,8 +14,8 @@ Google OAuth shows "eszuhnumhvzczpzfowwe.supabase.co" instead of "Gavalogy"
 2. **Update OAuth Consent Screen:**
 
    - Go to "APIs & Services" > "OAuth consent screen"
-   - Change "Application name" to "Gavalogy"
-   - Add "Gavalogy" as the application name
+   - Change "Application name" to "Gavelogy"
+   - Add "Gavelogy" as the application name
    - Save changes
 
 3. **Update Authorized Domains:**
@@ -28,16 +28,16 @@ Google OAuth shows "eszuhnumhvzczpzfowwe.supabase.co" instead of "Gavalogy"
 
    - Go to Settings > General
    - Look for "Custom Domain" section
-   - Add a custom domain like `gavalogy.com`
+   - Add a custom domain like `gavelogy.com`
 
 2. **Update Environment Variables:**
 
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://gavalogy.com
+   NEXT_PUBLIC_SUPABASE_URL=https://gavelogy.com
    ```
 
 3. **Update Google OAuth:**
-   - Add `gavalogy.com` to authorized domains
+   - Add `gavelogy.com` to authorized domains
    - Update redirect URLs to use custom domain
 
 ## 🔧 **Solution 3: Configure Supabase Site URL**
@@ -51,7 +51,7 @@ Google OAuth shows "eszuhnumhvzczpzfowwe.supabase.co" instead of "Gavalogy"
 
 1. **Create a subdomain:**
 
-   - Like `app.gavalogy.com`
+   - Like `app.gavelogy.com`
    - Point it to your Supabase project
 
 2. **Update Supabase:**
@@ -65,15 +65,15 @@ Google OAuth shows "eszuhnumhvzczpzfowwe.supabase.co" instead of "Gavalogy"
 1. **Open:** https://console.cloud.google.com/
 2. **Select your OAuth project**
 3. **Go to:** APIs & Services > OAuth consent screen
-4. **Change:** "Application name" to "Gavalogy"
+4. **Change:** "Application name" to "Gavelogy"
 5. **Save** the changes
 
-**This will immediately change the display name from "eszuhnumhvzczpzfowwe.supabase.co" to "Gavalogy"!**
+**This will immediately change the display name from "eszuhnumhvzczpzfowwe.supabase.co" to "Gavelogy"!**
 
 ## 📋 **After Making Changes**
 
 1. **Test the OAuth flow**
 2. **Clear browser cache** if needed
-3. **Check that it now shows "Gavalogy"**
+3. **Check that it now shows "Gavelogy"**
 
-The quickest fix is updating the Google OAuth app name - it takes 2 minutes and will immediately show "Gavalogy" instead of the random Supabase domain!
+The quickest fix is updating the Google OAuth app name - it takes 2 minutes and will immediately show "Gavelogy" instead of the random Supabase domain!

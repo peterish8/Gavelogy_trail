@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { fetchGameQuestions } from './questions';
+import { deductEntryFee } from './rewards';
+import { getCasualEntryFee } from '@/lib/game/economy';
 
 /**
  * Creates a new game lobby and adds the creator as the first player.
@@ -113,6 +115,33 @@ export async function startGameIfReady(lobbyId: string) {
   if (updateError || !lobby) {
     // Already started or failed
     return { alreadyStarted: true };
+  }
+
+  // 1.5 Deduct entry fee for casual modes (arena, tagteam, speed_court)
+  const casualModes = ['arena', 'tagteam', 'speed_court'];
+  if (casualModes.includes(lobby.mode)) {
+    const fee = getCasualEntryFee();
+    // Fetch all real (non-bot) players in this lobby
+    const { data: players } = await supabase
+      .from('game_players')
+      .select('user_id')
+      .eq('lobby_id', lobbyId)
+      .eq('is_bot', false);
+
+    if (players && players.length > 0) {
+      for (const player of players) {
+        if (!player.user_id) continue;
+        const result = await deductEntryFee(player.user_id, lobbyId, fee);
+        if (result.insufficientFunds) {
+          // Revert lobby to waiting so player can see the error
+          await supabase
+            .from('game_lobbies')
+            .update({ status: 'waiting', started_at: null })
+            .eq('id', lobbyId);
+          return { error: 'insufficient_funds', userId: player.user_id };
+        }
+      }
+    }
   }
 
   // 2. Fetch Questions

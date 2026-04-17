@@ -15,7 +15,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       setTrackConfidence: (value) => set({ trackConfidence: value }),
     }),
     {
-      name: "gavalogy-preferences",
+      name: "gavelogy-preferences",
     }
   )
 );

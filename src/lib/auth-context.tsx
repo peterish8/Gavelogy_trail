@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
+import { useAuthStore } from '@/lib/stores/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -23,14 +24,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     
     const initAuth = async () => {
-      // Check for localhost auth first
+      // Check for localhost auth first (DEV ONLY)
       if (typeof window !== 'undefined') {
-        const isLocalhost = window.location.hostname === 'localhost' || 
+        const isLocalhost = process.env.NODE_ENV === 'development' &&
+                           (window.location.hostname === 'localhost' || 
                            window.location.hostname === '127.0.0.1' ||
-                           window.location.hostname.includes('localhost');
+                           window.location.hostname.includes('localhost'));
         
         if (isLocalhost) {
-          const localhostAuth = localStorage.getItem('gavalogy-localhost-auth');
+          const localhostAuth = localStorage.getItem('gavelogy-localhost-auth');
           if (localhostAuth) {
             try {
               const mockUser = JSON.parse(localhostAuth);
@@ -47,19 +49,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
+
+      if (session?.user) {
+        const state = useAuthStore.getState();
+        if (!state.isAuthenticated) {
+          state.checkAuth();
+        }
+      }
     };
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Don't override localhost auth with Supabase changes
+        // Don't override localhost auth with Supabase changes (DEV ONLY)
         if (typeof window !== 'undefined') {
-          const isLocalhost = window.location.hostname === 'localhost' || 
+          const isLocalhost = process.env.NODE_ENV === 'development' &&
+                             (window.location.hostname === 'localhost' || 
                              window.location.hostname === '127.0.0.1' ||
-                             window.location.hostname.includes('localhost');
+                             window.location.hostname.includes('localhost'));
           
-          if (isLocalhost && localStorage.getItem('gavalogy-localhost-auth')) {
+          if (isLocalhost && localStorage.getItem('gavelogy-localhost-auth')) {
             // Keep localhost auth, don't update from Supabase
             return;
           }
@@ -67,6 +77,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Sync with useAuthStore to prevent redirect loops between dashboard and login
+        if (session?.user && event === 'SIGNED_IN') {
+          const state = useAuthStore.getState();
+          if (!state.isAuthenticated) {
+            state.checkAuth();
+          }
+        } else if (event === 'SIGNED_OUT') {
+           const state = useAuthStore.getState();
+           if (state.isAuthenticated) {
+             state.logout();
+           }
+        }
       }
     );
 
@@ -115,9 +138,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // Clear localhost auth if present
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('gavalogy-localhost-auth');
+      // Clear localhost auth if present (dev environments only)
+      if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+        localStorage.removeItem('gavelogy-localhost-auth');
       }
       
       await supabase.auth.signOut();

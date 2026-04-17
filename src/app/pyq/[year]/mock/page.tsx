@@ -87,7 +87,7 @@ export default function PYQMockExamPage({
     const preventCheating = () => {
       // COMPLETELY DISABLE anti-cheating for development
       console.log("PYQ Mock - Current hostname:", window.location.hostname);
-      const isDevelopment = true; // Force disable for now
+      const isDevelopment = process.env.NODE_ENV === 'development';
 
       if (isDevelopment) {
         console.log(

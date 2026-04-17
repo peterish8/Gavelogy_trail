@@ -72,6 +72,20 @@ export async function updateItemPdfUrl(
   return { success: true };
 }
 
+// Update note_contents content for a structure_item (admin only)
+export async function updateNoteContent(
+  itemId: string,
+  content: string
+): Promise<{ success: boolean; error?: string }> {
+  const admin = getAdminClient();
+  const { error } = await admin
+    .from('note_contents')
+    .update({ content_html: content })
+    .eq('item_id', itemId);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
 // Fetch all structure_items that are case notes (for admin list)
 export async function fetchAllCaseItems(): Promise<{
   id: string;

@@ -32,6 +32,14 @@ export async function POST(request: Request) {
 
     const completionTime = new Date();
 
+    // 1. Check if this is the user's first attempt at this quiz (for is_initial_attempt)
+    const { count: priorCount } = await supabaseAdmin
+      .from('quiz_attempts')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('quiz_id', quizId);
+    const isInitialAttempt = (priorCount ?? 0) === 0;
+
     // 1. Save the Attempt
     const { error: attemptError } = await supabaseAdmin.from('quiz_attempts').insert({
       quiz_id: quizId,
@@ -42,12 +50,42 @@ export async function POST(request: Request) {
       total_questions: totalQuestions || (Array.isArray(answers) ? answers.length : 0),
       completed_at: completionTime.toISOString(),
       subject,
-      topic
+      topic,
+      is_initial_attempt: isInitialAttempt,
     });
 
     if (attemptError) {
       console.error('Supabase Admin Error (Attempt):', attemptError);
       throw attemptError;
+    }
+
+    // 1.2 Increment retake_count on mistakes for all questions answered in this attempt
+    if (!isInitialAttempt && answers && typeof answers === 'object') {
+      const questionIds = Array.isArray(answers)
+        ? answers.map((a: { questionId?: string }) => a.questionId).filter(Boolean)
+        : Object.keys(answers);
+      if (questionIds.length > 0) {
+        await supabaseAdmin.rpc('increment_retake_counts', {
+          p_user_id: userId,
+          p_question_ids: questionIds,
+        }).then(({ error }) => {
+          if (error) console.warn('[Mistakes] retake_count increment failed:', error.message);
+        });
+      }
+    }
+
+    // 1.3 Auto-mastery: mark a mistake as mastered if passed + retake_count >= 2 after this attempt
+    if (passed && !isInitialAttempt) {
+      await supabaseAdmin
+        .from('mistakes')
+        .update({ is_mastered: true })
+        .eq('user_id', userId)
+        .eq('quiz_id', quizId)
+        .gte('retake_count', 2)
+        .eq('is_mastered', false)
+        .then(({ error }) => {
+          if (error) console.warn('[Mastery] auto-mastery update failed:', error.message);
+        });
     }
 
     // 1.5. Handle Bucket System (Initial Quiz or SR Update)
@@ -65,7 +103,7 @@ export async function POST(request: Request) {
           .select('question_id, confidence_level, answer_was_correct')
           .eq('user_id', userId)
           .eq('quiz_id', quizId)
-          .eq('is_initial_attempt', true);
+          .eq('is_initial_attempt', isInitialAttempt);
         
         if (!confError && confidenceData && confidenceData.length > 0) {
           // Map to QuestionAnswer format

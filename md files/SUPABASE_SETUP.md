@@ -1,4 +1,4 @@
-# Gavalogy Supabase Setup Guide
+# Gavelogy Supabase Setup Guide
 
 ## 1. Create Supabase Project
 

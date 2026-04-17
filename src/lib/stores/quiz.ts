@@ -15,6 +15,14 @@ export interface QuizAttempt {
   completedAt: number; // timestamp
 }
 
+export interface SubjectStats {
+  subject: string;
+  totalAttempts: number;
+  averageScore: number;
+  passRate: number;
+  passedCount: number;
+}
+
 export interface QuizStats {
   totalAttempts: number;
   totalScore: number;
@@ -23,6 +31,8 @@ export interface QuizStats {
   failedCount: number;
   passRate: number;
   recentAttempts: QuizAttempt[];
+  attemptsBySubject: Record<string, SubjectStats>;
+  weeklyChange: number; // % change in avg score vs prior week
 }
 
 interface QuizStore {
@@ -46,6 +56,7 @@ interface QuizStore {
   getAttemptsByQuiz: (quizId: string) => QuizAttempt[];
   getRecentAttempts: (limit?: number) => QuizAttempt[];
   getQuizStats: () => QuizStats;
+  getSubjectStats: (subject: string) => SubjectStats;
   resetAttempts: () => void;
 }
 
@@ -180,6 +191,35 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
     const averageScore = totalAttempts > 0 ? totalScore / totalAttempts : 0;
     const passRate = totalAttempts > 0 ? (passedCount / totalAttempts) * 100 : 0;
 
+    // Build per-subject stats
+    const subjectMap: Record<string, QuizAttempt[]> = {};
+    for (const a of attempts) {
+      const key = a.subject || 'General';
+      if (!subjectMap[key]) subjectMap[key] = [];
+      subjectMap[key].push(a);
+    }
+    const attemptsBySubject: Record<string, SubjectStats> = {};
+    for (const [subject, subAttempts] of Object.entries(subjectMap)) {
+      const subPassed = subAttempts.filter(a => a.passed).length;
+      const subAvg = subAttempts.reduce((s, a) => s + a.score, 0) / subAttempts.length;
+      attemptsBySubject[subject] = {
+        subject,
+        totalAttempts: subAttempts.length,
+        averageScore: subAvg,
+        passRate: (subPassed / subAttempts.length) * 100,
+        passedCount: subPassed,
+      };
+    }
+
+    // Weekly change: avg score this week vs prior week
+    const now = Date.now();
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    const thisWeek = attempts.filter(a => now - a.completedAt <= oneWeek);
+    const lastWeek = attempts.filter(a => now - a.completedAt > oneWeek && now - a.completedAt <= 2 * oneWeek);
+    const thisAvg = thisWeek.length > 0 ? thisWeek.reduce((s, a) => s + a.score, 0) / thisWeek.length : 0;
+    const lastAvg = lastWeek.length > 0 ? lastWeek.reduce((s, a) => s + a.score, 0) / lastWeek.length : 0;
+    const weeklyChange = lastAvg > 0 ? Math.round(thisAvg - lastAvg) : 0;
+
     return {
       totalAttempts,
       totalScore,
@@ -187,7 +227,24 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
       passedCount,
       failedCount,
       passRate,
-      recentAttempts: attempts.slice(0, 10)
+      recentAttempts: attempts.slice(0, 10),
+      attemptsBySubject,
+      weeklyChange,
+    };
+  },
+
+  getSubjectStats: (subject: string): SubjectStats => {
+    const attempts = get().attempts.filter(a => (a.subject || 'General') === subject);
+    if (attempts.length === 0) {
+      return { subject, totalAttempts: 0, averageScore: 0, passRate: 0, passedCount: 0 };
+    }
+    const passedCount = attempts.filter(a => a.passed).length;
+    return {
+      subject,
+      totalAttempts: attempts.length,
+      averageScore: attempts.reduce((s, a) => s + a.score, 0) / attempts.length,
+      passRate: (passedCount / attempts.length) * 100,
+      passedCount,
     };
   },
 
