@@ -18,7 +18,6 @@ import { DottedBackground } from "@/components/DottedBackground";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { BookOpen, Target, BarChart3, BookOpenCheck, Clock, CheckCircle, XCircle } from "lucide-react";
 import {
-  COURSES,
   Course,
   usePaymentStore,
 } from "@/lib/payment";
@@ -331,12 +330,11 @@ export default function DashboardPage() {
                         <Button
                           className="w-full bg-green-600 hover:bg-green-700"
                           onClick={() => {
-                            if (course.id === COURSES.STATIC_SUBJECTS.id) {
-                              router.push("/subjects");
-                            } else if (
-                              course.id === COURSES.CONTEMPORARY_CASES.id
-                            ) {
+                            const name = course.name.toLowerCase();
+                            if (name.includes("contemporary")) {
                               router.push("/subjects?tab=contemporary-cases");
+                            } else {
+                              router.push("/subjects");
                             }
                           }}
                         >
