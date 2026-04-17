@@ -1,259 +1,174 @@
-# 🏛️ Gavelogy - AI-Powered CLAT PG Preparation Platform
+# Gavelogy - AI-Powered CLAT PG Preparation Platform
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://gavelogy-trail.vercel.app)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-green)](https://supabase.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 
 > **Transforming Legal Education Through Intelligent Learning**
 
-Gavelogy is a comprehensive online learning platform specifically designed for CLAT PG (Common Law Admission Test - Post Graduate) aspirants. Our platform combines cutting-edge technology with pedagogical excellence to provide an unparalleled learning experience for law students.
+Gavelogy is a comprehensive online learning platform specifically designed for CLAT PG (Common Law Admission Test - Post Graduate) aspirants. The platform combines intelligent mistake-tracking, gamified competitive modes, PDF judgment annotation, and comprehensive analytics for law students.
 
-## 🌟 Why Gavelogy Matters in Legal Education
+## Why Gavelogy Matters in Legal Education
 
 ### The Challenge
 - **Information Overload**: Law students struggle with vast amounts of legal content across 13+ subjects
 - **Outdated Methods**: Traditional rote learning doesn't prepare students for analytical legal reasoning
 - **Lack of Personalization**: One-size-fits-all approaches ignore individual learning patterns
-- **Contemporary Relevance**: Static textbooks can't keep pace with evolving legal landscape
+- **Contemporary Relevance**: Static textbooks can't keep pace with an evolving legal landscape
 
 ### Our Solution
-Gavelogy addresses these challenges through:
 - **AI-Powered Mistake Analysis**: Intelligent tracking of weak areas with personalized remediation
 - **Contemporary Case Integration**: Real-time updates with latest Supreme Court judgments
-- **Gamified Learning**: Engagement through streaks, coins, and achievement badges
-- **Adaptive Assessment**: Dynamic difficulty adjustment based on performance patterns
+- **Gamified Competitive Modes**: Arena duels, speed courts, and battle royale study sessions
+- **PDF Judgment Annotation**: Annotate and highlight actual court judgments inline
+- **Adaptive Assessment**: Spaced repetition algorithm for long-term retention
 
-## 🚀 Key Features
+## Key Features
 
-### 📚 Comprehensive Subject Coverage
+### Comprehensive Subject Coverage
 - **13 Core Law Subjects**: Constitutional Law, Criminal Law, Contract Law, Tort Law, and more
 - **Hierarchical Learning**: Topics → Subtopics → Concepts for structured progression
-- **Interactive Quizzes**: Immediate feedback with detailed explanations
+- **Interactive Quizzes**: Immediate feedback with confidence-level self-assessment
 
-### ⚖️ Contemporary Cases (2023-2025)
-- **Latest Supreme Court Judgments**: Updated within 24-48 hours of publication
-- **Case Analysis Tools**: Structured notes, key takeaways, and legal principles
+### Contemporary Cases (2023–2025)
+- **Latest Supreme Court Judgments**: Updated content with PDF viewer and inline annotations
+- **Notes + Judgment Split-Panel**: Side-by-side case notes and annotated PDF view
 - **Subject-wise Categorization**: Easy navigation through Constitutional, Criminal, Civil cases
-- **Progress Tracking**: Visual completion indicators and time spent analytics
+- **Admin Tagging Tool**: Admin UI for tagging judgments with subjects and legal principles
 
-### 🧠 Intelligent Mistake Analysis
-- **Pattern Recognition**: AI identifies recurring mistake patterns across subjects
+### Intelligent Mistake Analysis
+- **Spaced Repetition Algorithm**: Optimal review intervals based on confidence and accuracy
 - **Confidence Tracking**: Distinguishes between wrong answers and lucky guesses
 - **Personalized Remediation**: Targeted practice sessions for weak areas
 - **Performance Analytics**: Detailed insights into accuracy trends and improvement areas
 
-### 🎮 Gamification & Engagement
-- **Streak System**: Daily learning streaks with milestone rewards
-- **Coin Economy**: Earn coins for consistent practice and achievements
-- **Badge System**: Recognition for accuracy, speed, and consistency milestones
-- **Leaderboards**: Healthy competition with peer rankings
+### Arena — Competitive Game Modes
+- **Duel Mode**: 1v1 real-time quiz battles
+- **Speed Court**: Race against the clock on timed question sets
+- **Battle Royale**: Multi-player elimination rounds
+- **XP & Coin Economy**: Earn XP for progression, spend coins to enter paid game modes
+- **Bot System**: 100 named bots with realistic accuracy and timing for practice matches
+- **Leaderboards**: Global and weekly rankings
 
-### 📊 Advanced Analytics
-- **Subject-wise Performance**: Detailed breakdown of strengths and weaknesses
-- **Time Management**: Optimal time allocation strategies for exam preparation
-- **Progress Visualization**: Interactive charts and graphs for performance tracking
-- **Predictive Insights**: AI-powered recommendations for study planning
+### Dashboard & Analytics
+- **Recent Activity Feed**: Last 12 quiz attempts across all subjects
+- **Performance Summary Panel**: Overall stats with subject-wise breakdown
+- **Spaced Repetition Calendar**: Visual heatmap of review schedule and streaks
+- **Purchased Courses**: Track and continue enrolled courses
 
-## 🎯 Real-World Impact for Students
+### Accessibility & UX
+- **Text-to-Speech**: Persistent TTS for reading questions and case content
+- **Translate Widget**: In-app translation for multilingual support
+- **Dark Mode**: System-aware dark/light theme via `.dark` class
+- **Copy Protection**: Prevents unauthorized copying of premium content
 
-### 1. **Personalized Learning Paths**
-```
-Traditional Approach: Study all topics equally
-Gavelogy Approach: Focus 70% time on weak areas, 30% on revision
-Result: 40% faster improvement in overall scores
-```
-
-### 2. **Contemporary Legal Awareness**
-- **Stay Current**: Access to 100+ recent Supreme Court cases
-- **Exam Relevance**: 60% of CLAT PG questions come from recent legal developments
-- **Practical Application**: Bridge theory-practice gap through real case studies
-
-### 3. **Efficient Time Management**
-- **Smart Scheduling**: AI suggests optimal study sessions based on performance data
-- **Focused Practice**: Spend time only on areas that need improvement
-- **Exam Simulation**: Timed mock tests with real exam conditions
-
-### 4. **Confidence Building**
-- **Gradual Progression**: Start with basics, advance to complex concepts
-- **Immediate Feedback**: Understand mistakes instantly, not after weeks
-- **Success Tracking**: Visual progress indicators boost motivation
-
-## 🏆 Success Metrics & Student Outcomes
-
-### Proven Results
-- **85% Improvement**: Average score increase after 3 months of consistent use
-- **60% Time Reduction**: In identifying and fixing weak areas
-- **92% User Satisfaction**: Based on student feedback and retention rates
-- **Top Rank Achievements**: 15+ students secured top 100 ranks in CLAT PG
-
-### Student Testimonials
-> *"Gavelogy's mistake analysis helped me identify that I was weak in Constitutional Law precedents. Focused practice improved my accuracy from 60% to 85% in just 6 weeks."* - **Priya S., NLSIU**
-
-> *"The contemporary cases section was a game-changer. 40% of my CLAT PG questions were directly from cases I studied on Gavelogy."* - **Arjun M., NALSAR**
-
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
-- **Next.js 14**: React framework with App Router for optimal performance
-- **TypeScript**: Type-safe development for robust code quality
-- **Tailwind CSS**: Utility-first CSS for responsive design
-- **Framer Motion**: Smooth animations and transitions
+- **Next.js 15** — App Router, Turbopack, React Server Components
+- **React 19** — Latest concurrent features
+- **TypeScript 5** (strict mode)
+- **Tailwind CSS 4** — Utility-first, no config file, CSS custom properties
+- **Framer Motion 12** — Animations, gestures, page transitions
+- **Radix UI** — Accessible component primitives
+- **Zustand 5** — Global state with `persist` middleware
 
 ### Backend & Database
-- **Supabase**: PostgreSQL database with real-time subscriptions
-- **Row Level Security**: Secure data access and user privacy
-- **Edge Functions**: Serverless functions for AI processing
+- **Supabase** — PostgreSQL, Auth, Row Level Security, RPCs
+- **Server Actions** — Next.js `'use server'` actions in `src/actions/`
+- **API Routes** — Payment order creation and verification via `/api/payment/`
 
-### AI & Analytics
-- **Custom ML Models**: Mistake pattern recognition and learning path optimization
-- **Real-time Analytics**: Performance tracking and predictive insights
-- **Natural Language Processing**: Automated case summarization and tagging
+### Payments
+- **Razorpay** — Course purchase flow with server-side order creation and signature verification
+
+### PDF & Annotation
+- **pdfjs-dist 5** — Canvas-based PDF rendering with `IntersectionObserver` virtualization
+- **Bezier Connectors** — Visual connectors linking highlights to notes
 
 ### Infrastructure
-- **Vercel**: Edge deployment for global performance
-- **CDN Integration**: Fast content delivery worldwide
-- **Progressive Web App**: Offline capability and mobile optimization
+- **Vercel** — Edge deployment
+- **Dev port**: `3001` (`npm run dev`)
 
-## 📱 Platform Features
-
-### 🎯 Smart Quiz System
-- **Adaptive Difficulty**: Questions adjust based on performance
-- **Confidence Tracking**: "Confident", "Guess", "Fluke" options for self-assessment
-- **Detailed Explanations**: Comprehensive reasoning for each answer
-- **Time Analytics**: Track time per question for exam strategy
-
-### 📖 Contemporary Cases Hub
-- **Daily Updates**: New cases added within 24 hours
-- **Smart Categorization**: Auto-tagged by subject and legal principles
-- **Interactive Notes**: Collaborative annotations and highlights
-- **Quiz Integration**: Questions generated from case facts and holdings
-
-### 🎮 Gamification Engine
-- **Achievement System**: 20+ badges for different milestones
-- **Daily Challenges**: Special quizzes with bonus rewards
-- **Streak Multipliers**: Increased rewards for consistent practice
-- **Social Features**: Share achievements and compete with friends
-
-### 📊 Performance Dashboard
-- **Real-time Analytics**: Live performance metrics and trends
-- **Subject Mastery**: Visual representation of knowledge gaps
-- **Study Recommendations**: AI-powered suggestions for optimal learning
-- **Exam Readiness**: Predictive scoring for actual exam performance
-
-## 🚀 Getting Started
+## Getting Started
 
 ### For Students
-1. **Sign Up**: Create your account at [gavelogy-trail.vercel.app](https://gavelogy-trail.vercel.app)
-2. **Assessment**: Take initial diagnostic test to identify baseline
-3. **Personalized Plan**: Receive AI-generated study schedule
-4. **Start Learning**: Begin with recommended subjects and topics
-5. **Track Progress**: Monitor improvement through analytics dashboard
+1. Sign up at [gavelogy-trail.vercel.app](https://gavelogy-trail.vercel.app)
+2. Take the initial diagnostic quiz
+3. Follow the AI-generated study schedule
+4. Track progress through the analytics dashboard
 
 ### For Developers
+
 ```bash
 # Clone the repository
 git clone https://github.com/peterish8/Gavelogy_trail.git
+cd Gavelogy_trail
 
 # Install dependencies
-cd Gavelogy_trail
 npm install
 
 # Set up environment variables
 cp .env.example .env.local
-# Add your Supabase credentials
+# Add your Supabase and Razorpay credentials
 
-# Run development server
-npm run dev
+# Run development server (port 3001)
 npm run dev
 ```
 
+**Environment Variables**
+
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=    # server-only
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=          # server-only
+```
+
 ### Development Workflow
+
 > **IMPORTANT**: All new features and fixes must be pushed to the `develop` branch. Direct pushes to `main` are restricted to release merges only.
 
-1.  Create a feature branch: `git checkout -b feature/your-feature-name`
-2.  Commit changes
-3.  Push to develop: `git push origin feature/your-feature-name` (then open PR to `develop`)
+1. Create a feature branch: `git checkout -b feature/your-feature-name`
+2. Make changes and commit
+3. Push to develop: `git push origin feature/your-feature-name`
+4. Open a PR targeting `develop`
 
+## Educational Philosophy
 
-## 🎓 Educational Philosophy
-
-### Evidence-Based Learning
-- **Spaced Repetition**: Optimal intervals for long-term retention
+- **Spaced Repetition**: Optimal review intervals for long-term retention
 - **Active Recall**: Testing effect for stronger memory formation
-- **Interleaving**: Mixed practice for better discrimination skills
-- **Metacognition**: Self-awareness of learning process and strategies
+- **Confidence Metacognition**: Students self-assess certainty, not just correctness
+- **Case-Based Learning**: Real Supreme Court judgments as primary material
 
-### Legal Reasoning Development
-- **Case-Based Learning**: Real scenarios for practical application
-- **Socratic Method**: Question-driven exploration of legal concepts
-- **Comparative Analysis**: Multiple perspectives on legal issues
-- **Critical Thinking**: Analytical skills for complex legal problems
+## Future Roadmap
 
-## 🌍 Future Roadmap
+### Short Term
+- Mobile PWA with offline support
+- Voice notes and audio explanations
+- Collaborative study rooms
 
-### Short Term (3-6 months)
-- **Mobile App**: Native iOS and Android applications
-- **Offline Mode**: Download content for study without internet
-- **Voice Notes**: Audio explanations and case summaries
-- **Collaborative Study**: Group study sessions and peer discussions
+### Medium Term
+- AI tutor chatbot for instant doubt resolution
+- Expert video lectures and case walkthroughs
+- Mock interviews for law school admissions
 
-### Medium Term (6-12 months)
-- **AI Tutor**: Personalized chatbot for instant doubt resolution
-- **Video Content**: Expert lectures and case analysis videos
-- **Mock Interviews**: AI-powered interview preparation for law school admissions
-- **Integration**: Partnership with law schools for curriculum alignment
+### Long Term
+- Global expansion for international law entrance exams
+- Legal research database integration
+- Alumni network and career guidance
 
-### Long Term (1-2 years)
-- **Global Expansion**: Support for international law entrance exams
-- **Research Tools**: Legal research database and citation management
-- **Career Guidance**: Placement assistance and career counseling
-- **Alumni Network**: Connect with successful law professionals
+## Contact & Support
 
-## 🤝 Contributing
-
-We welcome contributions from the legal and tech community:
-
-### For Legal Experts
-- **Content Review**: Verify accuracy of legal content and cases
-- **Case Analysis**: Contribute detailed case summaries and insights
-- **Question Creation**: Develop high-quality practice questions
-
-### For Developers
-- **Feature Development**: Build new features and improvements
-- **Bug Fixes**: Identify and resolve technical issues
-- **Performance Optimization**: Enhance platform speed and reliability
-
-### For Educators
-- **Pedagogical Input**: Suggest learning methodologies and best practices
-- **Curriculum Alignment**: Ensure content matches academic standards
-- **Assessment Design**: Create effective evaluation mechanisms
-
-## 📞 Contact & Support
-
-### For Students
-- **Email**: support@gavelogy.com
-- **WhatsApp**: +91-XXXX-XXXX-XX
-- **Live Chat**: Available 9 AM - 9 PM IST
-
-### For Partnerships
+- **Student Support**: support@gavelogy.com
 - **Business Inquiries**: business@gavelogy.com
 - **Academic Partnerships**: academic@gavelogy.com
-- **Content Collaboration**: content@gavelogy.com
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Legal Experts**: Practicing lawyers and judges who reviewed our content
-- **Beta Testers**: 500+ law students who provided valuable feedback
-- **Technology Partners**: Supabase, Vercel, and other platform providers
-- **Academic Advisors**: Law school professors who guided our curriculum
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built with ❤️ for the future lawyers of India**
-
-*Empowering legal minds through intelligent technology*
+*Built for the future lawyers of India*
