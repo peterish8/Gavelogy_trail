@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Course is not available" }, { status: 400 });
     }
 
+    // Create Razorpay order (instantiated here so env vars are available at runtime)
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
       key_secret: process.env.RAZORPAY_KEY_SECRET!,
