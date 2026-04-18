@@ -4,9 +4,10 @@ interface BezierConnectorProps {
   fromRect: DOMRect | null;
   toRect: DOMRect | null;
   visible: boolean;
+  color?: string;
 }
 
-export function BezierConnector({ fromRect, toRect, visible }: BezierConnectorProps) {
+export function BezierConnector({ fromRect, toRect, visible, color = '#b94a2c' }: BezierConnectorProps) {
   if (!visible || !fromRect || !toRect) {
     return (
       <svg
@@ -52,7 +53,7 @@ export function BezierConnector({ fromRect, toRect, visible }: BezierConnectorPr
       <path
         d={d}
         fill="none"
-        stroke="#b94a2c"
+        stroke={color}
         strokeWidth={1.5}
         strokeDasharray="4 3"
       />

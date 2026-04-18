@@ -1,67 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Razorpay from 'razorpay';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from "next/server";
+import Razorpay from "razorpay";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 export async function POST(request: NextRequest) {
   try {
-    // Get auth token from header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const token = authHeader.replace("Bearer ", "");
 
-    const token = authHeader.replace('Bearer ', '');
-
-    // Verify user with Supabase
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        global: { headers: { Authorization: `Bearer ${token}` } },
-      }
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Parse body
     const body = await request.json();
     const { courseId } = body;
     if (!courseId) {
-      return NextResponse.json({ error: 'courseId is required' }, { status: 400 });
+      return NextResponse.json({ error: "courseId is required" }, { status: 400 });
     }
 
-    // Look up course price from DB
-    const { data: course, error: courseError } = await supabase
-      .from('courses')
-      .select('id, name, price, is_active')
-      .eq('id', courseId)
-      .single();
-
-    if (courseError || !course) {
-      return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+    // Verify the token is valid by fetching user via Convex
+    const me = await fetchQuery(api.users.getMe, {}, { token });
+    if (!me) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch course details from Convex
+    const courses = await fetchQuery(api.content.getCourses, { activeOnly: false });
+    const course = courses.find((c) => c._id === courseId);
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
     if (!course.is_active) {
-      return NextResponse.json({ error: 'Course is not available' }, { status: 400 });
+      return NextResponse.json({ error: "Course is not available" }, { status: 400 });
     }
 
-    // Create Razorpay order (instantiated here so env vars are available at runtime)
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID!,
       key_secret: process.env.RAZORPAY_KEY_SECRET!,
     });
 
     const order = await razorpay.orders.create({
-      amount: Math.round(course.price * 100), // paise
-      currency: 'INR',
+      amount: Math.round(course.price * 100),
+      currency: "INR",
       receipt: `rcpt_${Date.now()}`,
       notes: {
-        courseId: course.id,
+        courseId: course._id,
         courseName: course.name,
-        userId: user.id,
+        userId: me._id,
       },
     });
 
@@ -73,7 +58,7 @@ export async function POST(request: NextRequest) {
       courseName: course.name,
     });
   } catch (error) {
-    console.error('Create order error:', error);
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    console.error("Create order error:", error);
+    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
   }
 }

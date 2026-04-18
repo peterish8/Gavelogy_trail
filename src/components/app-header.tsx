@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useThemeStore } from "@/lib/stores/theme";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,7 +23,8 @@ import { SearchCommandMenu } from "@/components/search-command-menu";
 
 export function AppHeader() {
   const router = useRouter();
-  const { profile, logout } = useAuthStore();
+  const { profile } = useAuthStore();
+  const { signOut } = useAuth();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -34,7 +36,7 @@ export function AppHeader() {
     setShowLogoutConfirm(false);
     setShowUserMenu(false);
     setShowMobileMenu(false);
-    await logout();
+    await signOut();
     router.push("/");
   };
 
@@ -43,8 +45,25 @@ export function AppHeader() {
     (pathname?.startsWith('/course-viewer') ? APP_NAV_LINKS.find(link => link.href === '/courses') : null);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60 glass-blur">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full overflow-hidden">
+      {/* Glass base */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "rgba(247, 246, 251, 0.72)",
+          backdropFilter: "blur(24px) saturate(1.8)",
+          WebkitBackdropFilter: "blur(24px) saturate(1.8)",
+          borderBottom: "1px solid rgba(215, 206, 250, 0.35)",
+        }}
+      />
+      {/* Subtle overall gradient tint */}
+      <div aria-hidden className="pointer-events-none absolute inset-0"
+        style={{ background: "linear-gradient(90deg, rgba(75,42,214,0.06) 0%, transparent 40%, transparent 60%, rgba(162,50,104,0.05) 100%)" }} />
+      {/* Top highlight line */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 30%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.9) 70%, transparent 100%)" }} />
+
+      <div className="relative z-10 container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
@@ -97,7 +116,7 @@ export function AppHeader() {
           <motion.div whileTap={{ scale: 0.95 }}>
           <Button
             variant="outline"
-            className="hidden md:flex items-center gap-2 h-9 w-64 justify-start text-muted-foreground bg-muted/50 hover:bg-muted relative"
+            className="hidden md:flex items-center gap-2 h-9 w-64 justify-start text-muted-foreground glass-input hover:bg-white/70 relative"
             onClick={() => setIsSearchOpen(true)}
           >
             <Search className="h-4 w-4" />

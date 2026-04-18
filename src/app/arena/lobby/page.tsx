@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth';
 import { useGameStore } from '@/lib/stores/game-store';
 import { findMatch, addBot, startGameIfReady } from '@/actions/game/matchmaking';
-import { subscribeToLobby, unsubscribeFromLobby } from '@/lib/game/realtime';
+import { useLobbySync } from '@/lib/game/realtime';
 import { generateBotPlayer } from '@/lib/game/bot-system';
 import { Loader2, User, Play, Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -81,27 +81,7 @@ function LobbyContent({ arenaBackground }: { arenaBackground: React.CSSPropertie
            setStatus('waiting');
            setSearching(false);
 
-           // FETCH EXISTING PLAYERS to ensure we see the host (and host sees us via realtime)
-           const { supabase } = await import('@/lib/supabase'); // Use the singleton instance
-           
-           const { data: currentPlayers } = await supabase
-              .from('game_players')
-              .select('*')
-              .eq('lobby_id', res.lobbyId);
-           
-           if (currentPlayers) {
-              // unique ID for frontend:
-              const playersWithIds = currentPlayers.map((p: { user_id: string; id: string; display_name: string; avatar_url: string; is_bot: boolean }) => ({
-                  id: p.user_id || `bot-${p.id}`, 
-                  displayName: p.display_name,
-                  avatarUrl: p.avatar_url,
-                  isBot: p.is_bot,
-                  score: 0,
-                  currentQuestion: 0
-              }));
-              
-              setPlayers(playersWithIds);
-           }
+           // Players are loaded reactively via useLobbySync below
          }
        } catch {
          setMatchingError('Failed to join matchmaking.');
@@ -114,12 +94,8 @@ function LobbyContent({ arenaBackground }: { arenaBackground: React.CSSPropertie
     }
   }, [profile, lobbyId, mode, setLobbyId, setPlayers, setStatus, reset]);
 
-  // Realtime subscription
-  useEffect(() => {
-    if (!lobbyId) return;
-    const channel = subscribeToLobby(lobbyId); 
-    return () => { unsubscribeFromLobby(channel); };
-  }, [lobbyId]);
+  // Reactive lobby sync via Convex (replaces Supabase realtime channel)
+  useLobbySync(lobbyId as any);
 
   // Timer & Bot Logic
   useEffect(() => {

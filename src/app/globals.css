@@ -1,10 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 
 @plugin "tailwindcss-animate";
-@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "./dark-theme.css";
 
@@ -151,40 +148,111 @@
 }
 
 :root {
-  /* Light mode colors - Converted to Hex/HSL for html2canvas compatibility */
-  --background: #ffffff;
-  --foreground: #020617;
-  --card: #ffffff;
-  --card-foreground: #020617;
-  --popover: #ffffff;
-  --popover-foreground: #020617;
-  --primary: #0f172a;
+  /* Light mode — Violet ✕ Plum palette */
+  --background: #F7F6FB;
+  --foreground: #130F2A;
+  --card: #FFFFFF;
+  --card-foreground: #130F2A;
+  --popover: #FFFFFF;
+  --popover-foreground: #130F2A;
+  --primary: #4B2AD6;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
+  --secondary: #EFECF5;
+  --secondary-foreground: #130F2A;
+  --muted: #EFECF5;
+  --muted-foreground: #857FA0;
+  --accent: #EBE6FD;
+  --accent-foreground: #130F2A;
+  --destructive: #A11D2E;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #94a3b8;
+  --border: #CDC6DC;
+  --input: #CDC6DC;
+  --ring: #4B2AD6;
   --radius: 0.625rem;
-  --chart-1: #e76e50;
-  --chart-2: #2a9d8f;
-  --chart-3: #264653;
-  --chart-4: #f4a261;
-  --chart-5: #e9c46a;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #18181b;
+  --chart-1: #4B2AD6;
+  --chart-2: #1F7A52;
+  --chart-3: #A23268;
+  --chart-4: #A36009;
+  --chart-5: #148A88;
+  --sidebar: #F7F6FB;
+  --sidebar-foreground: #130F2A;
+  --sidebar-primary: #4B2AD6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4f4f5;
-  --sidebar-accent-foreground: #18181b;
-  --sidebar-border: #e4e4e7;
-  --sidebar-ring: #d1d5db;
+  --sidebar-accent: #EFECF5;
+  --sidebar-accent-foreground: #130F2A;
+  --sidebar-border: #CDC6DC;
+  --sidebar-ring: #D7CEFA;
+
+  /* ── Gavelogy extended palette ── */
+  --gv-primary: #4B2AD6;
+  --gv-primary-hover: #3A1EB0;
+  --gv-primary-soft: #EBE6FD;
+  --gv-primary-border: #D7CEFA;
+  --gv-accent: #A23268;
+  --gv-accent-hover: #812552;
+  --gv-accent-soft: #F8E1EA;
+  --gv-accent-border: #EECBDA;
+  --gv-support: #148A88;
+  --gv-support-soft: #E0F5F4;
+  --gv-ink: #130F2A;
+  --gv-ink-2: #434056;
+  --gv-ink-3: #857FA0;
+  --gv-bg: #F7F6FB;
+  --gv-surface: #FFFFFF;
+  --gv-panel: #EFECF5;
+  --gv-border: #CDC6DC;
+  --gv-success: #1F7A52;
+  --gv-success-soft: #E6F2EC;
+  --gv-warn: #A36009;
+  --gv-warn-soft: #FBEEDA;
+  --gv-danger: #A11D2E;
+  --gv-danger-soft: #F7E4E6;
+  --gv-gold: #8A5A0A;
+  --gv-gold-soft: #F6E2C2;
+  --gv-gold-border: #EAD2A3;
+
+  /* ── Design token aliases (matches Gavelogy Light design file) ── */
+  --brand: #4B2AD6;
+  --brand-hover: #3A1EB0;
+  --brand-soft: #EBE6FD;
+  --brand-border: #D7CEFA;
+  --brand-2: #A23268;
+  --brand-2-hover: #812552;
+  --brand-2-soft: #F8E1EA;
+  --brand-2-border: #EECBDA;
+  --bg: #F7F6FB;
+  --surface: #FFFFFF;
+  --panel: #EFECF5;
+  --border-strong: #CDC6DC;
+  --ink: #130F2A;
+  --ink-2: #434056;
+  --ink-3: #857FA0;
+
+  /* ── Display typography ── */
+  --display-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+
+  /* ── Shadows (soft preset) ── */
+  --s1: 0 1px 2px rgba(16,22,40,.04), 0 1px 3px rgba(16,22,40,.05);
+  --s2: 0 4px 12px rgba(16,22,40,.06), 0 1px 3px rgba(16,22,40,.04);
+  --s3: 0 12px 32px rgba(16,22,40,.08), 0 2px 6px rgba(16,22,40,.04);
+
+  /* ── Density (balanced preset) ── */
+  --gap: 20px;
+  --card-pad: 24px;
+  --section-gap: 72px;
+
+  /* ── Glass system (light mode only) ── */
+  --glass-1: rgba(255, 255, 255, 0.58);   /* bumped from 0.46 — more frosted depth */
+  --glass-2: rgba(255, 255, 255, 0.78);
+  --glass-3: rgba(255, 255, 255, 0.92);
+  --glass-sidebar: rgba(243, 240, 253, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-border-subtle: rgba(160, 140, 210, 0.32);
+  --glass-blur: blur(20px) saturate(1.8);
+  --glass-blur-sm: blur(12px) saturate(1.5);
+  --glass-shadow: 0 4px 28px rgba(75, 42, 214, 0.10), 0 1px 4px rgba(75, 42, 214, 0.05);
+  --glass-shadow-lg: 0 14px 48px rgba(75, 42, 214, 0.14), 0 3px 10px rgba(75, 42, 214, 0.07);
+  --glass-inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
 /* [data-theme="dark"] block removed to prevent conflict with dark-theme.css */
@@ -233,6 +301,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --font-sans: "Inter", -apple-system, system-ui, sans-serif;
+  --font-display: var(--display-family);
   --font-mono: "Fira Code", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -261,6 +330,332 @@
 body {
   font-family: var(--font-sans);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Ambient sunrise orb — position:fixed, never scrolls ─────────────
+   Light mode only. Dark mode already has the orb on :root.dark body.
+   The `relative z-[1]` wrapper in layout.tsx keeps content above this.
+   ─────────────────────────────────────────────────────────────────── */
+.ambient-sunrise {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65vh;
+  pointer-events: none;
+  z-index: 0;
+
+  /* Three-layer violet sunrise: tight hot core + wide halo + atmospheric bleed */
+  background:
+    radial-gradient(ellipse 55% 55% at 50% 105%,  rgba(108, 58, 238, 0.38) 0%,  rgba(88,  44, 214, 0.20) 32%, transparent 62%),
+    radial-gradient(ellipse 88% 75% at 50% 115%,  rgba(75,  42, 214, 0.22) 0%,  rgba(120, 70, 250, 0.10) 42%, transparent 68%),
+    radial-gradient(ellipse 40% 30% at 28%  110%,  rgba(162, 50, 104, 0.12) 0%,  transparent 55%),
+    radial-gradient(ellipse 40% 30% at 72%  110%,  rgba(162, 50, 104, 0.10) 0%,  transparent 55%);
+}
+
+/* Hidden in dark mode — dark mode orb lives on :root.dark body */
+.dark .ambient-sunrise {
+  display: none;
+}
+
+/* ── Glass page background — rich violet gradient canvas ──────────────
+   Glass only reads as glass when there's something behind it to refract.
+   This replaces the flat #F7F6FB with a layered violet-to-white sweep.
+   ─────────────────────────────────────────────────────────────────── */
+:root:not(.dark) body {
+  /* Body carries only the static canvas + corner accents.
+     The bottom orb is handled by .ambient-sunrise (position:fixed) in layout.tsx. */
+  background:
+    /* Top-left violet corner accent */
+    radial-gradient(ellipse 50% 40% at -5% 0%,   rgba(75, 42, 214, 0.14) 0%, transparent 65%),
+    /* Top-right plum corner accent */
+    radial-gradient(ellipse 35% 30% at 105%  0%,  rgba(162, 50, 104, 0.09) 0%, transparent 55%),
+    /* Base lavender canvas */
+    linear-gradient(160deg, #ede7fc 0%, #f5f2fd 30%, #faf8fe 60%, #f3eefc 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* ── Glass utility classes ────────────────────────────────────────── */
+
+/* Level 1 — standard cards, stat panels */
+.glass-card {
+  background: var(--glass-1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-inner-glow);
+}
+
+/* Level 2 — elevated panels, modals, popovers */
+.glass-panel {
+  background: var(--glass-2);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border-subtle);
+  box-shadow: var(--glass-shadow-lg), var(--glass-inner-glow);
+}
+
+/* Level 3 — header, sticky bars (most opaque) */
+.glass-surface {
+  background: var(--glass-3);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border-bottom: 1px solid var(--glass-border-subtle);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.8), var(--glass-shadow);
+}
+
+/* Sidebar glass — violet-tinted */
+.glass-sidebar {
+  background: var(--glass-sidebar);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-right: 1px solid var(--glass-border-subtle);
+  box-shadow: 2px 0 20px rgba(75, 42, 214, 0.06);
+}
+
+/* Ghost / outline buttons & inputs — subtle glass hover */
+.glass-input {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--glass-border-subtle);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Light mode: smooth edge-to-centre gradient on every glass surface ──
+   Each card carries a mini version of the ambient sunrise from the reference:
+   a faint violet blush at the bottom corners that fades to near-white centre.
+   The gradient is subtle — barely-there — giving depth without shouting.
+   ─────────────────────────────────────────────────────────────────────── */
+:root:not(.dark) .glass-card {
+  background:
+    radial-gradient(ellipse 75% 55% at 50%  118%, rgba(100, 55, 220, 0.09) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 0%   100%, rgba(162, 50, 104, 0.06) 0%, transparent 52%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(75,  42, 214, 0.06) 0%, transparent 52%),
+    rgba(255, 255, 255, 0.68);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(215, 206, 250, 0.48);
+  box-shadow: var(--glass-shadow), var(--glass-inner-glow);
+}
+
+:root:not(.dark) .glass-panel {
+  background:
+    radial-gradient(ellipse 75% 55% at 50%  118%, rgba(100, 55, 220, 0.07) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 0%   100%, rgba(162, 50, 104, 0.05) 0%, transparent 52%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(75,  42, 214, 0.05) 0%, transparent 52%),
+    rgba(255, 255, 255, 0.82);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid rgba(215, 206, 250, 0.40);
+  box-shadow: var(--glass-shadow-lg), var(--glass-inner-glow);
+}
+
+/* ── Feature card — hero empty-state (Analytics / Courses) ─────────────
+   Matches the reference image: prominent gradient, clean border, no blur.
+   ─────────────────────────────────────────────────────────────────────── */
+.feature-card {
+  border-radius: 20px;
+  border: 1px solid rgba(215, 206, 250, 0.55);
+}
+
+:root:not(.dark) .feature-card {
+  background:
+    radial-gradient(ellipse 65% 55% at 0%   105%, rgba(162, 50, 104, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 65% 55% at 100% 105%, rgba(75,  42, 214, 0.11) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 65% at 50%  118%, rgba(100, 55, 220, 0.10) 0%, transparent 60%),
+    rgba(250, 248, 255, 0.96);
+  box-shadow:
+    0 1px 3px rgba(75, 42, 214, 0.06),
+    0 8px 32px rgba(75, 42, 214, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.dark .feature-card {
+  background: rgba(32, 22, 52, 0.72);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Dark mode: glass + component overrides are all in dark-theme.css */
+.dark .glass-input {
+  background: rgba(14, 14, 16, 0.80);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+/* ── Palette hierarchy utilities ─────────────────────────────────────
+   Tier 1: brand violet  →  "look here first"
+   Tier 2: brand-soft tint  →  "look here second"
+   Tier 3: muted glass  →  contextual / recedes
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Tier-2 card: brand-tinted gradient — elevated above plain glass-card */
+:root:not(.dark) .tier-2-card {
+  background:
+    radial-gradient(ellipse 80% 60% at 50%  115%, rgba(100, 55, 220, 0.13) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 45% at 0%   100%, rgba(162, 50, 104, 0.08) 0%, transparent 52%),
+    radial-gradient(ellipse 50% 45% at 100% 100%, rgba(75,  42, 214, 0.09) 0%, transparent 52%),
+    rgba(245, 242, 255, 0.85);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--brand-border);
+  box-shadow: var(--glass-shadow-lg), inset 0 1px 0 rgba(255,255,255,0.92);
+}
+/* .dark .tier-2-card handled in dark-theme.css */
+
+/* Section label: display font, dark ink, clear visual weight */
+.section-label {
+  font-family: var(--display-family);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+/* Stat number: big, brand-colored — the "number that matters" treatment */
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--brand);
+  letter-spacing: -0.03em;
+}
+
+/* Muted label: clearly tertiary */
+.meta-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+/* card-header-* stripped of top-border stripe — accent comes from icon/color, not structural borders */
+:root:not(.dark) .card-header-violet {
+  background: linear-gradient(135deg, rgba(235,230,253,0.6) 0%, rgba(255,255,255,0.4) 100%);
+  border-bottom: 1px solid var(--glass-border-subtle);
+}
+:root:not(.dark) .card-header-teal {
+  background: linear-gradient(135deg, rgba(224,245,244,0.6) 0%, rgba(255,255,255,0.4) 100%);
+  border-bottom: 1px solid rgba(20,138,136,0.15);
+}
+:root:not(.dark) .card-header-emerald {
+  background: linear-gradient(135deg, rgba(214,252,232,0.6) 0%, rgba(255,255,255,0.4) 100%);
+  border-bottom: 1px solid rgba(31,122,82,0.15);
+}
+
+/* ── Calendar liquid-glass cells ─────────────────────────────────────
+   The specular highlight (inset 0 1px 0 rgba(255,255,255,0.75)) is what
+   makes it read as "liquid glass" — a bright top edge like light caught
+   on the surface of a water droplet.
+   ─────────────────────────────────────────────────────────────────── */
+.glass-cell {
+  background: rgba(255, 255, 255, 0.32);
+  backdrop-filter: blur(8px) saturate(1.5);
+  -webkit-backdrop-filter: blur(8px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  box-shadow:
+    0 2px 8px rgba(75, 42, 214, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);  /* top specular — the liquid effect */
+  transition: transform 140ms var(--ease-out-strong),
+              box-shadow 140ms var(--ease-out-strong),
+              background 140ms ease,
+              border-color 140ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .glass-cell:hover {
+    background: rgba(255, 255, 255, 0.52);
+    border-color: rgba(75, 42, 214, 0.28);
+    box-shadow:
+      0 4px 16px rgba(75, 42, 214, 0.10),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    transform: translateY(-1px);
+  }
+}
+
+.glass-cell:active {
+  transform: scale(0.95);
+}
+
+.glass-cell-today {
+  background: rgba(75, 42, 214, 0.07);
+  border-color: rgba(75, 42, 214, 0.28);
+  box-shadow:
+    0 2px 10px rgba(75, 42, 214, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.glass-cell-selected {
+  background: rgba(75, 42, 214, 0.12);
+  border-color: rgba(75, 42, 214, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(75, 42, 214, 0.20),
+    0 4px 16px rgba(75, 42, 214, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+/* Dark mode glass cells */
+.dark .glass-cell {
+  background: rgba(38, 26, 60, 0.52);
+  backdrop-filter: blur(8px) saturate(1.3);
+  -webkit-backdrop-filter: blur(8px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dark .glass-cell:hover {
+    background: rgba(55, 38, 88, 0.65);
+    border-color: rgba(167, 139, 250, 0.22);
+    box-shadow:
+      0 4px 16px rgba(100, 40, 200, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    transform: translateY(-1px);
+  }
+}
+
+.dark .glass-cell-today {
+  background: rgba(75, 42, 214, 0.18);
+  border-color: rgba(167, 139, 250, 0.30);
+  box-shadow:
+    0 2px 10px rgba(100, 40, 200, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.dark .glass-cell-selected {
+  background: rgba(75, 42, 214, 0.25);
+  border-color: rgba(167, 139, 250, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.20),
+    0 4px 18px rgba(100, 40, 200, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* Sidebar light-mode surface fixes */
+:root:not(.dark) .sidebar-widget {
+  background: rgba(235, 230, 253, 0.45);
+  box-shadow: 0 0 0 1px rgba(215, 206, 250, 0.4);
+  border-radius: 12px;
+}
+:root:not(.dark) .sidebar-widget-coins {
+  background: rgba(246, 226, 194, 0.45);
+  box-shadow: 0 0 0 1px rgba(234, 210, 163, 0.5);
+  border-radius: 12px;
+}
+
+/* Sidebar account card — transparent base, subtle hover */
+.sidebar-account-card {
+  background: transparent;
+}
+.sidebar-account-card:hover,
+.sidebar-account-card.is-open {
+  background: rgba(0, 0, 0, 0.07);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -304,10 +699,9 @@ body {
   transform: scale(0.97);
 }
 
-/* ── Interactive cards ─────────────────────────────────────────────
-   Hover: subtle lift + shadow deepening. 
-   Active: press-in feedback like a physical button.
-   Touch-safe: hover only on pointer devices.
+/* ── Interactive cards — premium hovering glass feel ──────────────
+   Lift + ambient violet glow on hover. Active = press-in.
+   The glow references the brand color so it feels "alive", not generic.
    ─────────────────────────────────────────────────────────────────── */
 .card-interactive {
   transition: transform var(--duration-hover) var(--ease-out-strong),
@@ -317,15 +711,103 @@ body {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .card-interactive:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  :root:not(.dark) .card-interactive:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      var(--glass-shadow-lg),
+      0 0 0 1px rgba(75, 42, 214, 0.07),
+      0 16px 48px rgba(75, 42, 214, 0.10);
+  }
+
+  :root.dark .card-interactive:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(167, 139, 250, 0.12),
+      0 16px 48px rgba(100, 40, 200, 0.14);
   }
 }
 
 .card-interactive:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
   transition-duration: 100ms;
+}
+
+/* ── Task card glass — calendar task items & completed-today rows ─────
+   Deeper specular than activity-row; these are smaller jewel surfaces.
+   ─────────────────────────────────────────────────────────────────── */
+.task-card-glass {
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(12px) saturate(1.6);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.90),
+    0 2px 8px rgba(75, 42, 214, 0.06);
+  transition: transform 140ms var(--ease-out-strong),
+              box-shadow 140ms var(--ease-out-strong),
+              background 140ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .task-card-glass:hover {
+    background: rgba(255, 255, 255, 0.64);
+    border-color: rgba(75, 42, 214, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 4px 16px rgba(75, 42, 214, 0.10);
+  }
+}
+
+
+/* ── Activity row — recent quiz attempt cards ────────────────────────
+   Light: frosted white glass with specular top edge
+   Dark: pure black — see dark-theme.css
+   ─────────────────────────────────────────────────────────────────── */
+.activity-row {
+  background: rgba(255, 255, 255, 0.44);
+  backdrop-filter: blur(16px) saturate(1.7);
+  -webkit-backdrop-filter: blur(16px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 2px 10px rgba(75, 42, 214, 0.05);
+}
+
+/* ── Stat glass card — performance panel quick-stat boxes ────────────
+   More pronounced specular than plain glass-card — these are small
+   jewel-like surfaces that should feel premium.
+   Dark: pure black — see dark-theme.css
+   ─────────────────────────────────────────────────────────────────── */
+.stat-glass-card {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 120%, rgba(100, 55, 220, 0.10) 0%, transparent 60%),
+    rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  border: 1px solid rgba(215, 206, 250, 0.50);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.90),
+    0 2px 10px rgba(75, 42, 214, 0.07);
+}
+
+/* ── Sidebar nav items ──────────────────────────────────────────────
+   Active: brand fill in light, glassmorphism violet in dark (see dark-theme.css)
+   Inactive: transparent + hover tint
+   ─────────────────────────────────────────────────────────────────── */
+.nav-active {
+  background: var(--brand);
+  color: white;
+  box-shadow: 0 2px 10px rgba(109, 70, 250, 0.25);
+}
+
+.nav-inactive {
+  color: var(--ink-3);
+}
+
+.nav-inactive:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.40);
 }
 
 /* ── Pressable elements (generic) ──────────────────────────────────
@@ -493,12 +975,12 @@ main {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* slate-300 - lighter/subtle */
+  background: #CDC6DC; /* lilac border-strong */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* slate-400 */
+  background: #857FA0; /* lilac ink-3 */
 }
 
 /* Focus styles */

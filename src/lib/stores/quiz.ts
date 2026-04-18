@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { supabase } from "../supabase";
+import { getConvexHttpClient } from "../convex-client";
+import { api } from "@/convex/_generated/api";
 
-// New schema-aligned interfaces
 export interface QuizAttempt {
   id: string;
   userId: string;
@@ -11,8 +11,8 @@ export interface QuizAttempt {
   subject?: string;
   topic?: string;
   totalQuestions: number;
-  answers: Record<string, string>; // jsonb stored as object
-  completedAt: number; // timestamp
+  answers: Record<string, string>;
+  completedAt: number;
 }
 
 export interface SubjectStats {
@@ -32,26 +32,12 @@ export interface QuizStats {
   passRate: number;
   recentAttempts: QuizAttempt[];
   attemptsBySubject: Record<string, SubjectStats>;
-  weeklyChange: number; // % change in avg score vs prior week
+  weeklyChange: number;
 }
 
 interface QuizStore {
   attempts: QuizAttempt[];
   loading: boolean;
-  addAttempt: (attempt: {
-    quizId: string;
-    score: number;
-    passed: boolean;
-    subject?: string;
-    topic?: string;
-    totalQuestions?: number;
-    answers: Record<string, string>;
-    correctAnswers?: Record<string, string>;
-    timeSpent?: number;
-    wrongQuestions?: string[];
-    confidence?: Record<string, string>;
-    questions?: string[];
-  }) => Promise<string>;
   loadAttempts: () => Promise<void>;
   getAttemptsByQuiz: (quizId: string) => QuizAttempt[];
   getRecentAttempts: (limit?: number) => QuizAttempt[];
@@ -64,143 +50,53 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
   attempts: [],
   loading: false,
 
-  addAttempt: async (attemptData) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
-      // Prepare data for insertion - mapping to likely DB column names or storing in a flexible column if needed
-      // Assuming columns exist for now based on usage patterns
-      const dbPayload: Record<string, unknown> = {
-        user_id: user.id,
-        quiz_id: attemptData.quizId,
-        score: attemptData.score,
-        passed: attemptData.passed,
-        answers: attemptData.answers,
-        // Optional fields if table supports them
-        subject: attemptData.subject,
-        topic: attemptData.topic,
-        total_questions: attemptData.totalQuestions || Object.keys(attemptData.answers).length
-      };
-
-      const { data, error } = await supabase
-        .from('quiz_attempts')
-        .insert(dbPayload)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Convert to local format and add to state
-      const newAttempt: QuizAttempt = {
-        id: data.id,
-        userId: data.user_id,
-        quizId: data.quiz_id,
-        score: data.score,
-        passed: data.passed,
-        subject: data.subject,
-        topic: data.topic,
-        totalQuestions: data.total_questions || attemptData.totalQuestions || 0,
-        answers: data.answers || {},
-        completedAt: new Date(data.completed_at).getTime()
-      };
-
-      set(state => ({
-        attempts: [newAttempt, ...state.attempts]
-      }));
-
-      return data.id;
-    } catch (error) {
-      console.error('Error saving quiz attempt:', error);
-      return 'error';
-    }
-  },
-
   loadAttempts: async () => {
     try {
       set({ loading: true });
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        set({ loading: false });
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('quiz_attempts')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .limit(50);
-
-      if (error) {
-        // Silently handle missing table or empty results
-        if (error.code === '42P01' || error.message?.includes('does not exist')) {
-          console.warn('Quiz attempts table not found, skipping load.');
-        } else if (Object.keys(error).length === 0) {
-          // Empty error object - likely no data
-          console.warn('No quiz attempts found.');
-        } else {
-          console.error('Error loading quiz attempts:', error);
-        }
-        set({ loading: false });
-        return;
-      }
-
-      const attempts: QuizAttempt[] = (data || []).map(item => ({
-        id: item.id,
-        userId: item.user_id,
-        quizId: item.quiz_id,
-        score: item.score || 0,
-        passed: item.passed || false,
-        subject: item.subject,
-        topic: item.topic,
-        totalQuestions: item.total_questions || (item.answers ? Object.keys(item.answers).length : 0),
-        answers: item.answers || {},
-        completedAt: new Date(item.completed_at).getTime()
+      const client = getConvexHttpClient();
+      const data = await client.query(api.quiz.getAttempts, {});
+      const attempts: QuizAttempt[] = (data || []).map((item) => ({
+        id: item._id,
+        userId: item.userId,
+        quizId: item.quizId,
+        score: item.score,
+        passed: item.score >= 60,
+        totalQuestions: item.total_questions,
+        answers: {},
+        completedAt: new Date(item.completed_at).getTime(),
       }));
-
       set({ attempts, loading: false });
-    } catch (error: unknown) {
-      // Suppress empty errors
-      if (error && typeof error === 'object' && Object.keys(error).length === 0) {
-        console.warn('Quiz attempts: empty error, likely no data.');
-      } else {
-        console.error('Error loading quiz attempts:', error);
-      }
+    } catch {
       set({ loading: false });
     }
   },
 
-  getAttemptsByQuiz: (quizId) => {
-    return get().attempts.filter(attempt => attempt.quizId === quizId);
-  },
+  getAttemptsByQuiz: (quizId) =>
+    get().attempts.filter((a) => a.quizId === quizId),
 
-  getRecentAttempts: (limit = 10) => {
-    return get()
-      .attempts
-      .sort((a, b) => b.completedAt - a.completedAt)
-      .slice(0, limit);
-  },
+  getRecentAttempts: (limit = 10) =>
+    get()
+      .attempts.sort((a, b) => b.completedAt - a.completedAt)
+      .slice(0, limit),
 
   getQuizStats: () => {
     const attempts = get().attempts;
     const totalAttempts = attempts.length;
     const totalScore = attempts.reduce((sum, a) => sum + a.score, 0);
-    const passedCount = attempts.filter(a => a.passed).length;
+    const passedCount = attempts.filter((a) => a.passed).length;
     const failedCount = totalAttempts - passedCount;
     const averageScore = totalAttempts > 0 ? totalScore / totalAttempts : 0;
     const passRate = totalAttempts > 0 ? (passedCount / totalAttempts) * 100 : 0;
 
-    // Build per-subject stats
     const subjectMap: Record<string, QuizAttempt[]> = {};
     for (const a of attempts) {
-      const key = a.subject || 'General';
+      const key = a.subject || "General";
       if (!subjectMap[key]) subjectMap[key] = [];
       subjectMap[key].push(a);
     }
     const attemptsBySubject: Record<string, SubjectStats> = {};
     for (const [subject, subAttempts] of Object.entries(subjectMap)) {
-      const subPassed = subAttempts.filter(a => a.passed).length;
+      const subPassed = subAttempts.filter((a) => a.passed).length;
       const subAvg = subAttempts.reduce((s, a) => s + a.score, 0) / subAttempts.length;
       attemptsBySubject[subject] = {
         subject,
@@ -211,13 +107,20 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
       };
     }
 
-    // Weekly change: avg score this week vs prior week
     const now = Date.now();
     const oneWeek = 7 * 24 * 60 * 60 * 1000;
-    const thisWeek = attempts.filter(a => now - a.completedAt <= oneWeek);
-    const lastWeek = attempts.filter(a => now - a.completedAt > oneWeek && now - a.completedAt <= 2 * oneWeek);
-    const thisAvg = thisWeek.length > 0 ? thisWeek.reduce((s, a) => s + a.score, 0) / thisWeek.length : 0;
-    const lastAvg = lastWeek.length > 0 ? lastWeek.reduce((s, a) => s + a.score, 0) / lastWeek.length : 0;
+    const thisWeek = attempts.filter((a) => now - a.completedAt <= oneWeek);
+    const lastWeek = attempts.filter(
+      (a) => now - a.completedAt > oneWeek && now - a.completedAt <= 2 * oneWeek
+    );
+    const thisAvg =
+      thisWeek.length > 0
+        ? thisWeek.reduce((s, a) => s + a.score, 0) / thisWeek.length
+        : 0;
+    const lastAvg =
+      lastWeek.length > 0
+        ? lastWeek.reduce((s, a) => s + a.score, 0) / lastWeek.length
+        : 0;
     const weeklyChange = lastAvg > 0 ? Math.round(thisAvg - lastAvg) : 0;
 
     return {
@@ -234,11 +137,13 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
   },
 
   getSubjectStats: (subject: string): SubjectStats => {
-    const attempts = get().attempts.filter(a => (a.subject || 'General') === subject);
+    const attempts = get().attempts.filter(
+      (a) => (a.subject || "General") === subject
+    );
     if (attempts.length === 0) {
       return { subject, totalAttempts: 0, averageScore: 0, passRate: 0, passedCount: 0 };
     }
-    const passedCount = attempts.filter(a => a.passed).length;
+    const passedCount = attempts.filter((a) => a.passed).length;
     return {
       subject,
       totalAttempts: attempts.length,
@@ -248,7 +153,5 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
     };
   },
 
-  resetAttempts: () => {
-    set({ attempts: [] });
-  }
+  resetAttempts: () => set({ attempts: [] }),
 }));

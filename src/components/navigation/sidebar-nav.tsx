@@ -3,6 +3,9 @@ import { SidebarItem } from './sidebar-item'
 import { SidebarSection } from './sidebar-section'
 import { SearchCommandMenu } from '@/components/search-command-menu'
 import { usePaymentStore, type Course } from "@/lib/payment"
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { useConvexAuth } from 'convex/react'
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -33,37 +36,39 @@ export function SidebarNav() {
   const [isMounted, setIsMounted] = useState(false)
   const pathname = usePathname()
   
-  // Recent Courses Logic
-  const { recentCourses, availableCourses, purchasedCourses, loadAvailableCourses } = usePaymentStore();
+  const { isAuthenticated } = useConvexAuth();
+  const { recentCourses, availableCourses, loadAvailableCourses } = usePaymentStore();
 
-  // Ensure courses are loaded for the sidebar resolving
+  // Reactive Convex query — updates instantly when a course is purchased
+  const userCoursesData = useQuery(
+    api.payments.getUserCourses,
+    isAuthenticated ? {} : 'skip'
+  );
+
   useEffect(() => {
     setIsMounted(true);
     if (availableCourses.length === 0) {
       loadAvailableCourses();
     }
   }, [availableCourses.length, loadAvailableCourses]);
-  
-  // 1. Get objects for recent courses
+
+  // Build display list: prefer recently visited, fallback to all purchased
+  const purchasedIds = (userCoursesData ?? []).map(uc => uc.courseId as string);
+
   let displayCourses = recentCourses
+    .filter(id => purchasedIds.includes(id))
     .map(id => availableCourses.find(c => c.id === id))
     .filter((c): c is Course => Boolean(c));
 
-  // 2. If no recent courses, fallback to purchased courses (up to 5)
-  // Logic: "Show all the course they register that too recent clicked" -> Implies priority to recent
-  // If recent is empty, show registered.
-  const isFallback = displayCourses.length === 0;
-  if (isFallback) {
-      displayCourses = purchasedCourses
-        .slice(0, 5)
-        .map(id => availableCourses.find(c => c.id === id))
-        .filter((c): c is Course => Boolean(c));
+  if (displayCourses.length === 0) {
+    displayCourses = purchasedIds
+      .slice(0, 5)
+      .map(id => availableCourses.find(c => c.id === id))
+      .filter((c): c is Course => Boolean(c));
   }
-  
-  // Ensure max 5
+
   displayCourses = displayCourses.slice(0, 5);
 
-  // Hydration fix: delay showing courses until client code is mounted to match server HTML
   if (!isMounted) {
     displayCourses = [];
   }
@@ -73,19 +78,17 @@ export function SidebarNav() {
 
   return (
     <div className="space-y-6 px-3">
-      {/* Primary Actions */}
-      <div className="space-y-1">
-        <button 
-          onClick={() => setIsSearchOpen(true)}
-          className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-md transition-colors text-left group"
-        >
-           <Search className="w-4 h-4 shrink-0" />
-           <span>Search...</span>
-           <kbd className="ml-auto pointer-events-none h-5 select-none items-center gap-1 rounded border border-sidebar-border bg-sidebar-accent px-1.5 font-mono text-[10px] font-medium opacity-100 flex text-sidebar-foreground/50">
-              <span className="text-xs">Ctrl</span>K
-           </kbd>
-        </button>
-      </div>
+      {/* Search Bar */}
+      <button
+        onClick={() => setIsSearchOpen(true)}
+        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl glass-input hover:bg-white/70 transition-all text-left group"
+      >
+        <Search className="w-3.5 h-3.5 shrink-0 text-sidebar-foreground/50" />
+        <span className="flex-1 text-sm text-sidebar-foreground/50">Search...</span>
+        <kbd className="pointer-events-none inline-flex h-5 items-center gap-0.5 rounded border border-sidebar-border bg-sidebar px-1.5 font-mono text-[10px] text-sidebar-foreground/40">
+          ⌘K
+        </kbd>
+      </button>
 
       {/* Main Navigation */}
       <SidebarSection title="Menu">
@@ -99,12 +102,20 @@ export function SidebarNav() {
         
         {/* Smart Courses Dropdown */}
         <Collapsible open={isCoursesOpen} onOpenChange={setIsCoursesOpen} className="group/collapsible">
-            <div className={cn(
-                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group relative",
-                (pathname === '/courses' || pathname.startsWith('/course-viewer'))
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                  : "text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-            )}>
+            <div 
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-all duration-150 group relative",
+                  !(pathname === '/courses' || pathname.startsWith('/course-viewer')) && "nav-inactive hover:bg-white/10 dark:hover:bg-white/5"
+                )}
+                style={(pathname === '/courses' || pathname.startsWith('/course-viewer')) ? {
+                  background: "rgba(75, 42, 214, 0.12)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(75, 42, 214, 0.25)",
+                  boxShadow: "0 2px 8px rgba(75, 42, 214, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                  color: "var(--brand)",
+                } : {}}
+            >
                {/* Main Link */}
                <Link 
                   href="/courses"
@@ -159,12 +170,20 @@ export function SidebarNav() {
         />
         {/* Game Arena Dropdown */}
         <Collapsible open={isArenaOpen} onOpenChange={setIsArenaOpen} className="group/collapsible">
-            <div className={cn(
-                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group relative",
-                pathname.startsWith('/arena')
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                  : "text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
-            )}>
+            <div 
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-colors group relative",
+                  !pathname.startsWith('/arena') && "nav-inactive hover:bg-white/10 dark:hover:bg-white/5"
+                )}
+                style={pathname.startsWith('/arena') ? {
+                  background: "rgba(75, 42, 214, 0.12)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(75, 42, 214, 0.25)",
+                  boxShadow: "0 2px 8px rgba(75, 42, 214, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                  color: "var(--brand)",
+                } : {}}
+            >
                {/* Main Link */}
                <Link 
                   href="/arena"
@@ -198,12 +217,18 @@ export function SidebarNav() {
                      className={cn(
                        "w-full flex items-center gap-3 pl-8 pr-2 py-2 text-sm rounded-md transition-all duration-200 text-left group/item pressable",
                        pathname === mode.href
-                         ? "text-sidebar-accent-foreground"
+                         ? "text-[var(--ink)]"
                          : "text-sidebar-foreground hover:text-sidebar-foreground"
                      )}
-                     style={{
-                       backgroundColor: pathname === mode.href ? `${mode.color}15` : undefined,
-                       borderLeft: pathname === mode.href ? `3px solid ${mode.color}` : '3px solid transparent',
+                     style={pathname === mode.href ? {
+                       background: "rgba(75, 42, 214, 0.12)",
+                       backdropFilter: "blur(10px)",
+                       WebkitBackdropFilter: "blur(10px)",
+                       border: `1px solid rgba(75, 42, 214, 0.25)`,
+                       boxShadow: "0 2px 8px rgba(75, 42, 214, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                       borderLeft: `3px solid ${mode.color}`,
+                     } : {
+                       borderLeft: '3px solid transparent'
                      }}
                      onMouseEnter={(e) => {
                        if (pathname !== mode.href) {

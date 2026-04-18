@@ -1,62 +1,73 @@
-import { supabase } from '@/lib/supabase';
-import { useGameStore } from '@/lib/stores/game-store';
+"use client";
+// Convex reactive queries replace Supabase Realtime channels.
+// Components use useQuery(api.game.getPlayers, { lobbyId }) and
+// useQuery(api.game.getGameEvents, { lobbyId }) directly — no channel setup needed.
+// This file provides a compatibility hook for components that previously called
+// subscribeToLobby / unsubscribeFromLobby.
+
+import { useEffect } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useGameStore } from "@/lib/stores/game-store";
 
 /**
- * Subscribes to a game lobby channel using Supabase Realtime.
- * Handles events: player_joined, game_started, answer_submitted, game_finished.
+ * Reactive game lobby hook — replaces subscribeToLobby().
+ * Uses Convex's built-in reactivity: no channel, no cleanup needed.
+ * Drop this into any component that previously called subscribeToLobby.
  */
-export const subscribeToLobby = (lobbyId: string) => {
-  const channelName = `game-lobby:${lobbyId}`;
-  const channel = supabase.channel(channelName);
-  
-  channel
-    .on('broadcast', { event: 'player_joined' }, (payload) => {
-      console.log('Realtime: player_joined', payload);
-      const { player } = payload.payload; // Payload structure: { payload: { player: ... } }
-      if (player) {
-        useGameStore.getState().addPlayer(player);
+export function useLobbySync(lobbyId: Id<"game_lobbies"> | null) {
+  const players = useQuery(
+    api.game.getPlayers,
+    lobbyId ? { lobbyId } : "skip"
+  );
+  const events = useQuery(
+    api.game.getGameEvents,
+    lobbyId ? { lobbyId } : "skip"
+  );
+  const lobby = useQuery(
+    api.game.getLobby,
+    lobbyId ? { lobbyId } : "skip"
+  );
+
+  const store = useGameStore();
+
+  useEffect(() => {
+    if (players) {
+      players.forEach((p) => store.addPlayer(p));
+    }
+  }, [players]);
+
+  useEffect(() => {
+    if (lobby?.status) {
+      store.setStatus(lobby.status);
+    }
+  }, [lobby?.status]);
+
+  useEffect(() => {
+    if (!events?.length) return;
+    const latest = events[0];
+    if (!latest) return;
+
+    if (latest.event_type === "answer_submitted") {
+      const { playerId, questionId } = latest.payload as Record<string, string>;
+      if (playerId) {
+        store.updatePlayerProgress(playerId, { currentQuestion: undefined, score: undefined });
       }
-    })
-    .on('broadcast', { event: 'game_started' }, (payload) => {
-      console.log('Realtime: game_started', payload);
-      const { status, questions } = payload.payload;
-      if (status) {
-        useGameStore.getState().setStatus(status);
-        if (questions && Array.isArray(questions)) {
-             useGameStore.getState().setQuestions(questions);
-        }
-      }
-    })
-    .on('broadcast', { event: 'answer_submitted' }, (payload) => {
-      console.log('Realtime: answer_submitted', payload);
-      const { playerId, questionIndex, score } = payload.payload;
-      
-      // Update player progress UI
-      useGameStore.getState().updatePlayerProgress(playerId, {
-        currentQuestion: questionIndex + 1,
-        score: score // If we want to show live score
-      });
-    })
-    .on('broadcast', { event: 'game_finished' }, (payload) => {
-      console.log('Realtime: game_finished', payload);
-      useGameStore.getState().setStatus('finished');
-      // Could also load final standings here
-    })
-    .subscribe((status) => {
-      console.log(`Realtime subscription status for ${channelName}:`, status);
-      if (status === 'SUBSCRIBED') {
-        // success
-      }
-      if (status === 'CHANNEL_ERROR') {
-        useGameStore.getState().setError('Connection lost. Reconnecting...');
-      }
-    });
-    
-  return channel;
+    }
+    if (latest.event_type === "game_finished") {
+      store.setStatus("finished");
+    }
+  }, [events?.[0]?._id]);
+
+  return { lobby, players, events };
+}
+
+// Legacy no-ops kept for call-site compatibility during migration.
+// Remove after all callers are updated to use useLobbySync.
+export const subscribeToLobby = (_lobbyId: string) => {
+  console.warn("subscribeToLobby is deprecated; use useLobbySync hook instead");
+  return null;
 };
 
-export const unsubscribeFromLobby = (channel: ReturnType<typeof supabase.channel>) => {
-  if (channel) {
-    supabase.removeChannel(channel);
-  }
-};
+export const unsubscribeFromLobby = (_channel: unknown) => {};

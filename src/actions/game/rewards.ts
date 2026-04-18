@@ -1,140 +1,95 @@
-'use server';
+"use server";
 
-import { createClient } from '@/lib/supabase/server';
-import { calculateDuelXP, calculateDuelCoins, calculateCasualCoins } from '@/lib/game/economy';
-import { getLeague } from '@/lib/game/leagues';
+import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import {
+  calculateDuelXP,
+  calculateDuelCoins,
+  calculateCasualCoins,
+} from "@/lib/game/economy";
 
-/**
- * Awards XP + Coins for a DUEL match.
- * XP always goes up. Coins can go negative (floored at 0 in DB).
- */
 export async function awardDuelResults(
-  userId: string,
   lobbyId: string,
   rank: number,
   correctAnswers: number = 0,
   totalQuestions: number = 10,
-  matchesToday: number = 0
+  matchesToday: number = 0,
+  token?: string
 ) {
-  const supabase = await createClient();
   const isWinner = rank === 1;
-  
   const xpEarned = calculateDuelXP(isWinner, correctAnswers, totalQuestions, matchesToday);
   const coinsChange = calculateDuelCoins(isWinner);
 
-  let finalXpEarned = xpEarned;
+  const opts = token ? { token } : {};
 
-  // Enforce League Floor/Checkpoints
-  if (finalXpEarned < 0) {
-    const { data: dbUser } = await supabase
-      .from('users')
-      .select('total_xp')
-      .eq('id', userId)
-      .single();
+  const result = await fetchMutation(
+    api.game.awardGameResults,
+    {
+      lobbyId: lobbyId as Id<"game_lobbies">,
+      xp_earned: xpEarned,
+      coins_change: coinsChange,
+    },
+    opts
+  );
 
-    if (dbUser) {
-      const currentXp = dbUser.total_xp;
-      const currentLeague = getLeague(currentXp);
-      
-      // If the deduction pushes them below the league threshold
-      if (currentXp + finalXpEarned < currentLeague.xpRequired) {
-        // Cap the deduction to exactly reach the floor
-        finalXpEarned = currentLeague.xpRequired - currentXp; 
-        
-        // Ensure we don't accidentally add XP if they were somehow below floor
-        if (finalXpEarned > 0) finalXpEarned = 0; 
-      }
-    }
-  }
-
-  // Call RPC for atomic operation (handles idempotency)
-  const { error } = await supabase.rpc('award_game_results', {
-    p_user_id: userId,
-    p_lobby_id: lobbyId,
-    p_xp_earned: finalXpEarned,
-    p_coins_change: coinsChange
-  });
-
-  if (error) {
-    if (error.message?.includes('already awarded')) {
-      return { error: 'Already awarded' };
-    }
-    console.error('[REWARDS] Award failed:', error);
-    return { error: error.message };
-  }
-
-  return { success: true, xpEarned: finalXpEarned, coinsChange };
+  if (result.alreadyAwarded) return { error: "Already awarded" };
+  return { success: true, xpEarned, coinsChange };
 }
 
-/**
- * Awards Coins for a CASUAL mode match (Speed Court, Battle Royale, Tag Team).
- * No XP earned from casual modes.
- */
 export async function awardCasualResults(
-  userId: string,
   lobbyId: string,
-  isWinner: boolean
+  isWinner: boolean,
+  token?: string
 ) {
-  const supabase = await createClient();
-  
   const coinsChange = calculateCasualCoins(isWinner);
+  const opts = token ? { token } : {};
 
-  const { error } = await supabase.rpc('award_game_results', {
-    p_user_id: userId,
-    p_lobby_id: lobbyId,
-    p_xp_earned: 0, // No XP from casual modes
-    p_coins_change: coinsChange
-  });
+  const result = await fetchMutation(
+    api.game.awardGameResults,
+    {
+      lobbyId: lobbyId as Id<"game_lobbies">,
+      xp_earned: 0,
+      coins_change: coinsChange,
+    },
+    opts
+  );
 
-  if (error) {
-    if (error.message?.includes('already awarded')) {
-      return { error: 'Already awarded' };
-    }
-    return { error: error.message };
-  }
-
+  if (result.alreadyAwarded) return { error: "Already awarded" };
   return { success: true, coinsChange };
 }
 
-/**
- * Deduct entry fee for casual mode.
- * Returns false if insufficient coins.
- */
-export async function deductEntryFee(userId: string, lobbyId: string, fee: number = 10) {
-  const supabase = await createClient();
-
-  // Check balance first
-  const { data: userData, error: fetchError } = await supabase
-    .from('users')
-    .select('total_coins')
-    .eq('id', userId)
-    .single();
-
-  if (fetchError || !userData) return { error: 'User not found' };
-  if (userData.total_coins < fee) return { error: 'Not enough coins', insufficientFunds: true };
-
-  // Deduct
-  const { error } = await supabase
-    .from('users')
-    .update({ total_coins: userData.total_coins - fee })
-    .eq('id', userId);
-
-  if (error) return { error: error.message };
-  return { success: true, newBalance: userData.total_coins - fee };
+export async function deductEntryFee(
+  lobbyId: string,
+  fee: number = 10,
+  token?: string
+) {
+  const opts = token ? { token } : {};
+  try {
+    await fetchMutation(
+      api.game.deductEntryFee,
+      {
+        lobbyId: lobbyId as Id<"game_lobbies">,
+        fee,
+      },
+      opts
+    );
+    return { success: true };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes("Insufficient coins")) {
+      return { error: "Not enough coins", insufficientFunds: true };
+    }
+    return { error: msg };
+  }
 }
 
-/**
- * Fetch XP + Coin balance for a user.
- */
-export async function fetchEconomyBalance(userId: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('users')
-    .select('xp, total_coins')
-    .eq('id', userId)
-    .single();
-
-  if (error || !data) return { xp: 0, coins: 500 };
-  return { xp: data.xp ?? 0, coins: data.total_coins ?? 500 };
+export async function fetchEconomyBalance(token?: string) {
+  const opts = token ? { token } : {};
+  try {
+    const user = await fetchQuery(api.users.getMe, {}, opts);
+    return { coins: user?.total_coins ?? 500 };
+  } catch {
+    return { coins: 500 };
+  }
 }

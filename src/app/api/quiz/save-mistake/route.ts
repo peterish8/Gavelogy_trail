@@ -1,58 +1,31 @@
-
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { fetchMutation } from "convex/nextjs";
+import { NextResponse } from "next/server";
+import { api } from "@/convex/_generated/api";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { 
-      user_id, 
-      question_id, 
-      question_text, 
-      user_answer, 
-      correct_answer, 
-      option_a, 
-      option_b, 
-      option_c, 
-      option_d, 
-      explanation, 
-      subject, 
-      topic 
-    } = body;
+    const { question_id, subject, source_type, source_id } = body;
 
-    // Use Service Role Key to bypass RLS
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    const { error } = await supabaseAdmin.from('mistakes').upsert({
-      user_id,
-      question_id,
-      question_text,
-      user_answer,
-      correct_answer,
-      option_a,
-      option_b,
-      option_c,
-      option_d,
-      explanation,
-      subject,
-      topic: topic || null
-    }, { onConflict: 'user_id, question_id' });
-
-    if (error) {
-      console.error('Supabase Admin Error:', error);
-      throw error;
+    const token = request.headers.get("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true });
-  } catch (error: unknown) {
-    console.error('API Error saving mistake:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
+    await fetchMutation(
+      api.mistakes.upsertMistake,
+      {
+        questionId: question_id,
+        subjectId: subject,
+        source_type: (source_type ?? "quiz") as "quiz" | "mock",
+        source_id: source_id ?? "",
+      },
+      { token }
     );
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

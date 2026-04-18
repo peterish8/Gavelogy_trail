@@ -8,7 +8,8 @@ import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 
 import { useQuizStore } from "@/lib/stores/quiz";
-import { supabase } from "@/lib/supabase";
+import { getConvexHttpClient } from "@/lib/convex-client";
+import { api } from "@/convex/_generated/api";
 
 interface PYQQuestion {
   id: number;
@@ -316,17 +317,17 @@ export default function PYQMockExamPage({
 
   const fetchQuestions = async () => {
     try {
-      const { data, error } = await supabase
-        .from("pyq_2020_questions")
-        .select("*")
-        .order("question_no");
-
-      if (error) {
-        console.error("Error fetching questions:", error);
-        return;
-      }
-
-      setQuestions(data || []);
+      // Fetch mock test questions from Convex
+      const client = getConvexHttpClient();
+      const mockTests = await client.query(api.admin.getMockTests, {}).catch(() => []);
+      const yearNum = parseInt(year as string) || new Date().getFullYear();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mockTest = (mockTests as any[]).find((m: any) => m.year === yearNum || m.title?.includes(String(yearNum)));
+      if (!mockTest) { setQuestions([]); return; }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const questions = await client.query(api.admin.getMockTestQuestions, { mockTestId: mockTest._id }).catch(() => []);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setQuestions(questions as any[]);
     } catch (error) {
       console.error("Error fetching questions:", error);
     } finally {

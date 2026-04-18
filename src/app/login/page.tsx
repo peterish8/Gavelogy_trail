@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/stores/auth";
+import { useAuth } from "@/lib/auth-context";
+import { useConvexAuth } from "convex/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,9 +12,10 @@ import { Header } from "@/components/header";
 import { LoadingSpinner, LoadingPage } from "@/components/LoadingSpinner";
 import { AuthBackground } from "@/components/AuthBackground";
 import { validateEmail, validatePassword } from "@/lib/validation";
-import { Eye, EyeOff, AlertCircle, Scale, BookOpen, Trophy, Zap } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { Eye, EyeOff, AlertCircle, Scale, BookOpen, Trophy, Zap, FlaskConical } from "lucide-react";
 
+const DEV_EMAIL = process.env.NEXT_PUBLIC_DEV_TEST_EMAIL ?? "";
+const DEV_PASSWORD = process.env.NEXT_PUBLIC_DEV_TEST_PASSWORD ?? "";
 
 const GoogleIcon = () => (
   <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
@@ -25,18 +27,19 @@ const GoogleIcon = () => (
 );
 
 const features = [
-  { icon: Scale,     label: "PYQ Mock Exams",         desc: "Full-length AILET-style timed tests" },
-  { icon: BookOpen,  label: "Smart Mistake Tracking",  desc: "Learn from every wrong answer" },
-  { icon: Trophy,    label: "Live Leaderboards",        desc: "Compete with top aspirants" },
-  { icon: Zap,       label: "Gamified Arena",           desc: "Duels, speed court & more" },
+  { icon: Scale,    label: "PYQ Mock Exams",        desc: "Full-length AILET-style timed tests" },
+  { icon: BookOpen, label: "Smart Mistake Tracking", desc: "Learn from every wrong answer" },
+  { icon: Trophy,   label: "Live Leaderboards",       desc: "Compete with top aspirants" },
+  { icon: Zap,      label: "Gamified Arena",          desc: "Duels, speed court & more" },
 ];
 
 export default function LoginPage() {
-  const isLocalhost = typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const router = useRouter();
 
-  const [email, setEmail] = useState(isLocalhost ? "test@localhost.com" : "");
-  const [password, setPassword] = useState(isLocalhost ? "Test1234!" : "");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -44,12 +47,9 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { user, profile, isAuthenticated: isAuthFromStore, isLoading: isAuthLoading, setUser, setProfile, setIsAuthenticated, signInWithGoogle } = useAuthStore();
-  const router = useRouter();
-
   useEffect(() => {
-    if (!isAuthLoading && isAuthFromStore) router.push("/dashboard");
-  }, [isAuthFromStore, isAuthLoading, router]);
+    if (!authLoading && isAuthenticated) router.push("/dashboard");
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -60,7 +60,6 @@ export default function LoginPage() {
       const msgs: Record<string, string> = {
         oauth_failed: "Google sign-in failed. Please try again.",
         callback_failed: "Authentication callback failed. Please try again.",
-        supabase_not_configured: "Authentication service not configured.",
         auth_failed: "Authentication failed. Please try again.",
         no_session: "No active session found. Please sign in again.",
       };
@@ -72,65 +71,84 @@ export default function LoginPage() {
   useEffect(() => { if (password && passwordError) setPasswordError(""); }, [password, passwordError]);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    if (value && !validateEmail(value).isValid) setEmailError("Please enter a valid email address");
+    setEmail(e.target.value);
+    if (e.target.value && !validateEmail(e.target.value).isValid)
+      setEmailError("Please enter a valid email address");
     else setEmailError("");
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    if (value && !validatePassword(value).isValid)
+    setPassword(e.target.value);
+    if (e.target.value && !validatePassword(e.target.value).isValid)
       setPasswordError("Password must be at least 8 characters with uppercase, lowercase, and number");
     else setPasswordError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user || isAuthFromStore) { window.location.href = "/dashboard?t=" + Date.now(); return; }
+    if (isAuthenticated) { router.push("/dashboard"); return; }
     if (!email) { setEmailError("Please enter your email"); return; }
     if (!password) { setPasswordError("Please enter your password"); return; }
 
     setIsSubmitting(true);
+    setError("");
     try {
-      if (isLocalhost && email === "test@localhost.com" && password === "Test1234!") {
-        const mockUser = { id: "localhost-user-id", email: "test@localhost.com", user_metadata: {} };
-        localStorage.setItem("gavelogy-localhost-auth", JSON.stringify(mockUser));
-        const u = { id: mockUser.id, email: mockUser.email, username: "test", full_name: "Test User", avatar_url: undefined, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
-        const p = { id: mockUser.id, user_id: mockUser.id, username: u.username, full_name: u.full_name, avatar_url: u.avatar_url, total_coins: 0, streak_count: 0, longest_streak: 0, dark_mode: false, xp: 0, created_at: u.created_at, updated_at: u.updated_at };
-        setUser(u); setProfile(p); setIsAuthenticated(true);
-        router.push("/dashboard"); return;
+      const result = await signIn(email, password);
+      if (result.success) {
+        router.push("/dashboard");
+        return;
       }
-
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (data.user) { window.location.href = "/dashboard"; return; }
-      if (signInError?.message.includes("Invalid login credentials")) {
-        const { data: sd, error: se } = await supabase.auth.signUp({ email, password });
-        if (sd.user) { window.location.href = "/dashboard"; }
-        else setError(se?.message || "Authentication failed");
+      // If sign-in fails (new user), try sign-up with derived username
+      if (result.error?.toLowerCase().includes("invalid") || result.error?.toLowerCase().includes("not found")) {
+        const username = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_");
+        const signUpResult = await signUp(email, password, username, "");
+        if (signUpResult.success) {
+          router.push("/dashboard");
+        } else {
+          setError(signUpResult.error || "Authentication failed");
+        }
       } else {
-        setError(signInError?.message || "Authentication failed");
+        setError(result.error || "Authentication failed");
       }
-    } catch { setError("Authentication failed"); }
-    finally { setIsSubmitting(false); }
+    } catch {
+      setError("Authentication failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDevLogin = async () => {
+    setIsSubmitting(true);
+    setError("");
+    try {
+      const result = await signIn(DEV_EMAIL, DEV_PASSWORD);
+      if (result.success) { router.push("/dashboard"); return; }
+      // Account doesn't exist yet — create it
+      const signUpResult = await signUp(DEV_EMAIL, DEV_PASSWORD, "dev_test_user", "");
+      if (signUpResult.success) router.push("/dashboard");
+      else setError(signUpResult.error || "Dev login failed");
+    } catch {
+      setError("Dev login failed");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const { error } = await signInWithGoogle();
-      if (error) {
-        setError(error);
+      const result = await signInWithGoogle();
+      if (!result.success) {
+        setError(result.error || "Google sign-in failed");
         setIsGoogleLoading(false);
       }
-    } catch (err: any) {
-      setError(err?.message || "Google sign-in failed. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
       setIsGoogleLoading(false);
     }
   };
 
-  if (isAuthLoading) return <LoadingPage text="Loading..." />;
+  if (authLoading) return <LoadingPage text="Loading..." />;
   if (isGoogleLoading) return <LoadingPage text="Continuing with Google..." />;
 
   return (
@@ -141,7 +159,6 @@ export default function LoginPage() {
       <main className="flex-1 flex items-center justify-center px-4 py-8 relative z-10">
         <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-2">
 
-          {/* ── Left branding panel ── */}
           <div className="hidden lg:flex flex-col justify-between p-10 text-white relative overflow-hidden"
             style={{ background: "linear-gradient(135deg, #1e40af 0%, #4f46e5 50%, #7c3aed 100%)" }}
           >
@@ -180,9 +197,7 @@ export default function LoginPage() {
             <p className="relative z-10 text-xs text-blue-300">© 2025 Gavelogy. All rights reserved.</p>
           </div>
 
-          {/* ── Right form panel ── */}
           <div className="bg-background/95 backdrop-blur-md p-8 lg:p-10 flex flex-col justify-center">
-            {/* Mobile logo */}
             <div className="flex items-center gap-2 mb-6 lg:hidden">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold">G</span>
@@ -256,6 +271,18 @@ export default function LoginPage() {
             >
               <GoogleIcon /> Continue with Google
             </button>
+
+            {process.env.NODE_ENV === "development" && DEV_EMAIL && (
+              <button
+                type="button"
+                onClick={handleDevLogin}
+                disabled={isSubmitting}
+                className="w-full h-9 rounded-lg border border-dashed border-amber-400/60 bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-100/60 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium transition-colors flex items-center justify-center gap-2 mt-3 disabled:opacity-60"
+              >
+                <FlaskConical className="h-3.5 w-3.5" />
+                Dev: login as test user
+              </button>
+            )}
 
             <p className="text-center text-sm text-muted-foreground mt-5">
               Don&apos;t have an account?{" "}

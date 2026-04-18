@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { CacheInitializer } from "@/components/CacheInitializer";
 import { AuthProvider } from "@/lib/auth-context";
+import { ConvexClientProvider } from "@/components/convex-provider";
 import { SessionManager } from "@/components/session/session-manager";
 import { ConditionalSidebar } from "@/components/navigation/conditional-sidebar"
 import { SidebarLayoutClient } from "@/components/navigation/sidebar-layout-client"
@@ -77,23 +78,28 @@ export default function RootLayout({
             `,
           }}
         />
-        <AuthProvider>
-          <Providers>
-            <CacheInitializer />
-            <SessionManager />
-            
-            {/* Sidebar State Provider Wrapper - Handles main content margin */}
-            <SidebarLayoutClient>
-              <ConditionalSidebar />
+        {/* Ambient violet sunrise — fixed layer, never scrolls, light mode only */}
+        <div aria-hidden="true" className="ambient-sunrise" />
 
-              {/* Main Content Area */}
-              <main className="flex-1 w-full relative">
-                {children}
-              </main>
-            </SidebarLayoutClient>
-            
-          </Providers>
-        </AuthProvider>
+        {/* All app content sits above the ambient layer */}
+        <div className="relative z-[1]">
+          <ConvexClientProvider>
+          <AuthProvider>
+            <Providers>
+              <CacheInitializer />
+              <SessionManager />
+
+              <SidebarLayoutClient>
+                <ConditionalSidebar />
+                <main className="flex-1 w-full relative">
+                  {children}
+                </main>
+              </SidebarLayoutClient>
+
+            </Providers>
+          </AuthProvider>
+          </ConvexClientProvider>
+        </div>
       </body>
     </html>
   );

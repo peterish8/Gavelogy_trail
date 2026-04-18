@@ -1,5 +1,6 @@
 "use client"
 import { useAuthStore } from "@/lib/stores/auth"
+import { useAuth } from "@/lib/auth-context"
 import { useThemeStore } from "@/lib/stores/theme"
 import { ChevronUp, User, LogOut, Sun, Moon } from "lucide-react"
 import { GCoinIcon } from "@/components/icons/g-coin-icon"
@@ -12,7 +13,8 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 export function SidebarFooter() {
-  const { user, profile, logout } = useAuthStore()
+  const { user, profile } = useAuthStore()
+  const { signOut } = useAuth()
   const { isDarkMode, toggleTheme } = useThemeStore()
   const [isOpen, setIsOpen] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
@@ -31,7 +33,7 @@ export function SidebarFooter() {
 
   const handleLogout = async () => {
     setShowLogoutConfirm(false)
-    await logout()
+    await signOut()
     router.push("/")
   }
 
@@ -41,7 +43,7 @@ export function SidebarFooter() {
 
       {/* XP + LEAGUE ROW */}
       {!isCollapsed && (
-        <div className="px-3 py-2.5 rounded-xl border border-white/5" style={{ background: `${league.color}15` }}>
+        <div className="sidebar-widget rounded-2xl px-3 py-2.5" style={{ borderColor: `${league.color}35`, background: `${league.color}12` }}>
           <div className="flex items-center gap-2 mb-1.5">
             <league.Icon className="h-5 w-5" />
             <span className="text-xs font-bold truncate" style={{ color: league.color }}>{league.name}</span>
@@ -52,13 +54,13 @@ export function SidebarFooter() {
           </div>
           {nextLeague && (
             <div className="flex items-center gap-2">
-              <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: `${league.color}20` }}>
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{ width: `${progress}%`, backgroundColor: league.color }}
                 />
               </div>
-              <span className="text-[9px] text-muted-foreground whitespace-nowrap flex items-center gap-0.5"><nextLeague.Icon className="h-2.5 w-2.5" /> {nextLeague.xpRequired - xp}</span>
+              <span className="text-[9px] text-[var(--ink-3)] whitespace-nowrap flex items-center gap-0.5"><nextLeague.Icon className="h-2.5 w-2.5" /> {nextLeague.xpRequired - xp}</span>
             </div>
           )}
         </div>
@@ -66,10 +68,10 @@ export function SidebarFooter() {
 
       {/* COINS ROW */}
       {!isCollapsed && (
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-sidebar-accent/10 border border-white/5">
-          <GCoinIcon className="h-3.5 w-3.5 text-slate-300" />
-          <span className="text-xs font-bold text-slate-200 tabular-nums">{coins}</span>
-          <span className="text-[10px] text-muted-foreground">coins</span>
+        <div className="sidebar-widget-coins rounded-2xl flex items-center gap-2 px-3 py-1.5">
+          <GCoinIcon className="h-3.5 w-3.5 text-[var(--gv-gold)]" />
+          <span className="text-xs font-bold text-[var(--gv-gold)] tabular-nums">{coins}</span>
+          <span className="text-[10px] text-[var(--ink-3)]">coins</span>
         </div>
       )}
 
@@ -77,8 +79,8 @@ export function SidebarFooter() {
       {!isCollapsed && (
         <div
           className={cn(
-            "rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 ease-in-out",
-            isOpen ? "bg-sidebar-accent/10 border-white/20" : "bg-transparent hover:bg-sidebar-accent/10 hover:border-white/15"
+            "sidebar-account-card rounded-2xl transition-all duration-300 ease-in-out",
+            isOpen ? "is-open" : ""
           )}
         >
           {/* Expanded options — appear INSIDE the card above the trigger row */}
@@ -88,20 +90,22 @@ export function SidebarFooter() {
               isOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
             )}
           >
-            <div className="px-1 pt-1 space-y-0.5">
-              <button className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-xl transition-colors">
-                <User className="h-3.5 w-3.5 shrink-0 text-sidebar-foreground/60" />
+            <div className="px-1 pt-1 space-y-0.5 pb-1">
+              <button
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[var(--ink)] hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors"
+              >
+                <User className="h-3.5 w-3.5 shrink-0 text-[var(--ink-3)]" />
                 <span>Profile</span>
               </button>
               <button
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-xl transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[var(--ink)] hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors"
                 onClick={() => { toggleTheme(); setIsOpen(false); }}
               >
-                {isDarkMode ? <Sun className="h-3.5 w-3.5 shrink-0 text-sidebar-foreground/60" /> : <Moon className="h-3.5 w-3.5 shrink-0 text-sidebar-foreground/60" />}
+                {isDarkMode ? <Sun className="h-3.5 w-3.5 shrink-0 text-amber-500" /> : <Moon className="h-3.5 w-3.5 shrink-0 text-indigo-500" />}
                 <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
               </button>
               <button
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors mb-1"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
                 onClick={() => { setShowLogoutConfirm(true); setIsOpen(false); }}
               >
                 <LogOut className="h-3.5 w-3.5 shrink-0" />
@@ -117,15 +121,15 @@ export function SidebarFooter() {
             onClick={() => setIsOpen(prev => !prev)}
             className="group flex w-full items-center gap-3 p-3 text-left outline-none"
           >
-            <Avatar className="h-8 w-8 shrink-0 rounded-full border border-white/10 bg-sidebar-accent">
+            <Avatar className="h-8 w-8 shrink-0 rounded-full border border-[var(--brand-border)] bg-[var(--brand-soft)]">
               <AvatarImage src={profile?.avatar_url || undefined} className="rounded-full object-cover" />
-              <AvatarFallback className="rounded-full bg-indigo-500 text-[10px] text-white font-bold flex items-center justify-center">{initial}</AvatarFallback>
+              <AvatarFallback className="rounded-full bg-[var(--brand)] text-[10px] text-white font-bold flex items-center justify-center">{initial}</AvatarFallback>
             </Avatar>
             <div className="flex-1 text-left leading-tight min-w-0">
-              <span className="block truncate font-semibold text-sm text-sidebar-foreground">{name}</span>
+              <span className="block truncate font-semibold text-sm text-[var(--ink)]">{name}</span>
             </div>
             <ChevronUp className={cn(
-              "h-4 w-4 shrink-0 text-sidebar-foreground/40 transition-transform duration-300",
+              "h-4 w-4 shrink-0 text-[var(--ink-3)] transition-transform duration-300",
               !isOpen && "rotate-180"
             )} />
           </button>
@@ -147,11 +151,25 @@ export function SidebarFooter() {
             </div>
             <div className="flex gap-3 w-full">
               <button
-                className="flex-1 px-4 py-2 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition-colors"
+                className="flex-1 px-4 py-2 rounded-xl text-sm transition-all hover:scale-[1.02]"
+                style={{
+                  background: "rgba(255,255,255,0.25)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  color: "var(--ink)",
+                }}
                 onClick={() => setShowLogoutConfirm(false)}
               >Cancel</button>
               <button
-                className="flex-1 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+                className="flex-1 px-4 py-2 rounded-xl text-white text-sm font-semibold transition-all hover:scale-[1.02]"
+                style={{
+                  background: "rgba(239,68,68,0.75)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(239,68,68,0.4)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 8px rgba(239,68,68,0.3)",
+                }}
                 onClick={handleLogout}
               >Sign Out</button>
             </div>

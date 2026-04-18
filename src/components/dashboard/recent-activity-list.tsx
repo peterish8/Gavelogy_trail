@@ -19,149 +19,173 @@ interface RecentActivityListProps {
   attempts: Attempt[];
 }
 
+const SUBJECT_STYLES: Record<string, {
+  icon: React.ReactNode;
+  accentColor: string;
+  iconBg: string;
+  iconText: string;
+  glowHover: string;
+  strip: string;
+}> = {
+  "Contemporary Cases": {
+    icon: <BookOpen className="w-4 h-4" />,
+    accentColor: "#148A88",
+    iconBg: "rgba(20,138,136,0.12)",
+    iconText: "#148A88",
+    glowHover: "hover:shadow-[0_6px_24px_rgba(20,138,136,0.18)]",
+    strip: "#148A88",
+  },
+  "PYQ": {
+    icon: <Clock className="w-4 h-4" />,
+    accentColor: "#4B2AD6",
+    iconBg: "rgba(75,42,214,0.12)",
+    iconText: "#4B2AD6",
+    glowHover: "hover:shadow-[0_6px_24px_rgba(75,42,214,0.18)]",
+    strip: "#4B2AD6",
+  },
+  "Mock Test": {
+    icon: <Target className="w-4 h-4" />,
+    accentColor: "#A36009",
+    iconBg: "rgba(163,96,9,0.12)",
+    iconText: "#A36009",
+    glowHover: "hover:shadow-[0_6px_24px_rgba(163,96,9,0.18)]",
+    strip: "#A36009",
+  },
+};
+
+const DEFAULT_STYLE = {
+  icon: <BookOpen className="w-4 h-4" />,
+  accentColor: "#857FA0",
+  iconBg: "rgba(133,127,160,0.12)",
+  iconText: "#857FA0",
+  glowHover: "hover:shadow-[0_6px_24px_rgba(133,127,160,0.15)]",
+  strip: "#857FA0",
+};
+
+function formatTimeAgo(ts: number) {
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  const h = Math.floor(diff / 3600000);
+  const d = Math.floor(diff / 86400000);
+  if (d > 0) return `${d}d ago`;
+  if (h > 0) return `${h}h ago`;
+  if (m > 0) return `${m}m ago`;
+  return "Just now";
+}
+
+function formatTopic(subject: string, topic: string) {
+  if (subject === "Contemporary Cases") {
+    const parts = topic.split(". ");
+    if (parts.length > 1 && !isNaN(Number(parts[0]))) {
+      return parts.slice(1).join(". ");
+    }
+  }
+  return topic;
+}
+
 export function RecentActivityList({ attempts }: RecentActivityListProps) {
   const router = useRouter();
 
-  const formatTimeAgo = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return 'Just now';
-  };
-
-  const getTopicData = (subject: string) => {
-    switch (subject) {
-      case 'Contemporary Cases':
-        return { icon: <BookOpen className="w-5 h-5" />, bg: "from-blue-600/20 to-indigo-600/20", border: "border-blue-500/20", glow: "group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]", text: "text-blue-400" };
-      case 'PYQ':
-        return { icon: <Clock className="w-5 h-5" />, bg: "from-purple-600/20 to-pink-600/20", border: "border-purple-500/20", glow: "group-hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]", text: "text-purple-400" };
-      case 'Mock Test':
-        return { icon: <Target className="w-5 h-5" />, bg: "from-amber-600/20 to-orange-600/20", border: "border-amber-500/20", glow: "group-hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]", text: "text-amber-400" };
-      default:
-        return { icon: <BookOpen className="w-5 h-5" />, bg: "from-slate-600/20 to-zinc-600/20", border: "border-slate-500/20", glow: "group-hover:shadow-[0_0_20px_rgba(148,163,184,0.3)]", text: "text-slate-400" };
-    }
-  };
-
-  const formatTopicName = (subject: string, topic: string) => {
-    if (subject === 'Contemporary Cases') {
-      const parts = topic.split('. ');
-      if (parts.length > 1) {
-        const firstPart = parts[0];
-        const isNumber = !isNaN(Number(firstPart));
-        if (isNumber) {
-          return parts.slice(1).join('. ');
-        }
-      }
-    }
-    return topic;
-  };
-
   if (attempts.length === 0) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full relative overflow-hidden rounded-2xl border border-white/5 bg-background/30 backdrop-blur-xl p-12 flex flex-col items-center justify-center text-center"
+        className="w-full glass-card rounded-2xl p-12 flex flex-col items-center justify-center text-center"
       >
-        <div className="absolute inset-0 bg-linear-to-b from-primary/5 to-transparent pointer-events-none" />
-        
-        <div className="relative w-20 h-20 mb-6 flex items-center justify-center rounded-full bg-primary/10 border border-primary/20">
-          <Target className="h-10 w-10 text-primary animate-pulse" />
-          <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping opacity-20" />
+        <div className="relative w-16 h-16 mb-5 flex items-center justify-center rounded-2xl bg-[var(--brand-soft)] dark:bg-[rgba(167,139,250,0.12)] border border-[var(--brand-border)] dark:border-[rgba(167,139,250,0.2)] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+          <Target className="h-8 w-8 text-[var(--brand)]" />
         </div>
-        
-        <h3 className="text-xl font-semibold mb-2 text-foreground">No recent activity yet</h3>
-        <p className="text-muted-foreground max-w-[300px] mb-8 text-sm leading-relaxed">
-          Your journey awaits. Start taking quizzes to see your beautiful progress visualizations here.
+        <h3 className="text-base font-semibold mb-1.5 text-[var(--ink)]">No recent activity yet</h3>
+        <p className="text-[var(--ink-3)] max-w-[260px] mb-7 text-sm leading-relaxed">
+          Complete quizzes to track your progress and accuracy here.
         </p>
-        
-        <Button 
-          onClick={() => router.push('/subjects')}
-          className="rounded-full px-8 py-6 text-sm font-medium tracking-wide bg-primary/90 hover:bg-primary transition-all shadow-[0_0_30px_rgba(var(--primary),0.3)] hover:shadow-[0_0_40px_rgba(var(--primary),0.5)]"
-        >
-          Browse Subjects <ChevronRight className="w-4 h-4 ml-2" />
+        <Button onClick={() => router.push("/courses")} variant="outline" className="rounded-xl px-6">
+          Browse Courses <ChevronRight className="w-3.5 h-3.5 ml-1.5" />
         </Button>
       </motion.div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col gap-2">
       {attempts.map((attempt, idx) => {
-        const accuracy = attempt.score; 
+        const subjectStr = attempt.subject || "Course Quiz";
+        const style = SUBJECT_STYLES[subjectStr] ?? DEFAULT_STYLE;
+        const topic = formatTopic(subjectStr, attempt.topic || "Quiz Session");
+        const accuracy = attempt.score;
         const totalQs = attempt.totalQuestions || 0;
-        const correctCount = totalQs > 0 ? Math.round((accuracy / 100) * totalQs) : Math.round(accuracy/10); 
-        const displayCorrect = totalQs > 0 ? correctCount : '-'; 
-        const displayWrong = totalQs > 0 ? totalQs - correctCount : '-';
-
-        const subjectStr = attempt.subject || 'Unknown Subject';
-        const displayTopic = formatTopicName(subjectStr, attempt.topic || 'Unknown Session');
-        const visualData = getTopicData(subjectStr);
+        const correct = totalQs > 0 ? Math.round((accuracy / 100) * totalQs) : null;
+        const wrong = correct !== null ? totalQs - correct : null;
 
         return (
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05, duration: 0.3 }}
             key={attempt.id}
-            className={`group relative flex items-center justify-between p-3 md:p-4 rounded-xl border border-border bg-card dark:bg-zinc-900/90 shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 ${visualData.glow}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.04, duration: 0.28 }}
+            className={`
+              group relative flex items-center gap-3 md:gap-4 p-3 md:p-3.5
+              rounded-xl overflow-hidden activity-row card-interactive cursor-default
+              ${style.glowHover}
+            `}
           >
-            {/* Left Section: Icon & Info */}
-            <div className="flex items-center gap-3 md:gap-4 min-w-0">
-              {/* Glowing Icon Box */}
-              <div className={`shrink-0 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg border bg-linear-to-br ${visualData.bg} ${visualData.border} ${visualData.text}`}>
-                {visualData.icon}
-              </div>
+            {/* Left accent strip */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-xl opacity-70 group-hover:opacity-100 transition-opacity"
+              style={{ background: style.strip }}
+            />
 
-              {/* Central Info Column */}
-              <div className="flex flex-col justify-center min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <h4 className="font-semibold text-sm text-foreground tracking-tight truncate">
-                    {subjectStr}
-                  </h4>
-                  <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] text-muted-foreground font-medium bg-muted/50 border border-border/50">
-                    <Clock className="w-3 h-3" />
-                    {formatTimeAgo(attempt.completedAt)}
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground truncate opacity-90 group-hover:opacity-100 transition-opacity">
-                  {displayTopic}
-                </p>
-                
-                {/* Mobile Time Ago (hidden on sm) */}
-                <div className="flex sm:hidden items-center gap-1 mt-1 text-[10px] text-muted-foreground">
-                  <Clock className="w-[10px] h-[10px]" />
+            {/* Icon box */}
+            <div
+              className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border ml-1"
+              style={{
+                background: style.iconBg,
+                backdropFilter: "blur(8px)",
+                border: `1px solid ${style.accentColor}22`,
+                color: style.iconText,
+                boxShadow: `inset 0 1px 0 rgba(255,255,255,0.7), 0 2px 6px ${style.accentColor}18`,
+              }}
+            >
+              {style.icon}
+            </div>
+
+            {/* Subject + topic */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="font-semibold text-sm text-[var(--ink)] truncate">{subjectStr}</span>
+                <span className="hidden sm:flex items-center gap-1 text-[10px] text-[var(--ink-3)] bg-white/50 dark:bg-white/[0.06] border border-white/60 dark:border-white/[0.10] px-1.5 py-0.5 rounded-md shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+                  <Clock className="w-2.5 h-2.5" />
                   {formatTimeAgo(attempt.completedAt)}
-                </div>
+                </span>
+              </div>
+              <p className="text-xs text-[var(--ink-3)] truncate leading-snug">{topic}</p>
+              <div className="flex sm:hidden items-center gap-1 mt-0.5 text-[10px] text-[var(--ink-3)]">
+                <Clock className="w-2.5 h-2.5" />
+                {formatTimeAgo(attempt.completedAt)}
               </div>
             </div>
 
-            {/* Right Section: Data Vis */}
-            <div className="shrink-0 flex items-center gap-3 md:gap-5 pl-2">
-              
-              {/* Score Breakdown (Hidden on mobile) */}
-              <div className="hidden sm:flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1 text-[11px] font-medium text-green-600 dark:text-green-500 bg-green-500/10 dark:bg-green-500/15 px-1.5 py-0.5 rounded">
-                  <CheckCircle2 className="w-3 h-3" />
-                  <span>{displayCorrect}</span>
+            {/* Score breakdown */}
+            <div className="shrink-0 flex items-center gap-2.5 md:gap-3">
+              {correct !== null && (
+                <div className="hidden sm:flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-[#1F7A52] dark:text-emerald-400 bg-[#E6F2EC] dark:bg-emerald-500/12 border border-[#1F7A52]/15 dark:border-emerald-500/20 px-1.5 py-0.5 rounded-md shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+                    <CheckCircle2 className="w-2.5 h-2.5" />
+                    {correct}
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-[#A11D2E] dark:text-red-400 bg-[#F7E4E6] dark:bg-red-500/12 border border-[#A11D2E]/15 dark:border-red-500/20 px-1.5 py-0.5 rounded-md shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+                    <XCircle className="w-2.5 h-2.5" />
+                    {wrong}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] font-medium text-red-600 dark:text-red-500 bg-red-500/10 dark:bg-red-500/15 px-1.5 py-0.5 rounded">
-                  <XCircle className="w-3 h-3" />
-                  <span>{displayWrong}</span>
-                </div>
-              </div>
+              )}
 
-              {/* Magical SVG Progress Ring */}
-              <div className="shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
+              <div className="shrink-0 group-hover:scale-105 transition-transform duration-200 ease-out">
                 <CircularProgress value={accuracy} size={42} strokeWidth={4} />
               </div>
             </div>
+
           </motion.div>
         );
       })}

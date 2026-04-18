@@ -3,25 +3,23 @@
 import * as React from "react";
 import { Command } from "cmdk";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, 
-  BookOpen, 
-  LayoutDashboard, 
-  Trophy, 
-  AlertCircle, 
-  User, 
+import {
+  Search,
+  BookOpen,
+  LayoutDashboard,
+  Trophy,
+  AlertCircle,
+  User,
   Sun,
   StickyNote,
   Brain,
   Loader2,
   X,
-  ArrowRight
 } from "lucide-react";
 import { useThemeStore } from "@/lib/stores/theme";
 import { useSearch, SearchResult } from "@/hooks/use-search";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface SearchCommandMenuProps {
@@ -32,7 +30,7 @@ interface SearchCommandMenuProps {
 export function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
   const router = useRouter();
   const { toggleTheme } = useThemeStore();
-  const { query, setQuery, results, isIndexLoading, executeAction } = useSearch();
+  const { query, setQuery, results, isIndexLoading, isEmpty, executeAction } = useSearch();
 
   // Keyboard shortcut
   React.useEffect(() => {
@@ -118,16 +116,23 @@ export function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
             )}
 
             {/* Empty Query Prompt */}
-            {!query && !isIndexLoading && (
+            {!query && !isIndexLoading && !isEmpty && (
               <div className="px-4 py-4 text-center text-sm text-muted-foreground">
                 Type to search your courses, notes, and quizzes...
+              </div>
+            )}
+
+            {/* No content in database yet */}
+            {!query && isEmpty && (
+              <div className="px-4 py-4 text-center text-sm text-muted-foreground">
+                No content available yet.
               </div>
             )}
             
             {/* No Results */}
             {query && results.length === 0 && !isIndexLoading && (
               <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
-                No results found for &quot;{query}&quot;.
+                {`No results found for "${query}".`}
               </Command.Empty>
             )}
 
@@ -205,22 +210,6 @@ function SearchResultItem({ result, onAction }: SearchResultItemProps) {
     folder: "text-green-500",
   };
 
-  const getActionStyles = (label: string) => {
-    const l = label.toLowerCase();
-    if (l.includes("quiz")) return {
-       icon: Brain,
-       className: "text-green-500"
-    };
-    if (l.includes("note")) return {
-       icon: StickyNote,
-       className: "text-purple-500"
-    };
-    return {
-       icon: ArrowRight,
-       className: "text-muted-foreground"
-    };
-  };
-
   return (
     <Command.Item 
       value={result.id}
@@ -231,38 +220,11 @@ function SearchResultItem({ result, onAction }: SearchResultItemProps) {
       <Icon className={`h-5 w-5 mr-3 shrink-0 ${colors[result.type]}`} />
       
       {/* Text */}
-      <div className="flex-1 min-w-0 mr-4">
+      <div className="flex-1 min-w-0">
         <div className="font-medium text-sm truncate">{result.title}</div>
         {result.subtitle && (
           <div className="text-xs text-muted-foreground truncate">{result.subtitle}</div>
         )}
-      </div>
-
-      {/* Inline Buttons (Right Aligned) - Icons Only */}
-      <div className="flex items-center gap-2 shrink-0 opacity-0 group-aria-selected:opacity-100 transition-opacity">
-        {result.actions.map((action, idx) => {
-          const style = getActionStyles(action.label);
-          const ActionIcon = style.icon;
-          
-          return (
-            <Button
-              key={`${result.id}-${action.actionType}-${idx}`}
-              size="icon"
-              variant="ghost" 
-              className={cn(
-                "h-8 w-8 rounded-full", 
-                style.className
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                onAction(action.actionType);
-              }}
-              title={action.label}
-            >
-              <ActionIcon className="h-4 w-4" />
-            </Button>
-          );
-        })}
       </div>
     </Command.Item>
   );
