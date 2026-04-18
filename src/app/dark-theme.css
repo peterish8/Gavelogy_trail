@@ -2,6 +2,25 @@
 /* === PREMIUM DARK THEME - PHASE 1: FOUNDATION === */
 /* ================================================= */
 
+/* Dark mode body — deep void with bottom-center purple planet orb.
+   The orb is the ambient light source that gives backdrop-blur something to refract. */
+:root.dark body {
+  background:
+    /* Tight bright core — hot violet centre of the orb */
+    radial-gradient(ellipse 38% 28% at 50% 102%, rgba(160, 70, 255, 0.52) 0%, transparent 52%),
+    /* Main planet orb — wide, deep purple */
+    radial-gradient(ellipse 95% 72% at 50% 110%, rgba(100, 40, 200, 0.55) 0%, rgba(70, 20, 140, 0.28) 38%, rgba(40, 10, 90, 0.10) 60%, transparent 74%),
+    /* Side plum bleeds — atmospheric depth */
+    radial-gradient(ellipse 40% 35% at 0%   95%, rgba(140, 30, 100, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 100% 95%, rgba(100, 30, 160, 0.18) 0%, transparent 60%),
+    /* Top violet breath — keeps scrolled content from going pitch black */
+    radial-gradient(ellipse 55% 30% at 50% 0%, rgba(90, 50, 200, 0.12) 0%, transparent 65%),
+    /* Base void */
+    #060608;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
 :root.dark {
   /* Core surfaces - NEUTRAL DARK THEME */
   --bg-app: #0a0a0a;        /* Plain solid neutral black/gray */
@@ -60,6 +79,31 @@
   --chart-3: #a78bfa;
   --chart-4: #fb7185;
   --chart-5: #fbbf24;
+
+  /* ── Gavelogy semantic tokens — dark mode overrides ──────────────────
+     Light mode defines --ink, --brand, --bg etc. but dark-theme.css
+     never overrode them. Every .section-label, .stat-number, .meta-label
+     etc. was rendering dark-ink text on a dark background — invisible.
+     ─────────────────────────────────────────────────────────────────── */
+  --ink:           #E6E8EB;
+  --ink-2:         #B7BBC4;
+  --ink-3:         #8A8F9C;
+  --brand:         #A78BFA;   /* lighter violet so it reads on dark */
+  --brand-hover:   #8B5CF6;
+  --brand-soft:    rgba(167, 139, 250, 0.12);
+  --brand-border:  rgba(167, 139, 250, 0.22);
+  --brand-2:       #F472B6;
+  --brand-2-hover: #EC4899;
+  --brand-2-soft:  rgba(244, 114, 182, 0.12);
+  --brand-2-border: rgba(244, 114, 182, 0.22);
+  --bg:            #080808;
+  --surface:       #18102A;
+  --panel:         #1A1230;
+  --border-strong: rgba(255, 255, 255, 0.10);
+  /* Status colours — keep the vibrant neons already set above */
+  --gv-success:    #34D399;
+  --gv-warn:       #FBBF24;
+  --gv-danger:     #FB7185;
 }
 
 /* ================================================= */
@@ -96,26 +140,26 @@
 /* === STRICT NO-GRADIENT ENFORCEMENT === */
 /* ================================================= */
 
-/* Remove ALL gradients and background images in dark mode */
-.dark *:not(.arena-bg):not(.arena-glow),
-.dark *:not(.arena-bg):not(.arena-glow)::before,
-.dark *:not(.arena-bg):not(.arena-glow)::after {
+/* Remove ALL gradients from UI components in dark mode.
+   Excluded: body (ambient orb), buttons (glass treatment), glass utilities, arena, charts. */
+.dark *:not(.arena-bg):not(.arena-glow):not(body):not(button):not([role="button"]):not(.btn-glass-dark):not(.allow-gradient-in-dark),
+.dark *:not(.arena-bg):not(.arena-glow):not(body):not(button):not([role="button"]):not(.btn-glass-dark):not(.allow-gradient-in-dark)::before,
+.dark *:not(.arena-bg):not(.arena-glow):not(body):not(button):not([role="button"]):not(.btn-glass-dark):not(.allow-gradient-in-dark)::after {
   background-image: none !important;
 }
 
-/* Specifically target common gradient patterns */
-.dark [style*="linear-gradient"]:not(.arena-bg):not(.arena-glow),
-.dark [style*="radial-gradient"]:not(.arena-bg):not(.arena-glow),
-.dark [class*="gradient"]:not(.arena-bg):not(.arena-glow),
-.dark [class*="bg-gradient"]:not(.arena-bg):not(.arena-glow),
-.dark [class*="from-"]:not(.arena-bg):not(.arena-glow),
-.dark [class*="to-"]:not(.arena-bg):not(.arena-glow),
-.dark [class*="bg-linear"]:not(.arena-bg):not(.arena-glow) {
+/* Specifically target common gradient patterns — but NOT buttons */
+.dark [style*="linear-gradient"]:not(.arena-bg):not(.arena-glow):not(button):not([role="button"]):not(.allow-gradient-in-dark),
+.dark [style*="radial-gradient"]:not(.arena-bg):not(.arena-glow):not(button):not([role="button"]):not(.allow-gradient-in-dark),
+.dark [class*="bg-gradient"]:not(.arena-bg):not(.arena-glow):not(button):not([role="button"]):not(.allow-gradient-in-dark),
+.dark [class*="from-"]:not(.arena-bg):not(.arena-glow):not(button):not([role="button"]):not(.allow-gradient-in-dark),
+.dark [class*="to-"]:not(.arena-bg):not(.arena-glow):not(button):not([role="button"]):not(.allow-gradient-in-dark),
+.dark [class*="bg-linear"]:not(.arena-bg):not(.arena-glow):not(button):not([role="button"]):not(.allow-gradient-in-dark) {
   background-image: none !important;
   background: var(--bg-card) !important;
 }
 
-/* EXCEPTION: Allow gradients for specific UI elements that need them (like charts/grids) */
+/* EXCEPTION: Allow gradients for charts, buttons, glass elements */
 .dark .allow-gradient-in-dark,
 .dark [class*="allow-gradient-in-dark"] {
   background-image: inherit !important;
@@ -430,9 +474,9 @@
   color: #111827;
 }
 
-/* Hide DottedBackground in dark mode */
+/* DottedBackground — slightly more visible in dark mode for subtle depth texture */
 .dark .dotted-background {
-  opacity: 0.15;
+  opacity: 0.22;
 }
 
 /* ================================================= */
@@ -568,6 +612,324 @@
   height: 18px;
   background: rgba(0,0,0,0.15);
   margin: 0 0.4rem;
+}
+
+/* ================================================= */
+/* === DARK GLASS SYSTEM — Purple Orb Edition ===   */
+/* Re-enables backdrop-filter now that body has an  */
+/* ambient orb to give the blur something to refract */
+/* ================================================= */
+
+/* ── ALL COMPONENTS: pure black surfaces, bg alone carries the violet ── */
+
+/* Level 1 — standard cards, stat panels */
+.dark .glass-card {
+  background: rgba(10, 10, 12, 0.88) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.60),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Level 2 — elevated panels */
+.dark .glass-panel {
+  background: rgba(14, 14, 16, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Level 3 — header / sticky bars */
+.dark .glass-surface {
+  background: rgba(6, 6, 8, 0.95) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 20px rgba(0, 0, 0, 0.50) !important;
+}
+
+/* Sidebar — pure black */
+.dark .glass-sidebar {
+  background: rgba(6, 6, 8, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.50) !important;
+}
+
+/* Tier-2 — pure black, slight white specular only */
+.dark .tier-2-card {
+  background: rgba(14, 14, 16, 0.90) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Stat glass card — black jewel */
+.dark .stat-glass-card {
+  background: rgba(12, 12, 14, 0.90) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Activity row — black frosted */
+.dark .activity-row {
+  background: rgba(10, 10, 12, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Task card glass — black */
+.dark .task-card-glass {
+  background: rgba(12, 12, 14, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Feature card (analytics / courses empty state) — black */
+.dark .feature-card {
+  background: rgba(10, 10, 12, 0.90) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Calendar cells — pure black glass */
+.dark .glass-cell {
+  background: rgba(14, 14, 18, 0.80) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .glass-cell:hover {
+  background: rgba(22, 22, 28, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.13) !important;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+.dark .glass-cell-today {
+  background: rgba(20, 20, 28, 0.88) !important;
+  border-color: rgba(167, 139, 250, 0.35) !important;
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.18),
+    0 2px 10px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark .glass-cell-selected {
+  background: rgba(25, 18, 40, 0.92) !important;
+  border-color: rgba(167, 139, 250, 0.45) !important;
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.22),
+    0 4px 18px rgba(100, 40, 200, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK MODE BUTTON GLASS SYSTEM
+   Cards stay black. Buttons get the violet glow treatment.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Default / primary — violet gradient pill with inner light */
+.dark button.btn-press:not([data-variant="ghost"]):not([data-variant="outline"]):not([data-variant="secondary"]):not([data-variant="destructive"]):not([data-variant="link"]),
+.dark [role="button"].btn-press {
+  /* Intentionally overridden per-variant below */
+}
+
+/* Primary: deep violet → bright violet gradient + glow */
+.dark button[class*="bg-[var(--brand)]"],
+.dark button[class*="bg-[#6d46fa]"] {
+  background: linear-gradient(160deg, #7c4dff 0%, #5b21b6 100%) !important;
+  border: 1px solid rgba(167, 139, 250, 0.35) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 0 0 1px rgba(124,77,255,0.4),
+    0 4px 20px rgba(124,77,255,0.35) !important;
+}
+
+.dark button[class*="bg-[var(--brand)]"]:hover,
+.dark button[class*="bg-[#6d46fa]"]:hover {
+  background: linear-gradient(160deg, #9061ff 0%, #6d28d9 100%) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.15) inset,
+    0 0 0 1px rgba(144,97,255,0.5),
+    0 6px 28px rgba(124,77,255,0.50) !important;
+}
+
+/* Outline: dark frosted glass + violet border glow */
+.dark button[class*="bg-white/45"],
+.dark button[class*="outline"]:not([class*="outline-none"]) {
+  background: rgba(255,255,255,0.05) !important;
+  backdrop-filter: blur(16px) saturate(1.4) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.4) !important;
+  border: 1px solid rgba(167,139,250,0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 2px 12px rgba(100,40,200,0.15) !important;
+  color: #c4b5fd !important;
+}
+
+.dark button[class*="bg-white/45"]:hover,
+.dark button[class*="outline"]:not([class*="outline-none"]):hover {
+  background: rgba(167,139,250,0.10) !important;
+  border-color: rgba(167,139,250,0.45) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 4px 20px rgba(124,77,255,0.22) !important;
+}
+
+/* Ghost: transparent, violet hover tint */
+.dark button[class*="ghost"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: rgba(196,181,253,0.8) !important;
+}
+
+.dark button[class*="ghost"]:hover {
+  background: rgba(167,139,250,0.10) !important;
+  color: #c4b5fd !important;
+}
+
+/* Secondary: violet-tinted dark glass */
+.dark button[class*="bg-[var(--brand-soft)]"],
+.dark button[class*="secondary"] {
+  background: rgba(167,139,250,0.14) !important;
+  border: 1px solid rgba(167,139,250,0.28) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07) !important;
+  color: #c4b5fd !important;
+}
+
+.dark button[class*="bg-[var(--brand-soft)]"]:hover,
+.dark button[class*="secondary"]:hover {
+  background: rgba(167,139,250,0.22) !important;
+  border-color: rgba(167,139,250,0.42) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 4px 16px rgba(124,77,255,0.20) !important;
+}
+
+/* Success green buttons (course cards etc.) */
+.dark button[class*="bg-[var(--gv-success)]"],
+.dark button[class*="bg-[#186640]"] {
+  background: linear-gradient(160deg, #22c55e 0%, #15803d 100%) !important;
+  border: 1px solid rgba(34,197,94,0.35) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 4px 18px rgba(34,197,94,0.28) !important;
+}
+
+/* Small icon/ghost buttons in glass panels — don't override these aggressively */
+.dark .glass-card button,
+.dark .glass-panel button,
+.dark .task-card-glass button,
+.dark .activity-row button {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow: none !important;
+  color: #c4b5fd !important;
+}
+
+.dark .glass-card button:hover,
+.dark .glass-panel button:hover,
+.dark .task-card-glass button:hover,
+.dark .activity-row button:hover {
+  background: rgba(167,139,250,0.14) !important;
+  border-color: rgba(167,139,250,0.28) !important;
+  box-shadow: 0 2px 10px rgba(124,77,255,0.18) !important;
+}
+
+/* ── Sidebar footer widgets — pure black glass ── */
+
+.dark .sidebar-widget {
+  background: rgba(12, 12, 14, 0.90) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: none !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .sidebar-widget-coins {
+  background: rgba(12, 12, 14, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: none !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Account card — transparent base, subtle hover */
+.dark .sidebar-account-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dark .sidebar-account-card:hover,
+.dark .sidebar-account-card.is-open {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Expanded menu buttons inside account card */
+.dark .sidebar-account-card button:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ── Sidebar nav — glassmorphism active/hover treatment ── */
+
+/* Active item: translucent violet glass with glow */
+.dark .nav-active {
+  background: rgba(124, 77, 255, 0.20) !important;
+  backdrop-filter: blur(14px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.5) !important;
+  border: 1px solid rgba(167, 139, 250, 0.38) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 1px rgba(124, 77, 255, 0.18),
+    0 4px 20px rgba(100, 40, 200, 0.28) !important;
+  color: #c4b5fd !important;
+}
+
+.dark .nav-active svg {
+  color: #c4b5fd !important;
+}
+
+/* Inactive hover: ghost glass tint */
+.dark .nav-inactive:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  color: #E6E8EB !important;
+}
+
+.dark .nav-inactive:hover svg {
+  color: #E6E8EB !important;
 }
 
 

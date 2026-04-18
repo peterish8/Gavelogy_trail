@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSessionMonitor } from '@/lib/hooks/use-session-monitor';
 import { useAuthStore } from '@/lib/stores/auth';
+import { useAuth } from '@/lib/auth-context';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -11,7 +12,8 @@ import { useRouter } from 'next/navigation';
 
 export function SessionManager() {
     const { status, message, reason } = useSessionMonitor();
-    const { logout } = useAuthStore();
+    useAuthStore();
+    const { signOut } = useAuth();
     const [openTerminated, setOpenTerminated] = useState(false);
     const router = useRouter();
 
@@ -24,7 +26,7 @@ export function SessionManager() {
     }, [status]);
 
     const handleLogout = async () => {
-        await logout();
+        await signOut();
         setOpenTerminated(false);
         router.push('/login');
     };

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { fetchAllCaseItems } from '@/actions/judgment/links';
-import { supabase } from '@/lib/supabase-client';
 import { updateItemPdfUrl } from '@/actions/judgment/links';
 import { Tag, FileText, Upload, Check, X } from 'lucide-react';
 
@@ -20,52 +21,50 @@ export default function AdminTagListPage() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadMsg, setUploadMsg] = useState<Record<string, string>>({});
 
+  const linkCounts = useQuery(api.content.getNotePdfLinkCounts, {});
+
   useEffect(() => {
-    loadCases();
+    fetchAllCaseItems().then((items) => {
+      setCases(items.map((i) => ({ ...i, linkCount: 0 })));
+      setLoading(false);
+    });
   }, []);
 
-  async function loadCases() {
-    setLoading(true);
-    const items = await fetchAllCaseItems();
+  // Merge link counts when reactive query resolves
+  useEffect(() => {
+    if (!linkCounts) return;
+    setCases((prev) =>
+      prev.map((c) => ({ ...c, linkCount: linkCounts[c.id] ?? 0 }))
+    );
+  }, [linkCounts]);
 
-    // Fetch link counts for each item
-    const ids = items.map((i) => i.id);
-    let linkCounts: Record<string, number> = {};
-    if (ids.length > 0) {
-      const { data } = await supabase
-        .from('note_pdf_links')
-        .select('item_id')
-        .in('item_id', ids);
-      if (data) {
-        data.forEach((row: { item_id: string }) => {
-          linkCounts[row.item_id] = (linkCounts[row.item_id] || 0) + 1;
-        });
-      }
-    }
-
-    setCases(items.map((i) => ({ ...i, linkCount: linkCounts[i.id] || 0 })));
-    setLoading(false);
-  }
-
-  async function handlePdfUpload(caseId: string, caseTitle: string, file: File) {
+  async function handlePdfUpload(caseId: string, file: File) {
     if (!file) return;
     setUploading(caseId);
     setUploadMsg((prev) => ({ ...prev, [caseId]: 'Uploading...' }));
     try {
-      const path = `${caseId}/${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('judgments')
-        .upload(path, file, { upsert: true });
+      // 1. Get Backblaze B2 upload URL
+      const uploadUrlRes = await fetch('/api/storage/b2/upload-url', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type || 'application/pdf' })
+      });
+      if (!uploadUrlRes.ok) throw new Error('Failed to get upload URL');
+      const { uploadUrl, publicUrl } = await uploadUrlRes.json();
 
-      if (uploadError) throw uploadError;
+      // 2. Upload file to Backblaze B2
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/pdf' },
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error('Upload failed');
 
-      const { data: urlData } = supabase.storage
-        .from('judgments')
-        .getPublicUrl(path);
-
-      const pdfUrl = urlData.publicUrl;
-      const result = await updateItemPdfUrl(caseId, pdfUrl);
+      // 3. Update item pdf_url in Convex DB with the Backblaze public URL
+      const result = await updateItemPdfUrl(caseId, publicUrl);
       if (!result.success) throw new Error(result.error);
+      
+      const pdfUrl = publicUrl;
 
       setUploadMsg((prev) => ({ ...prev, [caseId]: '✓ Uploaded' }));
       setCases((prev) =>
@@ -77,8 +76,6 @@ export default function AdminTagListPage() {
     } finally {
       setUploading(null);
     }
-    // Suppress unused variable warning
-    void caseTitle;
   }
 
   if (loading) {
@@ -108,7 +105,6 @@ export default function AdminTagListPage() {
             key={c.id}
             className="flex items-center justify-between bg-amber-950/20 border border-amber-900/30 rounded-lg px-4 py-3 gap-4"
           >
-            {/* Case info */}
             <div className="flex items-center gap-3 min-w-0">
               <FileText className="w-4 h-4 text-amber-500 shrink-0" />
               <div className="min-w-0">
@@ -127,12 +123,10 @@ export default function AdminTagListPage() {
               </div>
             </div>
 
-            {/* Link count */}
             <div className="text-xs text-amber-500 shrink-0">
               {c.linkCount} link{c.linkCount !== 1 ? 's' : ''}
             </div>
 
-            {/* Upload PDF */}
             <div className="shrink-0">
               <label className="cursor-pointer">
                 <span className="flex items-center gap-1 px-2 py-1 text-xs rounded border border-amber-700 text-amber-300 hover:bg-amber-900/30 transition-colors">
@@ -146,7 +140,7 @@ export default function AdminTagListPage() {
                   disabled={uploading === c.id}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
-                    if (f) handlePdfUpload(c.id, c.title, f);
+                    if (f) handlePdfUpload(c.id, f);
                     e.target.value = '';
                   }}
                 />
@@ -156,7 +150,6 @@ export default function AdminTagListPage() {
               )}
             </div>
 
-            {/* Tag button — only enabled if PDF exists */}
             <Link
               href={c.pdf_url ? `/admin/tag/${c.id}` : '#'}
               className={`shrink-0 flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded transition-colors ${

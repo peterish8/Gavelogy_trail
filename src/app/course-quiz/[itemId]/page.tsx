@@ -11,8 +11,11 @@ import { useStreakStore } from "@/lib/stores/streaks";
 import { useCopyProtection } from "@/hooks/useCopyProtection";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
-import { supabase } from "@/lib/supabase";
+import { getConvexHttpClient } from "@/lib/convex-client";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { usePaymentStore } from "@/lib/payment";
+import { useAuthToken } from "@convex-dev/auth/react";
 
 interface UserAnswer {
   questionId: string;
@@ -46,6 +49,7 @@ function CourseQuizContent({
   const { itemId } = use(params);
   const { user } = useAuthStore();
   const { awardDailyPoint } = useStreakStore();
+  const authToken = useAuthToken();
   
   const courseId = searchParams?.get("courseId") || "";
   const returnUrl = courseId ? `/course-viewer?courseId=${courseId}` : "/courses";
@@ -114,26 +118,18 @@ function CourseQuizContent({
       // In standard mode, itemId is note_item_id. In SR mode, we have quizData.note_item_id
       const targetNoteId = isSpacedRepetition ? quizData.note_item_id : itemId;
       
+      const convex = getConvexHttpClient();
       if (targetNoteId) {
-        const { data: noteItem } = await supabase
-          .from('structure_items')
-          .select('title')
-          .eq('id', targetNoteId)
-          .single();
-          
-        if (noteItem) {
-           setNoteTitle(noteItem.title);
-        }
+        const noteItem = await convex.query(api.content.getStructureItem, {
+          itemId: targetNoteId as Id<"structure_items">,
+        }).catch(() => null);
+        if (noteItem) setNoteTitle(noteItem.title);
       }
 
-      // Fetch Course Name
       if (courseId) {
-         const { data: courseData } = await supabase
-            .from('courses')
-            .select('name')
-            .eq('id', courseId)
-            .single();
-         if (courseData) setCourseTitle(courseData.name);
+        const courses = await convex.query(api.content.getCourses, { activeOnly: false }).catch(() => []);
+        const course = courses.find((c) => c._id === courseId);
+        if (course) setCourseTitle(course.name);
       }
 
     } catch (err: unknown) {
@@ -220,8 +216,9 @@ function CourseQuizContent({
         userAnswers,
         totalQuestions,
         isSpacedRepetition,
-        noteTitle || quiz.title, // Subject: Note Title (Bold)
-        courseTitle || "Course Content" // Topic: Course Name (Subtext)
+        noteTitle || quiz.title,
+        courseTitle || "Course Content",
+        authToken ?? undefined
       );
 
       if (passed) {

@@ -17,7 +17,9 @@ import {
   Zap,
   AlertCircle,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { getConvexHttpClient } from "@/lib/convex-client";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { useMistakeStore } from "@/lib/stores/mistakes";
 import { useQuizStore } from "@/lib/stores/quiz";
 import { validateQuizAnswer } from "@/lib/validation";
@@ -83,48 +85,28 @@ function QuizContent() {
         // Debug: Log the quizId being used
         console.log("Fetching questions for quizId:", quizId);
 
-        // Test Supabase connection first
-        console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-        console.log(
-          "Supabase Key exists:",
-          !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        );
-
-        // Test with a simple query first
-        const { data: testData, error: testError } = await supabase
-          .from("questions")
-          .select("id")
-          .limit(1);
-
-        console.log("Test query result:", { testData, testError });
-
-        if (testError) {
-          console.error("Test query failed:", testError);
-          setError(`Supabase connection failed: ${testError.message}`);
-          return;
-        }
-
-        // Fetch questions from Supabase
-        const { data: questionsData, error } = await supabase
-          .from("questions")
-          .select("*")
-          .eq("quiz_id", quizId)
-          .order("order_index");
-
-        console.log("Supabase response:", { questionsData, error });
-
-        if (error) {
-          console.error("Error fetching questions:", error);
-          setError(`Failed to load questions from database: ${error.message}`);
-          return;
-        }
+        // Fetch questions from Convex
+        const client = getConvexHttpClient();
+        const questionsData = await client.query(api.content.getQuizQuestions, {
+          quizId: quizId as Id<"attached_quizzes">,
+        });
 
         if (!questionsData || questionsData.length === 0) {
           setError(`No questions found for this quiz`);
           return;
         }
 
-        let filteredQuestions = questionsData;
+        // Normalize to expected shape
+        const normalizedQuestions = questionsData.map((q) => ({
+          id: q._id,
+          question_text: q.question_text,
+          options: q.options,
+          correct_answer: q.correct_answer,
+          explanation: q.explanation,
+          order_index: q.order_index,
+        }));
+
+        let filteredQuestions = normalizedQuestions;
 
         if (isReviewMode) {
           // In review mode, only show questions that have mistakes

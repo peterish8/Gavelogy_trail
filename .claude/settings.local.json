@@ -6,7 +6,9 @@
       "Bash(find \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src/app/cases\" -type f -name \"*.tsx\" | xargs ls -lh)",
       "Bash(grep -r \"admin\\\\|Admin\" \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src\" --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | head -10)",
       "Bash(grep -r \"structure_items\\\\|note_contents\\\\|attached_quizzes\" \"/c/Users/nithy/Desktop/1 prats projects/Gavelogy The proto/src\" --include=\"*.ts\" --include=\"*.tsx\" 2>/dev/null | grep -v \"node_modules\" | head -15)",
-      "Bash(xargs wc:*)"
+      "Bash(xargs wc:*)",
+      "Bash(npx tsc *)",
+      "Bash(npx convex *)"
     ]
   }
 }

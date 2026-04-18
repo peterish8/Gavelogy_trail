@@ -17,14 +17,9 @@ export function DottedBackground() {
         className="absolute inset-0"
         style={{
           background: isDarkMode ? `
-            linear-gradient(180deg, rgba(88, 28, 135, 0.15) 0%, rgba(0, 0, 0, 0.95) 100%)
-          ` : `
-            radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.4) 0%, transparent 60%),
-            radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.3) 0%, transparent 60%),
-            radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.25) 0%, transparent 50%),
-            radial-gradient(circle at 60% 70%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
-            linear-gradient(135deg, rgba(219, 234, 254, 0.6) 0%, rgba(165, 180, 252, 0.4) 100%)
-          `
+            radial-gradient(ellipse 70% 50% at 50% 115%, rgba(124, 58, 237, 0.05) 0%, rgba(0, 0, 0, 0) 100%),
+            #000000
+          ` : `#F7F6FB`
         }}
       />
       {/* Large dotted grid pattern - main layer */}

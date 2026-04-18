@@ -75,12 +75,6 @@ export default function RetakeQuestionPage({
         return;
       }
 
-      // TODO: Implement actual Supabase fetch
-      // const { data, error } = await supabase
-      //   .from('questions')
-      //   .select('*')
-      //   .eq('id', params.questionId)
-      //   .single();
     } catch (error) {
       console.error("Error loading question:", error);
       setLoading(false);

@@ -10,7 +10,9 @@ import {
   deleteLink,
   updateNoteContent,
 } from '@/actions/judgment/links';
-import { supabase } from '@/lib/supabase-client';
+import { getConvexHttpClient } from '@/lib/convex-client';
+import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
 import type { NotePdfLink } from '@/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -46,27 +48,23 @@ export default function AdminTaggingPage({
   async function loadCaseData() {
     setLoading(true);
 
-    // Load case item (title + pdf_url)
-    const { data: item } = await supabase
-      .from('structure_items')
-      .select('title, pdf_url')
-      .eq('id', caseId)
-      .single();
+    const client = getConvexHttpClient();
 
+    // Load case item (title + pdf_url)
+    const item = await client.query(api.content.getStructureItem, {
+      itemId: caseId as Id<'structure_items'>,
+    }).catch(() => null);
     if (item) {
-      setCaseTitle((item as { title: string; pdf_url: string | null }).title);
-      setPdfUrl((item as { title: string; pdf_url: string | null }).pdf_url);
+      setCaseTitle(item.title);
+      setPdfUrl(item.pdf_url ?? null);
     }
 
     // Load notes content
-    const { data: noteData } = await supabase
-      .from('note_contents')
-      .select('content_html')
-      .eq('item_id', caseId)
-      .single();
-
+    const noteData = await client.query(api.content.getNoteContent, {
+      itemId: caseId as Id<'structure_items'>,
+    }).catch(() => null);
     if (noteData) {
-      setNoteContent((noteData as { content_html: string }).content_html ?? '');
+      setNoteContent(noteData.content_html ?? '');
     }
 
     // Load existing links

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useThemeStore } from "@/lib/stores/theme";
 import { usePaymentStore, type Course } from "@/lib/payment";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,8 @@ const AUTH_NAV_LINKS = [
 
 export function Header() {
   const router = useRouter();
-  const { profile, isAuthenticated, logout } = useAuthStore();
+  const { profile, isAuthenticated } = useAuthStore();
+  const { signOut } = useAuth();
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { recentCourses, availableCourses } = usePaymentStore();
   
@@ -50,7 +52,7 @@ export function Header() {
     setShowLogoutConfirm(false);
     setShowUserMenu(false);
     setShowMobileMenu(false);
-    await logout();
+    await signOut();
     router.push("/");
   };
 

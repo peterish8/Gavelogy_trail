@@ -1,24 +1,18 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useThemeStore } from '@/lib/stores/theme'
-import { useAuthStore } from '@/lib/stores/auth'
+import { useEffect } from "react";
+import { useThemeStore } from "@/lib/stores/theme";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const { setTheme } = useThemeStore()
-  const { checkAuth } = useAuthStore()
+  const { setTheme } = useThemeStore();
 
   useEffect(() => {
-    // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem('gavelogy-theme')
+    const savedTheme = localStorage.getItem("gavelogy-theme");
     if (savedTheme) {
-      const theme = JSON.parse(savedTheme)
-      setTheme(theme.state.isDarkMode)
+      const theme = JSON.parse(savedTheme);
+      setTheme(theme.state.isDarkMode);
     }
+  }, [setTheme]);
 
-    // Check authentication status
-    checkAuth()
-  }, [setTheme, checkAuth])
-
-  return <>{children}</>
+  return <>{children}</>;
 }

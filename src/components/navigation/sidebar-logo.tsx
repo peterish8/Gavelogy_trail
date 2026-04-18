@@ -8,16 +8,21 @@ interface SidebarLogoProps {
 
 export function SidebarLogo({ compact }: SidebarLogoProps) {
   return (
-    <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
-      <div className="w-8 h-8 bg-sidebar-primary rounded-full flex items-center justify-center shrink-0">
-        <span className="text-sidebar-primary-foreground font-bold">G</span>
+    <div className="flex items-center gap-2.5 overflow-hidden whitespace-nowrap">
+      {/* Rounded square mark — matches design screenshot */}
+      <div
+        className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center"
+        style={{ background: "var(--brand)" }}
+      >
+        <span className="text-white font-bold text-base leading-none">G</span>
       </div>
-      <span 
+      <span
         suppressHydrationWarning
         className={cn(
-          "font-semibold text-lg tracking-tight text-sidebar-foreground animate-in fade-in duration-300",
+          "font-bold text-lg tracking-tight text-[var(--ink)] animate-in fade-in duration-300",
           compact && "hidden"
         )}
+        style={{ fontFamily: "var(--display-family)", letterSpacing: "-0.02em" }}
       >
         Gavelogy
       </span>

@@ -26,6 +26,7 @@ import { useThemeStore } from "@/lib/stores/theme";
 import { SidebarNav } from "@/components/navigation/sidebar-nav";
 
 import { Suspense } from "react";
+import { CourseViewerRightPanel } from "@/components/course-viewer-right-panel";
 
 interface CourseStructureItem {
   id: string;
@@ -395,7 +396,7 @@ function CourseViewerContent() {
   // Ensure auth state is checked/restored on mount
   useEffect(() => {
     // Force a check to ensure header updates
-    useAuthStore.getState().checkAuth();
+    // auth state is managed by ConvexAuthProvider bridge
 
     // Default to Fullscreen (Paper Mode) on Mobile
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -1143,12 +1144,12 @@ function CourseViewerContent() {
           {/* Right Content Area */}
           {/* If Reader Mode, center content with max-width like the mobile view but full height */}
           <div className={cn(
-              "flex-1 h-full bg-transparent overflow-hidden relative z-10", 
-              isReaderMode && "flex justify-center"
+              "flex-1 h-full bg-transparent overflow-hidden relative z-10 flex",
+              isReaderMode && "justify-center"
           )}>
             {selectedItemId ? (
               <div className={cn(
-                  "h-full overflow-y-auto custom-scrollbar relative w-full rounded-2xl transition-all duration-300",
+                  "flex-1 h-full overflow-y-auto custom-scrollbar relative rounded-2xl transition-all duration-300",
                   isSheetDark 
                     ? "bg-zinc-900 border border-zinc-800 shadow-sm" 
                     : "bg-white border border-gray-200 shadow-sm",
@@ -1430,6 +1431,22 @@ function CourseViewerContent() {
                         )}
                       />
                       
+                      {/* Judgment PDF banner — shown when item has a linked PDF */}
+                      {Boolean(selectedItem?.pdf_url) && selectedItemId && (
+                        <div className="mt-6 mb-2 flex items-center justify-between gap-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                            <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Judgment PDF available for this case</span>
+                          </div>
+                          <button
+                            onClick={() => router.push(`/judgment/${selectedItemId}`)}
+                            className="shrink-0 text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-white hover:bg-amber-600 font-semibold transition-colors shadow-sm"
+                          >
+                            View with Judgment →
+                          </button>
+                        </div>
+                      )}
+
                       {/* Take Quiz Button - Only in Reader Mode with quizId */}
                       {isReaderMode && readerQuizId && (
                         <div className="mt-12 pt-8 border-t border-gray-200">
@@ -1452,13 +1469,22 @@ function CourseViewerContent() {
                 </div>
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-400">
+              <div className="flex-1 h-full flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-medium text-gray-600">Select a topic</h3>
                   <p className="text-sm mt-2">Pick a folder from the left to view notes</p>
                 </div>
               </div>
+            )}
+
+            {/* Right Panel — only in content view, not reader mode */}
+            {selectedItemId && !isReaderMode && (
+              <CourseViewerRightPanel
+                itemId={selectedItemId}
+                contentHtml={content}
+                isSheetDark={isSheetDark}
+              />
             )}
           </div>
         </div>
@@ -1870,6 +1896,22 @@ function CourseViewerContent() {
                            }} 
                         />
                         
+                        {/* Judgment PDF banner — mobile/fullscreen */}
+                        {Boolean(selectedItem?.pdf_url) && selectedItemId && (
+                          <div className="mt-6 mb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200">
+                            <div className="flex items-center gap-2.5">
+                              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                              <span className="text-sm font-medium text-amber-800">Judgment PDF available</span>
+                            </div>
+                            <button
+                              onClick={() => router.push(`/judgment/${selectedItemId}`)}
+                              className="text-xs px-3 py-1.5 rounded-lg bg-amber-500 text-white hover:bg-amber-600 font-semibold transition-colors shadow-sm shrink-0"
+                            >
+                              View with Judgment →
+                            </button>
+                          </div>
+                        )}
+
                         {/* Personal Notes Section */}
                         {courseId && selectedItemId && (
                            <>

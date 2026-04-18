@@ -1,40 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useConvexAuth } from "convex/react";
 import { LoadingPage } from "@/components/LoadingSpinner";
-import { useAuthStore } from "@/lib/stores/auth";
 
+// Convex Auth handles OAuth callbacks via its HTTP router at /api/auth/callback/*
+// This page exists as a fallback — redirect authenticated users to dashboard
 export default function AuthCallback() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, isLoading } = useConvexAuth();
 
   useEffect(() => {
-    // Supabase will automatically parse the #access_token or ?code= from the URL on this page.
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" || session) {
-        // Sync zustand store immediately just to be safe
-        await useAuthStore.getState().checkAuth();
-        router.push("/dashboard");
-      }
-    });
-
-    // Fallback if the URL doesn't have an auth token (e.g., someone navigated here manually or an error occurred)
-    const timer = setTimeout(async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        router.push("/dashboard");
-      } else {
-        router.push("/login?error=auth_callback_failed");
-      }
-    }, 2500);
-
-    return () => {
-      authListener.subscription.unsubscribe();
-      clearTimeout(timer);
-    };
-  }, [router]);
+    if (isLoading) return;
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    } else {
+      const timer = setTimeout(() => {
+        if (!isAuthenticated) router.push("/login?error=auth_failed");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   return <LoadingPage text="Securing your session..." />;
 }

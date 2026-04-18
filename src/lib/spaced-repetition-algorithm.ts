@@ -1,97 +1,67 @@
-
-import { supabase } from "@/lib/supabase";
+import { getConvexHttpClient } from "./convex-client";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { QuizQuestion } from "./quiz-loader";
 
 interface WeightedQuestion extends QuizQuestion {
   weight: number;
-  tags: string[]; // 'mistake', 'low_confidence', 'stale'
+  tags: string[];
 }
 
-/**
- * Selects questions for a Spaced Repetition session based on user history.
- * Prioritizes active mistakes and low-confidence answers.
- */
 export async function getWeightedQuestions(
   quizId: string,
-  userId: string,
+  _userId: string,
   limit: number = 10
 ): Promise<QuizQuestion[]> {
   try {
-    // 1. Fetch data in parallel
-    const [questionsRes, mistakesRes, confidenceRes] = await Promise.all([
-      // A. All Questions
-      supabase
-        .from('quiz_questions')
-        .select('*')
-        .eq('quiz_id', quizId),
-      
-      // B. Mistakes (Active)
-      supabase
-        .from('mistakes')
-        .select('question_id, is_mastered')
-        .eq('user_id', userId)
-        .eq('is_mastered', false),
+    const client = getConvexHttpClient();
 
-      // C. Confidence (Low only)
-      supabase
-        .from('quiz_answer_confidence')
-        .select('question_id, confidence_level')
-        .eq('user_id', userId)
-        .in('confidence_level', ['guess', 'fluke', '50/50']) 
-        // Note: '50/50' might be stored as string, key logic usually 'guess'/'fluke'
+    const [questions, mistakes, confidence] = await Promise.all([
+      client.query(api.content.getQuizQuestions, { quizId: quizId as Id<"attached_quizzes"> }),
+      client.query(api.mistakes.getMistakes, {}),
+      client.query(api.quiz.getConfidenceData, {}),
     ]);
 
-    if (questionsRes.error) throw questionsRes.error;
-    const questions = questionsRes.data || [];
-    
-    if (questions.length === 0) return [];
+    if (!questions.length) return [];
 
-    const mistakesMap = new Set(mistakesRes.data?.map(m => m.question_id));
-    const confidenceMap = new Set(confidenceRes.data?.map(c => c.question_id));
+    const mistakesMap = new Set(
+      mistakes.filter((m) => !m.is_mastered).map((m) => m.questionId)
+    );
+    const confidenceMap = new Set(
+      confidence
+        .filter((c) => ["guess", "fluke", "50/50"].includes(c.confidence_level ?? ""))
+        .map((c) => c.questionId)
+    );
 
-    // 2. Calculate Weights
-    const weightedQuestions: WeightedQuestion[] = questions.map(q => {
+    const weighted: WeightedQuestion[] = questions.map((q) => {
       let weight = 0;
       const tags: string[] = [];
 
-      // Logic:
-      // Mistake = +50
-      // Low Confidence = +30
-      // Base = +Random(0-10) for variety
-      
-      if (mistakesMap.has(q.id)) {
-        weight += 50;
-        tags.push('mistake');
-      }
+      if (mistakesMap.has(q._id)) { weight += 50; tags.push("mistake"); }
+      if (confidenceMap.has(q._id)) { weight += 30; tags.push("low_confidence"); }
+      weight += Math.random() * 10;
 
-      if (confidenceMap.has(q.id)) {
-        weight += 30;
-        tags.push('low_confidence');
-      }
-
-      weight += Math.random() * 10; // Jitter
-
-      // Parse options if necessary (similar to QuizLoader)
       let parsedOptions = q.options;
-      if (typeof parsedOptions === 'string') {
-        try { parsedOptions = JSON.parse(parsedOptions); } catch {}
+      if (typeof parsedOptions === "string") {
+        try { parsedOptions = JSON.parse(parsedOptions); } catch { parsedOptions = []; }
       }
 
       return {
-        ...q,
-        options: parsedOptions,
+        id: q._id,
+        question_text: q.question_text,
+        options: parsedOptions as string[],
+        correct_answer: q.correct_answer,
+        explanation: q.explanation ?? "",
+        question_type: "single_choice" as const,
+        order_index: q.order_index ?? 0,
         weight,
-        tags
+        tags,
       };
     });
 
-    // 3. Sort & Slice
-    weightedQuestions.sort((a, b) => b.weight - a.weight);
-
-    return weightedQuestions.slice(0, limit);
-
-  } catch (error) {
-    console.error('Error getting weighted questions:', error);
-    return []; // Fail safe: empty or fallback?
+    weighted.sort((a, b) => b.weight - a.weight);
+    return weighted.slice(0, limit);
+  } catch {
+    return [];
   }
 }

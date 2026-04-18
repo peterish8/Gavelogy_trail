@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth";
+import { useAuth } from "@/lib/auth-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -43,7 +44,8 @@ export default function SignupPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { signup, signInWithGoogle, user, isLoading, isAuthenticated } = useAuthStore();
+  const { signup, user, isLoading, isAuthenticated } = useAuthStore();
+  const { signInWithGoogle } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function SignupPage() {
     if (message) { setError(message); return; }
     if (errorParam) {
       const msgs: Record<string, string> = {
-        supabase_not_configured: "Google sign-up is not configured yet.",
+        oauth_not_configured: "Google sign-up is not configured yet.",
         auth_callback_failed: "Google sign-up failed. Please try again.",
         no_session: "No active session found. Please try signing up again.",
         unexpected_error: "An unexpected error occurred. Please try again.",
