@@ -71,6 +71,10 @@ export default defineSchema({
     is_active: v.optional(v.boolean()),
     is_free: v.optional(v.boolean()),
     icon: v.optional(v.string()),
+    description: v.string(),
+    price: v.number(),
+    is_active: v.boolean(),
+    is_free: v.optional(v.boolean()),
   }),
 
   subjects: defineTable({
@@ -78,6 +82,9 @@ export default defineSchema({
     description: v.optional(v.string()),
     courseId: v.optional(v.id("courses")),
     order_index: v.optional(v.number()),
+    description: v.string(),
+    courseId: v.id("courses"),
+    order_index: v.number(),
   }).index("by_course", ["courseId"]),
 
   quizzes: defineTable({
@@ -148,6 +155,13 @@ export default defineSchema({
   quiz_questions: defineTable({
     quiz_id: v.optional(v.id("attached_quizzes")),
     quizId: v.optional(v.id("attached_quizzes")),
+    title: v.optional(v.string()),
+    passing_score: v.optional(v.number()),
+    noteItemId: v.optional(v.id("structure_items")),
+  }).index("by_note_item", ["noteItemId"]),
+
+  quiz_questions: defineTable({
+    quizId: v.id("attached_quizzes"),
     question_text: v.string(),
     options: v.array(v.string()),
     correct_answer: v.string(),
@@ -155,6 +169,7 @@ export default defineSchema({
     order_index: v.optional(v.number()),
   }).index("by_quiz", ["quizId"])
     .index("by_quiz_new", ["quiz_id"]),
+  }).index("by_quiz", ["quizId"]),
 
   // ─── Quiz & Mock Attempts ─────────────────────────────────────────────────
   quiz_attempts: defineTable({
@@ -553,6 +568,7 @@ export default defineSchema({
     draft_data: v.optional(v.any()),
   }).index("by_user", ["userId"])
     .index("by_content", ["original_content_id"]),
+  }).index("by_user", ["userId"]),
   
   // ─── Daily News ───────────────────────────────────────────────────────────
   daily_news: defineTable({
@@ -566,6 +582,15 @@ export default defineSchema({
     source_paper: v.optional(v.string()),
     status: v.optional(v.string()),
     display_order: v.optional(v.number()),
+    title: v.string(),
+    content_custom: v.string(),
+    content_html: v.optional(v.string()),
+    summary: v.string(),
+    keywords: v.array(v.string()),
+    category: v.string(),
+    source_paper: v.string(),
+    status: v.union(v.literal("draft"), v.literal("published")),
+    display_order: v.number(),
     subject: v.optional(v.string()),
     topic: v.optional(v.string()),
     court: v.optional(v.string()),
@@ -573,6 +598,7 @@ export default defineSchema({
     exam_probability: v.optional(v.string()),
     capsule: v.optional(v.string()),
     facts: v.optional(v.any()),
+    facts: v.optional(v.array(v.string())),
     provisions: v.optional(v.any()),
     holdings: v.optional(v.any()),
     doctrine: v.optional(v.any()),

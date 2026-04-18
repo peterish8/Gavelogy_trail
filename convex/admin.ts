@@ -281,6 +281,11 @@ export const getAllAttachedQuizzes = query({
           .query("quiz_questions")
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .withIndex("by_quiz", (q) => q.eq("quizId", quiz._id as any))
+        const item = quiz.noteItemId ? await ctx.db.get(quiz.noteItemId) : null;
+        const course = item?.courseId ? await ctx.db.get(item.courseId) : null;
+        const questions = await ctx.db
+          .query("quiz_questions")
+          .withIndex("by_quiz", (q) => q.eq("quizId", quiz._id))
           .collect();
         return { ...quiz, item, course, questionCount: questions.length };
       })
