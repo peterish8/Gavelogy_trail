@@ -60,7 +60,7 @@ export const getNewsByDate = query({
       .collect();
     
     // Sort by display_order
-    return data.sort((a, b) => a.display_order - b.display_order);
+    return data.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   },
 });
 

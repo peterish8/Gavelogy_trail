@@ -272,11 +272,15 @@ export const getAllAttachedQuizzes = query({
     const quizzes = await ctx.db.query("attached_quizzes").collect();
     return Promise.all(
       quizzes.map(async (quiz) => {
-        const item = quiz.noteItemId ? await ctx.db.get(quiz.noteItemId) : null;
-        const course = item?.courseId ? await ctx.db.get(item.courseId) : null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const itemId = (quiz as any).note_item_id ?? quiz.noteItemId;
+        const item = itemId ? await ctx.db.get(itemId as any) : null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const course = (item as any)?.courseId ? await ctx.db.get((item as any).courseId) : null;
         const questions = await ctx.db
           .query("quiz_questions")
-          .withIndex("by_quiz", (q) => q.eq("quizId", quiz._id))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .withIndex("by_quiz", (q) => q.eq("quizId", quiz._id as any))
           .collect();
         return { ...quiz, item, course, questionCount: questions.length };
       })
@@ -354,5 +358,42 @@ export const getMockTestQuestions = query({
       .query("mock_test_questions")
       .withIndex("by_mock_test", (q: any) => q.eq("mockTestId", mockTestId))
       .collect();
+  },
+});
+
+// One-shot migration: rename noteItemId → note_item_id in attached_quizzes
+// and quizId → quiz_id in quiz_questions
+export const migrateAttachedQuizzes = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("attached_quizzes").collect();
+    let migratedQuizzes = 0;
+    for (const row of rows) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const legacy = (row as any).noteItemId;
+      if (legacy && !(row as any).note_item_id) {
+        await ctx.db.patch(row._id, {
+          note_item_id: legacy,
+          noteItemId: undefined,
+        } as any);
+        migratedQuizzes++;
+      }
+    }
+
+    const questions = await ctx.db.query("quiz_questions").collect();
+    let migratedQuestions = 0;
+    for (const row of questions) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const legacy = (row as any).quizId;
+      if (legacy && !(row as any).quiz_id) {
+        await ctx.db.patch(row._id, {
+          quiz_id: legacy,
+          quizId: undefined,
+        } as any);
+        migratedQuestions++;
+      }
+    }
+
+    return { migratedQuizzes, migratedQuestions };
   },
 });
