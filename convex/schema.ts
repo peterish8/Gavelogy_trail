@@ -66,6 +66,11 @@ export default defineSchema({
   // ─── Courses & Content Structure ─────────────────────────────────────────
   courses: defineTable({
     name: v.string(),
+    description: v.optional(v.string()),
+    price: v.optional(v.number()),
+    is_active: v.optional(v.boolean()),
+    is_free: v.optional(v.boolean()),
+    icon: v.optional(v.string()),
     description: v.string(),
     price: v.number(),
     is_active: v.boolean(),
@@ -74,6 +79,9 @@ export default defineSchema({
 
   subjects: defineTable({
     name: v.string(),
+    description: v.optional(v.string()),
+    courseId: v.optional(v.id("courses")),
+    order_index: v.optional(v.number()),
     description: v.string(),
     courseId: v.id("courses"),
     order_index: v.number(),
@@ -137,6 +145,16 @@ export default defineSchema({
   }).index("by_item", ["itemId"]),
 
   attached_quizzes: defineTable({
+    note_item_id: v.optional(v.id("structure_items")),
+    noteItemId: v.optional(v.id("structure_items")),
+    title: v.optional(v.string()),
+    passing_score: v.optional(v.number()),
+  }).index("by_note_item", ["noteItemId"])
+    .index("by_item", ["note_item_id"]),
+
+  quiz_questions: defineTable({
+    quiz_id: v.optional(v.id("attached_quizzes")),
+    quizId: v.optional(v.id("attached_quizzes")),
     title: v.optional(v.string()),
     passing_score: v.optional(v.number()),
     noteItemId: v.optional(v.id("structure_items")),
@@ -149,6 +167,8 @@ export default defineSchema({
     correct_answer: v.string(),
     explanation: v.optional(v.string()),
     order_index: v.optional(v.number()),
+  }).index("by_quiz", ["quizId"])
+    .index("by_quiz_new", ["quiz_id"]),
   }).index("by_quiz", ["quizId"]),
 
   // ─── Quiz & Mock Attempts ─────────────────────────────────────────────────
@@ -546,11 +566,22 @@ export default defineSchema({
     userId: v.optional(v.id("users")),
     original_content_id: v.string(),
     draft_data: v.optional(v.any()),
+  }).index("by_user", ["userId"])
+    .index("by_content", ["original_content_id"]),
   }).index("by_user", ["userId"]),
   
   // ─── Daily News ───────────────────────────────────────────────────────────
   daily_news: defineTable({
     date: v.string(),
+    title: v.optional(v.string()),
+    content_custom: v.optional(v.string()),
+    content_html: v.optional(v.string()),
+    summary: v.optional(v.string()),
+    keywords: v.optional(v.array(v.string())),
+    category: v.optional(v.string()),
+    source_paper: v.optional(v.string()),
+    status: v.optional(v.string()),
+    display_order: v.optional(v.number()),
     title: v.string(),
     content_custom: v.string(),
     content_html: v.optional(v.string()),
@@ -566,6 +597,7 @@ export default defineSchema({
     priority: v.optional(v.string()),
     exam_probability: v.optional(v.string()),
     capsule: v.optional(v.string()),
+    facts: v.optional(v.any()),
     facts: v.optional(v.array(v.string())),
     provisions: v.optional(v.any()),
     holdings: v.optional(v.any()),
@@ -576,4 +608,71 @@ export default defineSchema({
     exam_rank: v.optional(v.number()),
   }).index("by_date", ["date"])
     .index("by_status", ["status"]),
+
+  standalone_quizzes: defineTable({
+    title: v.string(),
+    description: v.optional(v.string()),
+    subject_id: v.optional(v.id("subjects")),
+    order_index: v.optional(v.number()),
+  }),
+
+  standalone_questions: defineTable({
+    quiz_id: v.id("standalone_quizzes"),
+    question_text: v.string(),
+    option_a: v.optional(v.string()),
+    option_b: v.optional(v.string()),
+    option_c: v.optional(v.string()),
+    option_d: v.optional(v.string()),
+    correct_answer: v.string(),
+    explanation: v.optional(v.string()),
+    order_index: v.optional(v.number()),
+  }).index("by_quiz", ["quiz_id"]),
+
+  pyq_tests: defineTable({
+    title: v.string(),
+    exam_name: v.optional(v.string()),
+    year: v.optional(v.number()),
+    duration_minutes: v.optional(v.number()),
+    total_marks: v.optional(v.number()),
+    negative_marking: v.optional(v.number()),
+    instructions: v.optional(v.string()),
+    is_published: v.optional(v.boolean()),
+  }),
+
+  pyq_passages: defineTable({
+    test_id: v.id("pyq_tests"),
+    passage_text: v.string(),
+    citation: v.optional(v.string()),
+    section_number: v.optional(v.string()),
+    subject: v.optional(v.string()),
+    order_index: v.optional(v.number()),
+  }).index("by_test", ["test_id"]),
+
+  pyq_questions: defineTable({
+    test_id: v.id("pyq_tests"),
+    passage_id: v.optional(v.id("pyq_passages")),
+    order_index: v.optional(v.number()),
+    question_text: v.string(),
+    option_a: v.optional(v.string()),
+    option_b: v.optional(v.string()),
+    option_c: v.optional(v.string()),
+    option_d: v.optional(v.string()),
+    correct_answer: v.optional(v.string()),
+    explanation: v.optional(v.string()),
+    marks: v.optional(v.number()),
+    question_type: v.optional(v.string()),
+    subject: v.optional(v.string()),
+  }).index("by_test", ["test_id"]),
+
+  case_notes: defineTable({
+    case_number: v.string(),
+    overall_content: v.optional(v.string()),
+  }).index("by_case_number", ["case_number"]),
+
+  telegram_sessions: defineTable({
+    chat_id: v.number(),
+    state: v.optional(v.string()),
+    data: v.optional(v.any()),
+    user_name: v.optional(v.string()),
+  }).index("by_chat_id", ["chat_id"]),
 });
